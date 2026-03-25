@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { ArrowDown, ArrowUp, Building2, ChevronDown } from "lucide-react";
 import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
