@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Snowflake } from "lucide-react";
+import { useSimInput, useSimResult } from "@/lib/SimContext";
 
 const fadeIn = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, ease: "easeOut" as const } };
 
@@ -30,9 +31,15 @@ function SourceLabel({ text, show }: { text: string; show: boolean }) {
 }
 
 export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtemp: false, simultaneous: false } }: PIDDiagramProps) {
+  const { input } = useSimInput();
+  const result = useSimResult();
+
   const showFlow = buildStep >= 38;
   const showTemps = buildStep >= 36;
   const showReturn = buildStep >= 34;
+
+  const sfpColor = result.sfpActual > 1.5 ? "text-vh-red" : result.sfpActual > 1.3 ? "text-vh-yellow" : "text-vh-green";
+  const gjenvinnerColor = result.heatRecoveryActual < 0.80 ? "text-vh-yellow" : "text-vh-green";
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -52,7 +59,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                   <>
                     <PipeArrow color="red" animate={showFlow} />
                     <motion.div {...fadeIn}>
-                      <EquipmentNode icon="samlestokk" label="Samlestokk" color="red" temp={showTemps ? "55°C" : ""} />
+                      <EquipmentNode icon="samlestokk" label="Samlestokk" color="red" temp={showTemps ? `${input.heatingTurRetur[0]}°C` : ""} />
                       <SourceLabel text="fra s.9" show={buildStep >= 8 && buildStep < 40} />
                     </motion.div>
                   </>
@@ -63,7 +70,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                     <div className="flex flex-col gap-2">
                       {buildStep >= 10 && (
                         <motion.div {...fadeIn}>
-                          <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp={showTemps ? "55/40°C" : ""} highlight={highlights.simultaneous ? "red" : undefined} />
+                          <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp={showTemps ? `${input.heatingTurRetur[0]}/${input.heatingTurRetur[1]}°C` : ""} highlight={highlights.simultaneous ? "red" : undefined} />
                           <SourceLabel text="fra s.12" show={buildStep >= 10 && buildStep < 40} />
                         </motion.div>
                       )}
@@ -75,13 +82,13 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                       )}
                       {buildStep >= 12 && (
                         <motion.div {...fadeIn}>
-                          <BranchRow icon="varmebatteri" label="Varmebatteri AHU (20%)" color="red" temp={showTemps ? "55/35°C" : ""} />
+                          <BranchRow icon="varmebatteri" label="Varmebatteri AHU (20%)" color="red" temp={showTemps ? `${input.heatingTurRetur[0]}/35°C` : ""} />
                           <SourceLabel text="fra s.15" show={buildStep >= 12 && buildStep < 40} />
                         </motion.div>
                       )}
                       {buildStep >= 14 && (
                         <motion.div {...fadeIn}>
-                          <BranchRow icon="pumpe" label="Luftporter (5%)" color="red" temp={showTemps ? "55/40°C" : ""} />
+                          <BranchRow icon="pumpe" label="Luftporter (5%)" color="red" temp={showTemps ? `${input.heatingTurRetur[0]}/${input.heatingTurRetur[1]}°C` : ""} />
                           <SourceLabel text="fra s.16" show={buildStep >= 14 && buildStep < 40} />
                         </motion.div>
                       )}
@@ -93,7 +100,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                 <motion.div {...fadeIn} className="mt-1 flex items-center gap-3 pl-2">
                   <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
                   <ReturnPipe color="red" animate={showFlow} />
-                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "40°C" : ""}</span>
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? `${input.heatingTurRetur[1]}°C` : ""}</span>
                   <ReturnPipe color="red" animate={showFlow} />
                   <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "35°C" : ""}</span>
                 </motion.div>
@@ -122,23 +129,23 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
               <p className="mb-3 text-xs font-medium text-vh-blue">Kjølesystem</p>
               <div className="flex items-start gap-3">
                 <motion.div {...fadeIn}>
-                  <EquipmentNode icon="kjølemaskin" label="Kjølemaskin 400kW" color="blue" temp={showTemps ? "COP 4.5" : ""} />
+                  <EquipmentNode icon="kjølemaskin" label="Kjølemaskin 400kW" color="blue" temp={showTemps ? `COP ${input.cop}` : ""} />
                   <SourceLabel text="fra s.22" show={buildStep >= 16 && buildStep < 40} />
                 </motion.div>
                 {buildStep >= 18 && (
                   <>
                     <PipeArrow color="blue" animate={showFlow} />
                     <motion.div {...fadeIn}>
-                      <EquipmentNode icon="isvannstank" label="Isvann" color="blue" temp={showTemps ? "6/12°C" : ""} />
+                      <EquipmentNode icon="isvannstank" label="Isvann" color="blue" temp={showTemps ? `${input.coolingTurRetur[0]}/${input.coolingTurRetur[1]}°C` : ""} />
                       <SourceLabel text="fra s.23" show={buildStep >= 18 && buildStep < 40} />
                     </motion.div>
                     <PipeArrow color="blue" animate={showFlow} />
                     <div className="flex flex-col gap-2">
                       <motion.div {...fadeIn}>
-                        <BranchRow icon="kjølebafel" label="180 Kjølebafler" color="blue" temp={showTemps ? "600W/stk" : ""} highlight={highlights.simultaneous ? "red" : undefined} />
+                        <BranchRow icon="kjølebafel" label={`${input.numCoolingBaffles} Kjølebafler`} color="blue" temp={showTemps ? `${input.baffleCapacity}W/stk` : ""} highlight={highlights.simultaneous ? "red" : undefined} />
                       </motion.div>
                       <motion.div {...fadeIn} transition={{ delay: 0.2 }}>
-                        <BranchRow icon="kjølebatteri" label="Isvannsbatteri AHU" color="blue" temp={showTemps ? "6/12°C" : ""} />
+                        <BranchRow icon="kjølebatteri" label="Isvannsbatteri AHU" color="blue" temp={showTemps ? `${input.coolingTurRetur[0]}/${input.coolingTurRetur[1]}°C` : ""} />
                       </motion.div>
                     </div>
                   </>
@@ -148,7 +155,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                 <motion.div {...fadeIn} className="mt-1 flex items-center gap-3 pl-2">
                   <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
                   <ReturnPipe color="blue" animate={showFlow} />
-                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "12°C" : ""}</span>
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? `${input.coolingTurRetur[1]}°C` : ""}</span>
                 </motion.div>
               )}
             </motion.div>
@@ -170,7 +177,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                 <div className="flex items-center gap-0">
                   {[
                     { label: "Filter F7", icon: "filter", step: 24, src: "s.30" },
-                    { label: "Gjenvinner 82%", icon: "gjenvinner", step: 25, src: "s.31" },
+                    { label: `Gjenvinner ${Math.round(input.heatRecoveryEff * 100)}%`, icon: "gjenvinner", step: 25, src: "s.31", colorOverride: gjenvinnerColor },
                     { label: "Varmebatteri", icon: "varmebatteri", step: 26, src: "s.32" },
                     { label: "Kjølebatteri", icon: "kjølebatteri", step: 27, src: "s.33" },
                     { label: "Vifte", icon: "vifte", step: 28, src: "s.34", highlight: highlights.sfp ? "red" as const : undefined },
@@ -191,7 +198,7 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                             transition={{ duration: 0.3 }}
                           >
                             <AHUIcon type={comp.icon} />
-                            <span className="mt-1 text-[9px] font-medium text-vh-green whitespace-nowrap">{comp.label}</span>
+                            <span className={`mt-1 text-[9px] font-medium whitespace-nowrap ${(comp as any).colorOverride || "text-vh-green"}`}>{comp.label}</span>
                             {comp.highlight === "red" && (
                               <span className="text-[8px] font-medium text-vh-red">SFP ⚠</span>
                             )}
@@ -219,14 +226,36 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
                 </div>
               </motion.div>
               {showTemps && (
-                <motion.p {...fadeIn} className="mt-2 text-[10px] text-muted-foreground font-mono tabular-nums">
-                  Tilluft: 42 000 m³/h | Avtrekk: 40 500 m³/h | SFP: 1.5 kW/(m³/s)
+                <motion.p {...fadeIn} className="mt-2 text-[10px] font-mono tabular-nums">
+                  <span className="text-muted-foreground">Tilluft: {input.airflowSupply.toLocaleString("nb-NO")} m³/h | Avtrekk: {input.airflowExtract.toLocaleString("nb-NO")} m³/h | </span>
+                  <span className={sfpColor}>SFP: {input.sfpDesign} kW/(m³/s){result.sfpActual > 1.5 ? " ⚠" : ""}</span>
                 </motion.p>
               )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Live summary bar */}
+      {buildStep >= 36 && (
+        <motion.div
+          className={`mt-4 flex items-center justify-between rounded-lg border px-4 py-2 text-xs font-mono tabular-nums ${
+            result.exceedsTEK17
+              ? "border-vh-red/30 bg-vh-red/5"
+              : "border-vh-green/30 bg-vh-green/5"
+          }`}
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <span className={result.exceedsTEK17 ? "text-vh-red" : "text-vh-green"}>
+            Beregnet energibehov: {Math.round(result.totalEnergyKwhM2)} kWh/m²·år
+            {result.exceedsTEK17 ? ` (TEK17: ${result.tek17Limit})` : ""}
+          </span>
+          <span className={result.healthScore >= 75 ? "text-vh-green" : result.healthScore >= 50 ? "text-vh-yellow" : "text-vh-red"}>
+            Bygningshelse: {result.healthScore}/100
+          </span>
+        </motion.div>
+      )}
     </div>
   );
 }
