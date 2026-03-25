@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "./components/AppLayout";
 import Driftsmorgen from "./pages/Driftsmorgen";
+import Datainput from "./pages/Datainput";
+import Simulering from "./pages/Simulering";
 import StubPage from "./pages/StubPage";
 import NotFound from "./pages/NotFound";
 
