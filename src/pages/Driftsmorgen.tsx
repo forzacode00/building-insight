@@ -192,6 +192,9 @@ export default function Driftsmorgen() {
         </div>
       </motion.section>
 
+      {/* Inneklima-status */}
+      <InneklimaSection />
+
       {/* Tid spart */}
       <motion.section variants={item} className="mb-8">
         <div className="rounded-xl border border-border bg-card p-5">
@@ -247,5 +250,110 @@ export default function Driftsmorgen() {
         </div>
       </motion.section>
     </motion.div>
+  );
+}
+
+/* ─── Inneklima-status ─── */
+
+type Complaint = "For varmt 🌡️" | "For kaldt 🥶" | "Dårlig luft 😤" | "Trekk 💨" | "Støy 🔊";
+
+interface InneklimaEntry {
+  time: string;
+  zone: string;
+  type: Complaint;
+  status: { color: string; text: string };
+}
+
+const ZONES = ["2. etg nord", "2. etg sør", "3. etg", "4. etg nord", "4. etg sør", "5. etg"];
+const COMPLAINT_TYPES: Complaint[] = ["For varmt 🌡️", "For kaldt 🥶", "Dårlig luft 😤", "Trekk 💨", "Støy 🔊"];
+
+function resolveStatus(zone: string, type: Complaint): InneklimaEntry["status"] {
+  if (zone === "4. etg sør" && type.startsWith("For varmt"))
+    return { color: "text-emerald-400", text: "Bekreftet: SD-data viser 23.4°C (over 22°C-grense) ✓" };
+  if (zone === "3. etg" && type.startsWith("Dårlig luft"))
+    return { color: "text-emerald-400", text: "CO₂: 680 ppm (under 800 ppm-grense) ✓" };
+  if (zone === "2. etg nord" && type.startsWith("For kaldt"))
+    return { color: "text-emerald-400", text: "Bekreftet: SD-data viser 19.2°C (under 21°C-grense) ✓" };
+  if (type.startsWith("Støy"))
+    return { color: "text-yellow-400", text: "Ingen SD-data for lydnivå" };
+  return { color: "text-yellow-400", text: "Ingen SD-data for sone" };
+}
+
+const INITIAL_ENTRIES: InneklimaEntry[] = [
+  { time: "08:14", zone: "4. etg sør", type: "For varmt 🌡️", status: { color: "text-emerald-400", text: "Bekreftet: SD-data viser 23.4°C (over 22°C-grense) ✓" } },
+  { time: "07:55", zone: "3. etg", type: "Dårlig luft 😤", status: { color: "text-emerald-400", text: "CO₂: 680 ppm (under 800 ppm-grense) ✓" } },
+];
+
+function InneklimaSection() {
+  const [entries, setEntries] = useState<InneklimaEntry[]>(INITIAL_ENTRIES);
+  const [zone, setZone] = useState(ZONES[0]);
+  const [complaint, setComplaint] = useState<Complaint>(COMPLAINT_TYPES[0]);
+
+  const handleSubmit = () => {
+    const now = new Date();
+    const time = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    const entry: InneklimaEntry = { time, zone, type: complaint, status: resolveStatus(zone, complaint) };
+    setEntries((prev) => [entry, ...prev].slice(0, 5));
+  };
+
+  return (
+    <motion.section variants={item} className="mb-8">
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+        🏢 Inneklima-status — Leietakerrapporter
+      </h2>
+
+      {/* Del A — Innmeldingsskjema */}
+      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4">
+        <div className="flex-1 min-w-[140px]">
+          <label className="mb-1 block text-xs text-muted-foreground">Etasje/sone</label>
+          <select
+            value={zone}
+            onChange={(e) => setZone(e.target.value)}
+            className="w-full rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground"
+          >
+            {ZONES.map((z) => <option key={z} value={z}>{z}</option>)}
+          </select>
+        </div>
+        <div className="flex-1 min-w-[160px]">
+          <label className="mb-1 block text-xs text-muted-foreground">Type klage</label>
+          <select
+            value={complaint}
+            onChange={(e) => setComplaint(e.target.value as Complaint)}
+            className="w-full rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground"
+          >
+            {COMPLAINT_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+        <button
+          onClick={handleSubmit}
+          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-500"
+        >
+          + Meld inn
+        </button>
+      </div>
+
+      {/* Del B — Logg */}
+      <div className="space-y-2">
+        {entries.map((e, i) => (
+          <div key={`${e.time}-${i}`} className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
+            <span className="mt-0.5 shrink-0 rounded-md bg-secondary px-2 py-0.5 text-xs font-mono text-muted-foreground">
+              kl. {e.time}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                {e.zone} — {e.type}
+              </p>
+              <p className={`mt-0.5 text-xs ${e.status.color}`}>
+                {e.status.text}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-3 text-[11px] text-muted-foreground/70">
+        Innmeldinger lagres lokalt. Kontakt driftsansvarlig for tiltak.
+      </p>
+    </motion.section>
   );
 }
