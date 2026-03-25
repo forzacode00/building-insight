@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Snowflake } from "lucide-react";
 
-const fadeIn = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, ease: "easeOut" } };
+const fadeIn = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, ease: "easeOut" as const } };
 
 interface PIDDiagramProps {
   buildStep?: number;
