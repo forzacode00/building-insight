@@ -1,30 +1,5 @@
 import { motion } from "framer-motion";
 
-const pipes = [
-  { id: "fjernvarme", label: "Fjernvarmesentral", x: 40, y: 30, color: "var(--vh-red)" },
-  { id: "samlestokk", label: "Samlestokk", x: 200, y: 30, color: "var(--vh-red)" },
-  { id: "radiator", label: "Radiatorkurs", x: 360, y: 10, color: "var(--vh-red)" },
-  { id: "gulvvarme", label: "Gulvvarme", x: 360, y: 35, color: "var(--vh-red)" },
-  { id: "varmebatteri", label: "Varmebatteri AHU", x: 360, y: 60, color: "var(--vh-red)" },
-  { id: "aerotemp", label: "Aerotempere", x: 360, y: 85, color: "var(--vh-red)" },
-  { id: "kjolem", label: "Kjølemaskin", x: 40, y: 130, color: "var(--vh-blue)" },
-  { id: "isvann", label: "Isvann", x: 200, y: 130, color: "var(--vh-blue)" },
-  { id: "bafler", label: "Kjølebafler", x: 360, y: 120, color: "var(--vh-blue)" },
-  { id: "isvannahu", label: "Isvannsbatteri AHU", x: 360, y: 145, color: "var(--vh-blue)" },
-  { id: "ahu", label: "AHU", x: 40, y: 220, color: "var(--vh-green)" },
-];
-
-const connections = [
-  { from: "fjernvarme", to: "samlestokk" },
-  { from: "samlestokk", to: "radiator" },
-  { from: "samlestokk", to: "gulvvarme" },
-  { from: "samlestokk", to: "varmebatteri" },
-  { from: "samlestokk", to: "aerotemp" },
-  { from: "kjolem", to: "isvann" },
-  { from: "isvann", to: "bafler" },
-  { from: "isvann", to: "isvannahu" },
-];
-
 export function PIDDiagram() {
   return (
     <div className="rounded-xl border border-border bg-card p-5">
@@ -70,11 +45,13 @@ export function PIDDiagram() {
                   <span className="text-[10px] font-medium text-vh-green">{step}</span>
                 </div>
                 {i < 7 && (
-                  <motion.div
-                    className="h-0.5 w-4 bg-vh-green/50"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
-                  />
+                  <div className="relative h-0.5 w-6 bg-vh-green/20 overflow-hidden">
+                    <motion.div
+                      className="absolute top-0 left-0 h-full w-2 rounded-full bg-vh-green"
+                      animate={{ x: [0, 16, 0] }}
+                      transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: i * 0.15 }}
+                    />
+                  </div>
                 )}
               </div>
             ))}
@@ -90,21 +67,24 @@ function PipeNode({ label, color, temp }: { label: string; color: string; temp: 
   const borderClass = color === "red" ? "border-vh-red/40 bg-vh-red/10" : color === "blue" ? "border-vh-blue/40 bg-vh-blue/10" : "border-vh-green/40 bg-vh-green/10";
   const textClass = color === "red" ? "text-vh-red" : color === "blue" ? "text-vh-blue" : "text-vh-green";
   return (
-    <div className={`rounded-lg border ${borderClass} px-3 py-2 text-center`}>
+    <div className={`rounded-xl border ${borderClass} px-3 py-2 text-center`}>
       <p className={`text-xs font-semibold ${textClass}`}>{label}</p>
-      <p className="text-[10px] text-muted-foreground">{temp}</p>
+      <p className="text-[10px] text-muted-foreground font-mono tabular-nums">{temp}</p>
     </div>
   );
 }
 
 function PipeArrow({ color }: { color: string }) {
-  const bgClass = color === "red" ? "bg-vh-red/50" : color === "blue" ? "bg-vh-blue/50" : "bg-vh-green/50";
+  const bgClass = color === "red" ? "bg-vh-red/20" : color === "blue" ? "bg-vh-blue/20" : "bg-vh-green/20";
+  const dotClass = color === "red" ? "bg-vh-red" : color === "blue" ? "bg-vh-blue" : "bg-vh-green";
   return (
-    <motion.div
-      className={`h-0.5 w-8 ${bgClass}`}
-      animate={{ opacity: [0.3, 1, 0.3] }}
-      transition={{ duration: 1.2, repeat: Infinity }}
-    />
+    <div className={`relative h-0.5 w-8 ${bgClass} overflow-hidden`}>
+      <motion.div
+        className={`absolute top-[-1px] left-0 h-1 w-1 rounded-full ${dotClass}`}
+        animate={{ x: [0, 28, 0] }}
+        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+      />
+    </div>
   );
 }
 
@@ -119,7 +99,7 @@ function PipeBranch({ label, color, temp }: { label: string; color: string; temp
         transition={{ duration: 1, repeat: Infinity }}
       />
       <span className={`text-[10px] font-medium ${textClass}`}>{label}</span>
-      <span className="text-[9px] text-muted-foreground">{temp}</span>
+      <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{temp}</span>
     </div>
   );
 }

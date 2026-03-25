@@ -41,7 +41,7 @@ export default function Simulering() {
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Simulering — Parkveien Kontorbygg</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Simulering — Parkveien Kontorbygg</h1>
           <p className="text-sm text-muted-foreground">Helårssimulering med 8 760 timer</p>
         </div>
         <div className="flex gap-2">

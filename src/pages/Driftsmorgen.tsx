@@ -1,6 +1,7 @@
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, AlertCircle, Zap, Network, ClipboardList, TrendingUp, Clock, ChevronRight } from "lucide-react";
-import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
+import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import { useNavigate } from "react-router-dom";
 
 const energiData = [
@@ -28,8 +29,33 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
+function useCountUp(target: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const start = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.round(target * eased));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [target, duration]);
+
+  return value;
+}
+
 export default function Driftsmorgen() {
   const navigate = useNavigate();
+  const kwhValue = useCountUp(2340, 1400);
+  const pctValue = useCountUp(73, 1200); // for +7.3%
 
   return (
     <motion.div
@@ -42,7 +68,7 @@ export default function Driftsmorgen() {
       <motion.div variants={item} className="mb-8 flex items-center gap-3">
         <span className="text-3xl">☀️</span>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             God morgen! Parkveien Kontorbygg
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -59,7 +85,7 @@ export default function Driftsmorgen() {
           <div className="rounded-xl border-l-4 border-vh-yellow bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-vh-yellow" />
-              <span className="text-sm font-bold text-vh-yellow">⚠️ Romtemperatur overskredet — Sone 4.etg sør</span>
+              <span className="text-sm font-bold text-vh-yellow">Romtemperatur overskredet — Sone 4.etg sør</span>
             </div>
             <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
               Maks 26.4°C kl. 03:12. Settpunkt natt: 19°C. Sannsynlig årsak: soloppvarming fra sørfasade + kjøling av etter kl. 22:00.
@@ -76,7 +102,7 @@ export default function Driftsmorgen() {
           <div className="rounded-xl border-l-4 border-vh-red bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-vh-red" />
-              <span className="text-sm font-bold text-vh-red">🔴 SFP over TEK17-grense — AHU-3</span>
+              <span className="text-sm font-bold text-vh-red">SFP over TEK17-grense — AHU-3</span>
             </div>
             <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
               Målt SFP 1.82 kW/(m³/s), krav ≤ 1.5. Mulig årsak: tilsmusset filter eller feil på frekvensomformer.
@@ -94,19 +120,21 @@ export default function Driftsmorgen() {
       {/* Energistatus */}
       <motion.section variants={item} className="mb-8">
         <h2 className="mb-4 text-lg font-semibold text-foreground">Energistatus i går</h2>
-        <div className="rounded-xl bg-card p-5">
+        <div className="rounded-xl border border-border bg-card p-5">
           <div className="mb-4 flex flex-wrap items-end gap-6">
             <div>
               <p className="text-sm text-muted-foreground">I går</p>
-              <p className="text-3xl font-bold text-foreground">2,340 <span className="text-base font-normal text-muted-foreground">kWh</span></p>
+              <p className="text-5xl font-bold text-foreground font-mono tabular-nums">
+                {kwhValue.toLocaleString("no-NO")} <span className="text-base font-normal font-sans text-muted-foreground">kWh</span>
+              </p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Normal (30-dagers snitt)</p>
-              <p className="text-xl font-semibold text-muted-foreground">2,180 kWh</p>
+              <p className="text-xl font-semibold text-muted-foreground font-mono tabular-nums">2,180 kWh</p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-vh-red/15 px-3 py-1">
               <TrendingUp className="h-4 w-4 text-vh-red" />
-              <span className="text-sm font-bold text-vh-red">+7.3% over normalt</span>
+              <span className="text-sm font-bold text-vh-red font-mono tabular-nums">+{(pctValue / 10).toFixed(1)}% over normalt</span>
             </div>
           </div>
 
@@ -126,6 +154,7 @@ export default function Driftsmorgen() {
                   labelStyle={{ color: "hsl(215, 20%, 55%)" }}
                   formatter={(v: number) => [`${v} kWh`, "Forbruk"]}
                 />
+                <ReferenceLine y={2180} stroke="hsl(0, 84%, 60%)" strokeDasharray="4 4" label={{ value: "Normal", fill: "hsl(0, 84%, 60%)", fontSize: 10, position: "right" }} />
                 <Area type="monotone" dataKey="kwh" stroke="hsl(213, 52%, 63%)" fill="url(#energiGradient)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
@@ -140,7 +169,7 @@ export default function Driftsmorgen() {
 
       {/* Tid spart */}
       <motion.section variants={item} className="mb-8">
-        <div className="rounded-xl bg-card p-5">
+        <div className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center gap-3">
             <Clock className="h-5 w-5 text-primary" />
             <div>
@@ -156,16 +185,16 @@ export default function Driftsmorgen() {
         <h2 className="mb-4 text-lg font-semibold text-foreground">Hurtighandlinger</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            { icon: Zap, label: "Simuler endring", path: "/simulering", color: "text-vh-yellow" },
-            { icon: Network, label: "Se nettverkskart", path: "/nettverkskart", color: "text-primary" },
-            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/datainput", color: "text-vh-green" },
+            { icon: Zap, label: "Simuler endring", path: "/simulering", color: "text-vh-yellow", glow: "shadow-[0_0_20px_rgba(234,179,8,0.1)]" },
+            { icon: Network, label: "Se nettverkskart", path: "/nettverkskart", color: "text-primary", glow: "shadow-[0_0_20px_rgba(59,130,246,0.1)]" },
+            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/datainput", color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
           ].map((action) => (
             <button
               key={action.path}
               onClick={() => navigate(action.path)}
-              className="group flex items-center gap-3 rounded-xl bg-card p-4 text-left transition-all hover:bg-secondary hover:vh-glow-blue"
+              className="group flex items-center gap-3 rounded-xl border border-border bg-card p-5 text-left transition-all hover:bg-secondary hover:vh-glow-blue"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-secondary">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-secondary ${action.glow}`}>
                 <action.icon className={`h-5 w-5 ${action.color}`} />
               </div>
               <span className="text-sm font-semibold text-foreground">{action.label}</span>
@@ -180,7 +209,7 @@ export default function Driftsmorgen() {
         <h2 className="mb-4 text-lg font-semibold text-foreground">Prosjekthistorikk</h2>
         <div className="space-y-3">
           {historikk.map((entry, i) => (
-            <div key={i} className="flex items-start gap-4 rounded-xl bg-card p-4">
+            <div key={i} className="flex items-start gap-4 rounded-xl border border-border bg-card p-5">
               <span className="mt-0.5 shrink-0 rounded-md bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">
                 {entry.dato}
               </span>
