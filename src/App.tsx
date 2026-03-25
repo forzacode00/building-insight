@@ -22,8 +22,8 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Driftsmorgen />} />
             <Route path="/prosjekt" element={<StubPage />} />
-            <Route path="/datainput" element={<StubPage />} />
-            <Route path="/simulering" element={<StubPage />} />
+            <Route path="/datainput" element={<Datainput />} />
+            <Route path="/simulering" element={<Simulering />} />
             <Route path="/sammenligning" element={<StubPage />} />
             <Route path="/nettverkskart" element={<StubPage />} />
             <Route path="/sd-live" element={<StubPage />} />
