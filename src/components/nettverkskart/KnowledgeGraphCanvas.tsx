@@ -295,6 +295,23 @@ export function KnowledgeGraphCanvas({
           ctx.stroke();
         }
 
+        // Icon hint inside node
+        if ((node as any).iconHint && !dimmed && r >= 8) {
+          const iconMap: Record<string, string> = {
+            thermometer: "🌡", sun: "☀", flame: "🔥", snowflake: "❄",
+            wind: "💨", cpu: "⚙", shield: "🛡", zap: "⚡", droplet: "💧",
+          };
+          const sym = iconMap[(node as any).iconHint];
+          if (sym) {
+            ctx.font = `${Math.max(8, r - 2)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.globalAlpha = dimmed ? 0.2 : 0.5;
+            ctx.fillText(sym, node.x, node.y);
+            ctx.globalAlpha = 1;
+          }
+        }
+
         // Label
         ctx.font = `${dimmed ? 300 : 500} 10px Inter, sans-serif`;
         ctx.fillStyle = dimmed ? "rgba(210, 220, 240, 0.2)" : "rgba(210, 220, 240, 0.9)";
