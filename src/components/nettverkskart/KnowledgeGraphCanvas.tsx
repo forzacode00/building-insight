@@ -344,7 +344,7 @@ export function KnowledgeGraphCanvas({
       const px = e.source.x + t * dx;
       const py = e.source.y + t * dy;
       const dist = Math.sqrt((x - px) ** 2 + (y - py) ** 2);
-      if (dist < 8 && e.label) return e;
+      if (dist < 8 && e.label) return e as unknown as GraphEdge;
     }
     return null;
   }, []);
