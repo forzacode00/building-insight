@@ -70,7 +70,7 @@ export default function Simulering() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showResults, setShowResults] = useState(false);
-  const [activeTab, setActiveTab] = useState("energi");
+  const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || "energi");
   const [demoMode, setDemoMode] = useState(false);
   const [simHighlights, setSimHighlights] = useState({ sfp: false, overtemp: false, simultaneous: false });
   const avvikRef = useRef<HTMLDivElement>(null);

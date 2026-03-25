@@ -4,11 +4,16 @@ import { Building2, MapPin, Calendar, Ruler, Award, ChevronDown, ChevronRight, C
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSimInput } from "@/lib/SimContext";
 
-const buildingInfo = [
+const LOCATIONS = [
+  { value: "oslo", label: "Oslo" },
+  { value: "bergen", label: "Bergen" },
+  { value: "trondheim", label: "Trondheim" },
+];
+
+const staticBuildingInfo = [
   { icon: Building2, label: "Bygningstype", value: "Kontorbygning" },
-  { icon: MapPin, label: "Sted", value: "Oslo" },
-  { icon: Ruler, label: "BTA / BRA", value: "7 200 / 6 000 m²" },
   { icon: Building2, label: "Etasjer", value: "9 (U1 + plan 1-8)" },
   { icon: Calendar, label: "Byggeår", value: "2024 (rehabilitering)" },
   { icon: Award, label: "Energimerke", value: "C" },
@@ -32,6 +37,7 @@ const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transiti
 
 export default function Prosjekt() {
   const navigate = useNavigate();
+  const { input, updateInput } = useSimInput();
   const [systems, setSystems] = useState(systemTree);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -62,7 +68,43 @@ export default function Prosjekt() {
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="mb-4 text-lg font-semibold text-foreground">Bygningsinformasjon</h2>
             <div className="space-y-4">
-              {buildingInfo.map((info) => (
+              {/* Editable: Sted */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Sted</p>
+                  <select
+                    value={input.location}
+                    onChange={(e) => updateInput("location", e.target.value as "oslo" | "bergen" | "trondheim")}
+                    className="mt-0.5 w-full rounded border border-border bg-secondary/50 px-2 py-1 text-sm font-semibold text-foreground"
+                  >
+                    {LOCATIONS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Editable: BRA */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Ruler className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">BTA / BRA</p>
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">7 200 /</span>
+                    <input
+                      type="number"
+                      value={input.bra}
+                      onChange={(e) => updateInput("bra", Number(e.target.value))}
+                      className="w-24 rounded border border-border bg-secondary/50 px-2 py-1 text-sm font-semibold text-foreground font-mono tabular-nums"
+                    />
+                    <span className="text-sm text-muted-foreground">m²</span>
+                  </div>
+                </div>
+              </div>
+              {/* Static info */}
+              {staticBuildingInfo.map((info) => (
                 <div key={info.label} className="flex items-center gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
                     <info.icon className="h-4 w-4 text-primary" />

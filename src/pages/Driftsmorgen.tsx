@@ -1,18 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, AlertCircle, Zap, Network, ClipboardList, TrendingUp, Clock, ChevronRight, Upload, Play } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import { useNavigate } from "react-router-dom";
-
-const energiData = [
-  { dag: "Man", kwh: 2180 },
-  { dag: "Tir", kwh: 2290 },
-  { dag: "Ons", kwh: 2150 },
-  { dag: "Tor", kwh: 2200 },
-  { dag: "Fre", kwh: 2100 },
-  { dag: "Lør", kwh: 1400 },
-  { dag: "Søn", kwh: 2340 },
-];
+import { useSimResult } from "@/lib/SimContext";
 
 const historikk = [
   { dato: "12. mars", beskrivelse: "Redusert turtemp 55→50°C", resultat: "Besparelse: NOK 34,000/år" },
@@ -51,10 +42,38 @@ function useCountUp(target: number, duration = 1200) {
   return value;
 }
 
+function getEnergimerke(kwhM2: number): string {
+  if (kwhM2 > 150) return "D";
+  if (kwhM2 > 130) return "C";
+  if (kwhM2 > 100) return "B";
+  return "A";
+}
+
+const DAY_LABELS = ["Man", "Tir", "Ons", "Tor", "Fre", "Lør", "Søn"];
+
 export default function Driftsmorgen() {
   const navigate = useNavigate();
-  const kwhValue = useCountUp(2340, 1400);
-  const pctValue = useCountUp(73, 1200);
+  const r = useSimResult();
+
+  const dailyAvg = Math.round((r.totalEnergyKwhM2 * 6000) / 365);
+  const normalDaily = Math.round(dailyAvg * 0.93);
+  const deltaPct = normalDaily > 0 ? (((dailyAvg - normalDaily) / normalDaily) * 100).toFixed(1) : "0.0";
+
+  const energimerke = getEnergimerke(r.totalEnergyKwhM2);
+
+  // Build sparkline from monthlyKwh — convert monthly kWh/m² to approximate daily kWh
+  const energiData = useMemo(() => {
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    // Pick 7 representative days from recent months
+    const recentMonths = r.monthlyKwh.slice(0, 7);
+    return recentMonths.map((mKwh, i) => ({
+      dag: DAY_LABELS[i],
+      kwh: Math.round((mKwh * 6000) / daysInMonth[i % 12]),
+    }));
+  }, [r.monthlyKwh]);
+
+  const kwhValue = useCountUp(dailyAvg, 1400);
+  const pctValue = useCountUp(Math.round(parseFloat(deltaPct) * 10), 1200);
 
   return (
     <motion.div
@@ -116,7 +135,7 @@ export default function Driftsmorgen() {
               Maks 26.4°C kl. 03:12. Settpunkt natt: 19°C. Sannsynlig årsak: soloppvarming fra sørfasade + kjøling av etter kl. 22:00.
             </p>
             <button
-              onClick={() => navigate("/simulering")}
+              onClick={() => navigate("/simulering", { state: { activeTab: "avvik" } })}
               className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
             >
               Undersøk <ChevronRight className="h-4 w-4" />
@@ -133,7 +152,7 @@ export default function Driftsmorgen() {
               Målt SFP 1.82 kW/(m³/s), krav ≤ 1.5. Mulig årsak: tilsmusset filter eller feil på frekvensomformer.
             </p>
             <button
-              onClick={() => navigate("/simulering")}
+              onClick={() => navigate("/simulering", { state: { activeTab: "avvik" } })}
               className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
             >
               Undersøk <ChevronRight className="h-4 w-4" />
@@ -155,7 +174,7 @@ export default function Driftsmorgen() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Normal (30-dagers snitt)</p>
-              <p className="text-xl font-semibold text-muted-foreground font-mono tabular-nums">2,180 kWh</p>
+              <p className="text-xl font-semibold text-muted-foreground font-mono tabular-nums">{normalDaily.toLocaleString("no-NO")} kWh</p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-vh-red/15 px-3 py-1">
               <TrendingUp className="h-4 w-4 text-vh-red" />
@@ -179,14 +198,14 @@ export default function Driftsmorgen() {
                   labelStyle={{ color: "hsl(215, 20%, 55%)" }}
                   formatter={(v: number) => [`${v} kWh`, "Forbruk"]}
                 />
-                <ReferenceLine y={2180} stroke="hsl(0, 84%, 60%)" strokeDasharray="4 4" label={{ value: "Normal", fill: "hsl(0, 84%, 60%)", fontSize: 10, position: "right" }} />
+                <ReferenceLine y={normalDaily} stroke="hsl(0, 84%, 60%)" strokeDasharray="4 4" label={{ value: "Normal", fill: "hsl(0, 84%, 60%)", fontSize: 10, position: "right" }} />
                 <Area type="monotone" dataKey="kwh" stroke="hsl(213, 52%, 63%)" fill="url(#energiGradient)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-vh-yellow/30 bg-vh-yellow/10 px-3 py-1.5">
-            <span className="text-sm font-medium text-vh-yellow">Energimerke C — 138 kWh/m²·år</span>
+            <span className="text-sm font-medium text-vh-yellow">Energimerke {energimerke} — {Math.round(r.totalEnergyKwhM2)} kWh/m²·år</span>
             <span className="text-xs text-muted-foreground">(TEK17-krav: 115)</span>
           </div>
         </div>
@@ -215,11 +234,11 @@ export default function Driftsmorgen() {
           {[
             { icon: Zap, label: "Simuler endring", path: "/simulering", color: "text-vh-yellow", glow: "shadow-[0_0_20px_rgba(234,179,8,0.1)]" },
             { icon: Network, label: "Se nettverkskart", path: "/nettverkskart", color: "text-primary", glow: "shadow-[0_0_20px_rgba(59,130,246,0.1)]" },
-            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/simulering", color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
+            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/simulering", state: { activeTab: "avvik" }, color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
           ].map((action) => (
             <button
               key={action.label}
-              onClick={() => navigate(action.path)}
+              onClick={() => navigate(action.path, { state: (action as any).state })}
               className="group flex items-center gap-3 rounded-xl border border-border bg-card p-5 text-left transition-all hover:bg-secondary hover:vh-glow-blue"
             >
               <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-secondary ${action.glow}`}>
@@ -255,39 +274,53 @@ export default function Driftsmorgen() {
 
 /* ─── Inneklima-status ─── */
 
-type Complaint = "For varmt 🌡️" | "For kaldt 🥶" | "Dårlig luft 😤" | "Trekk 💨" | "Støy 🔊";
+type ComplaintType = "For varmt" | "For kaldt" | "Dårlig luft" | "Trekk" | "Støy";
 
 interface InneklimaEntry {
   time: string;
   zone: string;
-  type: Complaint;
+  type: ComplaintType;
   status: { color: string; text: string };
 }
 
 const ZONES = ["2. etg nord", "2. etg sør", "3. etg", "4. etg nord", "4. etg sør", "5. etg"];
-const COMPLAINT_TYPES: Complaint[] = ["For varmt 🌡️", "For kaldt 🥶", "Dårlig luft 😤", "Trekk 💨", "Støy 🔊"];
+const COMPLAINT_TYPES: { type: ComplaintType; dotColor: string }[] = [
+  { type: "For varmt", dotColor: "bg-red-400" },
+  { type: "For kaldt", dotColor: "bg-blue-400" },
+  { type: "Dårlig luft", dotColor: "bg-yellow-400" },
+  { type: "Trekk", dotColor: "bg-green-400" },
+  { type: "Støy", dotColor: "bg-purple-400" },
+];
 
-function resolveStatus(zone: string, type: Complaint): InneklimaEntry["status"] {
-  if (zone === "4. etg sør" && type.startsWith("For varmt"))
+const COMPLAINT_DOT_MAP: Record<ComplaintType, string> = {
+  "For varmt": "bg-red-400",
+  "For kaldt": "bg-blue-400",
+  "Dårlig luft": "bg-yellow-400",
+  "Trekk": "bg-green-400",
+  "Støy": "bg-purple-400",
+};
+
+function resolveStatus(zone: string, type: ComplaintType): InneklimaEntry["status"] {
+  if (zone === "4. etg sør" && type === "For varmt")
     return { color: "text-emerald-400", text: "Bekreftet: SD-data viser 23.4°C (over 22°C-grense) ✓" };
-  if (zone === "3. etg" && type.startsWith("Dårlig luft"))
+  if (zone === "3. etg" && type === "Dårlig luft")
     return { color: "text-emerald-400", text: "CO₂: 680 ppm (under 800 ppm-grense) ✓" };
-  if (zone === "2. etg nord" && type.startsWith("For kaldt"))
+  if (zone === "2. etg nord" && type === "For kaldt")
     return { color: "text-emerald-400", text: "Bekreftet: SD-data viser 19.2°C (under 21°C-grense) ✓" };
-  if (type.startsWith("Støy"))
+  if (type === "Støy")
     return { color: "text-yellow-400", text: "Ingen SD-data for lydnivå" };
   return { color: "text-yellow-400", text: "Ingen SD-data for sone" };
 }
 
 const INITIAL_ENTRIES: InneklimaEntry[] = [
-  { time: "08:14", zone: "4. etg sør", type: "For varmt 🌡️", status: { color: "text-emerald-400", text: "Bekreftet: SD-data viser 23.4°C (over 22°C-grense) ✓" } },
-  { time: "07:55", zone: "3. etg", type: "Dårlig luft 😤", status: { color: "text-emerald-400", text: "CO₂: 680 ppm (under 800 ppm-grense) ✓" } },
+  { time: "08:14", zone: "4. etg sør", type: "For varmt", status: { color: "text-emerald-400", text: "Bekreftet: SD-data viser 23.4°C (over 22°C-grense) ✓" } },
+  { time: "07:55", zone: "3. etg", type: "Dårlig luft", status: { color: "text-emerald-400", text: "CO₂: 680 ppm (under 800 ppm-grense) ✓" } },
 ];
 
 function InneklimaSection() {
   const [entries, setEntries] = useState<InneklimaEntry[]>(INITIAL_ENTRIES);
   const [zone, setZone] = useState(ZONES[0]);
-  const [complaint, setComplaint] = useState<Complaint>(COMPLAINT_TYPES[0]);
+  const [complaint, setComplaint] = useState<ComplaintType>(COMPLAINT_TYPES[0].type);
 
   const handleSubmit = () => {
     const now = new Date();
@@ -318,10 +351,10 @@ function InneklimaSection() {
           <label className="mb-1 block text-xs text-muted-foreground">Type klage</label>
           <select
             value={complaint}
-            onChange={(e) => setComplaint(e.target.value as Complaint)}
+            onChange={(e) => setComplaint(e.target.value as ComplaintType)}
             className="w-full rounded-lg border border-border bg-secondary/50 px-3 py-2 text-sm text-foreground"
           >
-            {COMPLAINT_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {COMPLAINT_TYPES.map((c) => <option key={c.type} value={c.type}>{c.type}</option>)}
           </select>
         </div>
         <button
@@ -340,8 +373,12 @@ function InneklimaSection() {
               kl. {e.time}
             </span>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">
-                {e.zone} — {e.type}
+              <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                {e.zone} —
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={`h-2 w-2 rounded-full ${COMPLAINT_DOT_MAP[e.type]}`} />
+                  {e.type}
+                </span>
               </p>
               <p className={`mt-0.5 text-xs ${e.status.color}`}>
                 {e.status.text}

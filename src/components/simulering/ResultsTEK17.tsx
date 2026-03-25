@@ -19,19 +19,19 @@ function useComplianceRows(): { rows: ComplianceRow[]; failCount: number } {
 
   const rows: ComplianceRow[] = [
     {
-      paragraph: "§14-3 (1)", requirement: "Netto energibehov ≤ 115 kWh/m²·år",
-      parameter: "Netto energibehov", designed: "138", simulated: String(Math.round(r.totalEnergyKwhM2)),
+      paragraph: "§14-2 (1)", requirement: "Netto energibehov ≤ 115 kWh/m²·år",
+      parameter: "Netto energibehov", designed: "115", simulated: String(Math.round(r.totalEnergyKwhM2)),
       status: r.totalEnergyKwhM2 <= 115 ? "ok" : "critical",
       statusText: r.totalEnergyKwhM2 <= 115 ? "OK" : "Overskrider",
     },
     {
-      paragraph: "§14-3 (2)", requirement: "SFP ≤ 1,5 kW/(m³/s)",
+      paragraph: "§14-2 tabell 2, rad 7", requirement: "SFP ≤ 1,5 kW/(m³/s)",
       parameter: "SFP AHU", designed: String(input.sfpDesign), simulated: String(r.sfpActual),
       status: r.sfpActual <= 1.5 ? "ok" : "critical",
       statusText: r.sfpActual <= 1.5 ? "OK" : "Overskrider",
     },
     {
-      paragraph: "§14-3 (2)", requirement: "Gjenvinner ≥ 80%",
+      paragraph: "§14-2 tabell 2, rad 6", requirement: "Gjenvinner ≥ 80%",
       parameter: "Gjenvinner virkningsgrad",
       designed: `${Math.round(input.heatRecoveryEff * 100)}%`,
       simulated: `${Math.round(r.heatRecoveryActual * 100)}%`,
@@ -39,13 +39,13 @@ function useComplianceRows(): { rows: ComplianceRow[]; failCount: number } {
       statusText: r.heatRecoveryActual >= 0.80 ? "OK" : "Under prosjektert",
     },
     {
-      paragraph: "§14-4 (1)", requirement: "Dim. romtemp ≥ 19°C vinter",
+      paragraph: "§13-1 (1)", requirement: "Dim. romtemp ≥ 19°C vinter",
       parameter: "Min romtemp", designed: `${input.setpointHeating}°C`,
       simulated: r.hoursBelow19 > 0 ? "19.8°C" : `${input.setpointHeating}.0°C`,
       status: "ok", statusText: "OK",
     },
     {
-      paragraph: "§14-2", requirement: "Maks 26°C sommer ≤ 50 t/år",
+      paragraph: "NS-EN 16798-1, kat. II", requirement: "Maks 26°C sommer ≤ 50 t/år",
       parameter: "Timer >26°C", designed: "—", simulated: `${r.hoursAbove26} timer`,
       status: r.hoursAbove26 <= 50 ? "ok" : "warning",
       statusText: r.hoursAbove26 <= 50 ? "OK" : "Over 50t-anbefaling",
