@@ -167,6 +167,9 @@ export default function Sammenligning() {
           </p>
         </div>
       </motion.div>
+
+      {/* Enova-støttevurdering */}
+      <EnovaSection energyReduction={energyReductionPct} savings={savings} />
     </motion.div>
   );
 }
