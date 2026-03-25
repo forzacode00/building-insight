@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck, Upload, Plug } from "lucide-react";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation, type SimResult, type SimInput } from "@/lib/simulationEngine";
 
