@@ -245,6 +245,9 @@ export default function SDLive() {
         </div>
       </motion.div>
 
+      {/* BACnet punktliste verifisering */}
+      <BACnetPunktliste />
+
       {/* Live vs Design table */}
       <motion.div variants={item} className="mb-6">
         <h3 className="mb-2 text-sm font-semibold text-foreground">Design vs. SD Live</h3>
