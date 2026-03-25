@@ -483,6 +483,9 @@ export default function SDLive() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Overleveringssjekkliste */}
+      <OverleveringSjekkliste />
     </motion.div>
   );
 }
