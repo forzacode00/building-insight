@@ -1,6 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Wifi, Play, X, Undo2, Radio } from "lucide-react";
+import { useSimInput, useSimResult } from "@/lib/SimContext";
+import { runSimulation, type SimResult, type SimInput } from "@/lib/simulationEngine";
 
 function StatusBadge({ status, note }: { status: "ok" | "warning" | "critical"; note: string }) {
   if (status === "critical") {
@@ -66,31 +68,54 @@ const liveTable = [
   { param: "Fjernvarme retur", design: "40°C", live: "35.1°C", avvik: "−4.9°C", status: "ok" as const, note: "Bra for fjernvarme" },
 ];
 
-const consequences = [
-  { text: "Settpunkt +1.5°C", indent: 0, delay: 0 },
-  { text: "Radiator aktuator: 45% → 62% (+17 pp)", indent: 1, delay: 0.3 },
-  { text: "Pumpeforbruk: +8%", indent: 1, delay: 0.6 },
-  { text: "Fjernvarme retur: 35.1→37.4°C (+2.3°C)", indent: 1, delay: 0.9 },
-  { text: "Fjernvarme effektivitet: −3%", indent: 2, delay: 1.2 },
-  { text: "Kjølebehov 4.etg sør: −15%", indent: 1, delay: 1.5 },
-  { text: "Kjølemaskin driftstimer: −4%", indent: 2, delay: 1.8 },
-  { text: "Elkraft besparelse: +2 100 kWh/år", indent: 3, delay: 2.1 },
-  { text: "Energikostnad: +12 400/år varme, −5 800/år kjøling", indent: 1, delay: 2.4 },
-  { text: "Netto: +NOK 6 600/år", indent: 2, delay: 2.7 },
-  { text: "Komfort: Timer >24°C: 87→34 (−61%)", indent: 1, delay: 3.0 },
+type WhatIfParam = "setpointHeating" | "sfpDesign" | "heatRecoveryEff";
+
+const whatIfOptions: { key: WhatIfParam; label: string; bacnet: string; unit: string; min: number; max: number; step: number; format: (v: number) => string }[] = [
+  { key: "setpointHeating", label: "Romtemperatur settpunkt", bacnet: "BACnet/AV:5001", unit: "°C", min: 18, max: 26, step: 0.5, format: (v) => `${v.toFixed(1)}°C` },
+  { key: "sfpDesign", label: "SFP-faktor", bacnet: "BACnet/AV:7002", unit: "kW/(m³/s)", min: 0.8, max: 2.5, step: 0.1, format: (v) => `${v.toFixed(1)}` },
+  { key: "heatRecoveryEff", label: "Gjenvinner virkningsgrad", bacnet: "BACnet/AV:5020", unit: "%", min: 0.5, max: 0.95, step: 0.01, format: (v) => `${Math.round(v * 100)}%` },
 ];
+
+function fmtNOK(n: number) { return `NOK ${Math.round(n).toLocaleString("nb-NO")}`; }
+function delta(a: number, b: number) {
+  const d = b - a;
+  const pct = a !== 0 ? Math.round((d / a) * 100) : 0;
+  return `${d >= 0 ? "+" : ""}${pct}%`;
+}
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
 
 export default function SDLive() {
+  const { input } = useSimInput();
+  const origResult = useSimResult();
+
   const [visibleLines, setVisibleLines] = useState(0);
+  const [selectedParam, setSelectedParam] = useState<WhatIfParam>("setpointHeating");
   const [sliderValue, setSliderValue] = useState(22.5);
   const [simState, setSimState] = useState<"idle" | "loading" | "done">("idle");
+  const [modResult, setModResult] = useState<SimResult | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [sent, setSent] = useState(false);
   const [undoTimer, setUndoTimer] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
+
+  const paramConfig = useMemo(() => whatIfOptions.find((o) => o.key === selectedParam)!, [selectedParam]);
+
+  // Reset slider when param changes
+  useEffect(() => {
+    const cfg = whatIfOptions.find((o) => o.key === selectedParam)!;
+    const currentVal = selectedParam === "heatRecoveryEff"
+      ? input[selectedParam]
+      : input[selectedParam] as number;
+    // Start slider slightly offset from current for demo appeal
+    const offset = selectedParam === "setpointHeating" ? 1.5
+      : selectedParam === "sfpDesign" ? -0.3
+      : 0.05;
+    setSliderValue(Math.min(cfg.max, Math.max(cfg.min, currentVal + offset)));
+    setSimState("idle");
+    setModResult(null);
+  }, [selectedParam, input]);
 
   useEffect(() => {
     if (visibleLines >= bacnetLines.length) {
@@ -114,8 +139,41 @@ export default function SDLive() {
 
   const runSim = () => {
     setSimState("loading");
-    setTimeout(() => setSimState("done"), 2000);
+    setTimeout(() => {
+      const modified: SimInput = { ...input, [selectedParam]: sliderValue };
+      setModResult(runSimulation(modified));
+      setSimState("done");
+    }, 1500);
   };
+
+  const currentValue = paramConfig.format(input[selectedParam] as number);
+
+  const consequences = useMemo(() => {
+    if (!modResult) return [];
+    const items: { text: string; indent: number; delay: number }[] = [];
+    let d = 0;
+    items.push({ text: `${paramConfig.label}: ${currentValue} → ${paramConfig.format(sliderValue)}`, indent: 0, delay: d });
+    d += 0.3;
+    items.push({ text: `Oppvarming: ${origResult.heatingKwhM2.toFixed(0)} → ${modResult.heatingKwhM2.toFixed(0)} kWh/m²·år (${delta(origResult.heatingKwhM2, modResult.heatingKwhM2)})`, indent: 1, delay: d });
+    d += 0.3;
+    items.push({ text: `Kjøling: ${origResult.coolingKwhM2.toFixed(0)} → ${modResult.coolingKwhM2.toFixed(0)} kWh/m²·år (${delta(origResult.coolingKwhM2, modResult.coolingKwhM2)})`, indent: 1, delay: d });
+    d += 0.3;
+    items.push({ text: `Vifter: ${origResult.fansKwhM2.toFixed(0)} → ${modResult.fansKwhM2.toFixed(0)} kWh/m²·år (${delta(origResult.fansKwhM2, modResult.fansKwhM2)})`, indent: 1, delay: d });
+    d += 0.3;
+    items.push({ text: `Totalt energibehov: ${Math.round(origResult.totalEnergyKwhM2)} → ${Math.round(modResult.totalEnergyKwhM2)} kWh/m²·år (${delta(origResult.totalEnergyKwhM2, modResult.totalEnergyKwhM2)})`, indent: 1, delay: d });
+    d += 0.3;
+    const costDelta = modResult.annualCostNOK - origResult.annualCostNOK;
+    items.push({ text: `Energikostnad: ${fmtNOK(origResult.annualCostNOK)} → ${fmtNOK(modResult.annualCostNOK)} (${costDelta >= 0 ? "+" : ""}${fmtNOK(costDelta)}/år)`, indent: 1, delay: d });
+    d += 0.3;
+    items.push({ text: `Komfort: ${origResult.hoursAbove26} → ${modResult.hoursAbove26} timer >26°C`, indent: 1, delay: d });
+    d += 0.3;
+    items.push({ text: `Bygningshelse: ${origResult.healthScore} → ${modResult.healthScore}/100`, indent: 1, delay: d });
+    return items;
+  }, [modResult, origResult, paramConfig, currentValue, sliderValue]);
+
+  const costDelta = modResult ? modResult.annualCostNOK - origResult.annualCostNOK : 0;
+  const co2Delta = modResult ? modResult.co2Tonnes - origResult.co2Tonnes : 0;
+  const isWithinCapacity = modResult ? modResult.totalEnergyKwhM2 < 200 : true; // reasonable upper bound
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
@@ -157,7 +215,6 @@ export default function SDLive() {
 
       {/* BACnet live feed */}
       <motion.div variants={item} className="mb-6">
-        {/* Feed header */}
         <div className="mb-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Radio className="h-4 w-4 text-vh-red animate-pulse" />
@@ -230,28 +287,33 @@ export default function SDLive() {
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
           <div className="rounded-xl bg-secondary/50 px-4 py-3">
             <p className="text-xs text-muted-foreground">Velg parameter</p>
-            <select className="mt-1 w-full rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground">
-              <option>Romtemperatur settpunkt 4.etg sør (BACnet/AV:5001)</option>
-              <option>Tillufttemp settpunkt AHU-1 (BACnet/AV:5010)</option>
-              <option>CO₂ settpunkt kontor (BACnet/AV:5011)</option>
+            <select
+              value={selectedParam}
+              onChange={(e) => setSelectedParam(e.target.value as WhatIfParam)}
+              className="mt-1 w-full rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground"
+            >
+              {whatIfOptions.map((o) => (
+                <option key={o.key} value={o.key}>{o.label} ({o.bacnet})</option>
+              ))}
             </select>
           </div>
           <div className="rounded-xl bg-secondary/50 px-4 py-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">Nåværende: 21.0°C</p>
-              <p className="text-sm font-bold font-mono tabular-nums text-primary">{sliderValue.toFixed(1)}°C</p>
+              <p className="text-xs text-muted-foreground">Nåværende: {currentValue}</p>
+              <p className="text-sm font-bold font-mono tabular-nums text-primary">{paramConfig.format(sliderValue)}</p>
             </div>
             <input
               type="range"
-              min="18"
-              max="26"
-              step="0.5"
+              min={paramConfig.min}
+              max={paramConfig.max}
+              step={paramConfig.step}
               value={sliderValue}
               onChange={(e) => setSliderValue(parseFloat(e.target.value))}
               className="mt-2 w-full accent-primary"
             />
             <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>18°C</span><span>26°C</span>
+              <span>{paramConfig.format(paramConfig.min)}</span>
+              <span>{paramConfig.format(paramConfig.max)}</span>
             </div>
           </div>
         </div>
@@ -267,7 +329,7 @@ export default function SDLive() {
 
         {/* Consequence chain */}
         <AnimatePresence>
-          {simState === "done" && (
+          {simState === "done" && modResult && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6">
               <div className="mb-4 space-y-1 rounded-xl bg-[hsl(220,40%,7%)] p-4 font-mono text-sm">
                 {consequences.map((c, i) => (
@@ -287,19 +349,46 @@ export default function SDLive() {
 
               {/* Summary */}
               <div className="mb-4 grid gap-3 sm:grid-cols-4">
-                <SummaryCard label="Energikostnad" value="+NOK 6 600/år" color="text-vh-yellow" />
-                <SummaryCard label="Komfort" value="87→34 timer (−61%)" color="text-vh-green" />
-                <SummaryCard label="CO₂" value="+0.4 tonn/år" color="text-vh-yellow" />
-                <SummaryCard label="Fysisk trygt" value="✅ Innenfor kapasitet" color="text-vh-green" />
+                <SummaryCard
+                  label="Energikostnad"
+                  value={`${costDelta >= 0 ? "+" : ""}${fmtNOK(costDelta)}/år`}
+                  color={costDelta > 0 ? "text-vh-yellow" : "text-vh-green"}
+                />
+                <SummaryCard
+                  label="Komfort"
+                  value={`${origResult.hoursAbove26}→${modResult.hoursAbove26} timer`}
+                  color={modResult.hoursAbove26 < origResult.hoursAbove26 ? "text-vh-green" : modResult.hoursAbove26 > origResult.hoursAbove26 ? "text-vh-yellow" : "text-muted-foreground"}
+                />
+                <SummaryCard
+                  label="CO₂"
+                  value={`${co2Delta >= 0 ? "+" : ""}${co2Delta.toFixed(1)} tonn/år`}
+                  color={co2Delta > 0 ? "text-vh-yellow" : "text-vh-green"}
+                />
+                <SummaryCard
+                  label="Fysisk trygt"
+                  value={isWithinCapacity ? "✅ Innenfor kapasitet" : "⚠ Over kapasitet"}
+                  color={isWithinCapacity ? "text-vh-green" : "text-vh-red"}
+                />
               </div>
 
-              <div className="mb-4 rounded-xl border border-vh-yellow/30 bg-vh-yellow/10 px-4 py-2.5 text-sm text-vh-yellow">
-                Anbefaling: Moderat merkostnad, vesentlig komfortforbedring
+              <div className={`mb-4 rounded-xl border px-4 py-2.5 text-sm ${
+                costDelta <= 0
+                  ? "border-vh-green/30 bg-vh-green/10 text-vh-green"
+                  : modResult.hoursAbove26 < origResult.hoursAbove26
+                    ? "border-vh-yellow/30 bg-vh-yellow/10 text-vh-yellow"
+                    : "border-vh-red/30 bg-vh-red/10 text-vh-red"
+              }`}>
+                {costDelta <= 0
+                  ? `Anbefaling: Besparelse ${fmtNOK(Math.abs(costDelta))}/år, helsescore ${origResult.healthScore}→${modResult.healthScore}`
+                  : modResult.hoursAbove26 < origResult.hoursAbove26
+                    ? "Anbefaling: Moderat merkostnad, vesentlig komfortforbedring"
+                    : "Advarsel: Økte kostnader uten komfortgevinst"
+                }
               </div>
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => setSimState("idle")}
+                  onClick={() => { setSimState("idle"); setModResult(null); }}
                   className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
                 >
                   <X className="h-4 w-4" /> Forkast
@@ -328,7 +417,7 @@ export default function SDLive() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-vh-green" />
               <span className="text-sm text-foreground">
-                Endring sendt — BACnet AV:5001 oppdatert til {sliderValue.toFixed(1)}°C
+                Endring sendt — {paramConfig.bacnet} oppdatert til {paramConfig.format(sliderValue)}
               </span>
             </div>
             <div className="flex items-center gap-3">
@@ -336,7 +425,7 @@ export default function SDLive() {
                 {Math.floor(undoTimer / 60)}:{String(undoTimer % 60).padStart(2, "0")} gjenstår
               </span>
               <button
-                onClick={() => { setSent(false); setSimState("idle"); }}
+                onClick={() => { setSent(false); setSimState("idle"); setModResult(null); }}
                 className="inline-flex items-center gap-1 rounded-xl bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary/80"
               >
                 <Undo2 className="h-3 w-3" /> Angre
@@ -365,9 +454,9 @@ export default function SDLive() {
             >
               <h3 className="mb-4 text-lg font-bold text-foreground">Bekreft endring til SD-anlegg</h3>
               <div className="mb-4 space-y-2 text-sm">
-                <ModalRow label="Parameter" value="Romtemp settpunkt 4.etg sør" />
-                <ModalRow label="Endring" value={`21.0°C → ${sliderValue.toFixed(1)}°C`} />
-                <ModalRow label="BACnet" value="AV:5001" />
+                <ModalRow label="Parameter" value={paramConfig.label} />
+                <ModalRow label="Endring" value={`${currentValue} → ${paramConfig.format(sliderValue)}`} />
+                <ModalRow label="BACnet" value={paramConfig.bacnet} />
                 <ModalRow label="BACnet prioritet" value="8 (Manual Operator)" />
                 <ModalRow label="Overordnet av" value="Prioritet 1–7 (Safety, Fire)" />
               </div>
@@ -384,7 +473,7 @@ export default function SDLive() {
                   Avbryt
                 </button>
                 <button
-                  onClick={() => { setShowModal(false); setSent(true); setSimState("idle"); }}
+                  onClick={() => { setShowModal(false); setSent(true); setSimState("idle"); setModResult(null); }}
                   className="flex-1 rounded-xl bg-vh-green py-2.5 text-sm font-semibold text-white hover:bg-vh-green/90"
                 >
                   Bekreft og send →
