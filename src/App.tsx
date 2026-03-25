@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "./components/AppLayout";
 import Driftsmorgen from "./pages/Driftsmorgen";
+import Datainput from "./pages/Datainput";
+import Simulering from "./pages/Simulering";
 import StubPage from "./pages/StubPage";
 import NotFound from "./pages/NotFound";
 
@@ -20,8 +22,8 @@ const App = () => (
           <Route element={<AppLayout />}>
             <Route path="/" element={<Driftsmorgen />} />
             <Route path="/prosjekt" element={<StubPage />} />
-            <Route path="/datainput" element={<StubPage />} />
-            <Route path="/simulering" element={<StubPage />} />
+            <Route path="/datainput" element={<Datainput />} />
+            <Route path="/simulering" element={<Simulering />} />
             <Route path="/sammenligning" element={<StubPage />} />
             <Route path="/nettverkskart" element={<StubPage />} />
             <Route path="/sd-live" element={<StubPage />} />
