@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Wifi, Play, X, Undo2 } from "lucide-react";
+import { CheckCircle2, Wifi, Play, X, Undo2, Radio } from "lucide-react";
 
 function StatusBadge({ status, note }: { status: "ok" | "warning" | "critical"; note: string }) {
   if (status === "critical") {
@@ -25,6 +25,14 @@ function StatusBadge({ status, note }: { status: "ok" | "warning" | "critical"; 
       {note}
     </span>
   );
+}
+
+function getObjColor(obj: string) {
+  if (obj.includes("AI:")) return "text-blue-400";
+  if (obj.includes("AV:")) return "text-purple-400";
+  if (obj.includes("BI:")) return "text-yellow-400";
+  if (obj.includes("BO:")) return "text-red-400";
+  return "text-vh-purple";
 }
 
 const bacnetLines = [
@@ -148,7 +156,15 @@ export default function SDLive() {
 
       {/* BACnet live feed */}
       <motion.div variants={item} className="mb-6">
-        <h3 className="mb-2 text-sm font-semibold text-foreground">BACnet Live Feed</h3>
+        {/* Feed header */}
+        <div className="mb-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Radio className="h-4 w-4 text-vh-red animate-pulse" />
+            <span className="rounded bg-vh-red/20 px-2 py-0.5 text-[10px] font-bold text-vh-red uppercase tracking-wider">LIVE</span>
+            <span className="text-sm font-semibold text-foreground">BACnet Feed</span>
+          </div>
+          <span className="text-xs text-muted-foreground font-mono tabular-nums">847 datapunkter · 60s intervall</span>
+        </div>
         <div
           ref={feedRef}
           className="h-48 overflow-y-auto rounded-xl border border-border bg-[hsl(220,40%,7%)] p-4 font-mono text-xs"
@@ -160,10 +176,11 @@ export default function SDLive() {
               animate={{ opacity: 1, x: 0 }}
               className="flex gap-3 py-0.5"
             >
+              <span className="w-6 text-right text-muted-foreground/40 select-none">{i + 1}</span>
               <span className="text-muted-foreground">{line.time}</span>
-              <span className="text-vh-purple">{line.obj}</span>
+              <span className={getObjColor(line.obj)}>{line.obj}</span>
               <span className="flex-1 text-foreground/70">{line.desc}</span>
-              <span className="font-semibold text-primary tabular-nums">{line.val}</span>
+              <span className="ml-auto font-semibold text-primary font-mono tabular-nums text-right min-w-[80px]">{line.val}</span>
             </motion.div>
           ))}
           <span className="inline-block h-3 w-1.5 animate-pulse bg-primary" />
@@ -244,7 +261,7 @@ export default function SDLive() {
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           <Play className="h-4 w-4" />
-          {simState === "loading" ? "Simulerer..." : "▶ Simuler konsekvens"}
+          {simState === "loading" ? "Simulerer..." : "Simuler konsekvens"}
         </button>
 
         {/* Consequence chain */}
@@ -354,9 +371,9 @@ export default function SDLive() {
                 <ModalRow label="Overordnet av" value="Prioritet 1–7 (Safety, Fire)" />
               </div>
               <div className="mb-4 space-y-1">
-                <Check text="Simulert konsekvens verifisert" />
-                <Check text="Fysiske grenser sjekket" />
-                <Check text="BACnet Priority Array respektert" />
+                <ConfirmCheck text="Simulert konsekvens verifisert" />
+                <ConfirmCheck text="Fysiske grenser sjekket" />
+                <ConfirmCheck text="BACnet Priority Array respektert" />
               </div>
               <div className="flex gap-3">
                 <button
@@ -393,12 +410,12 @@ function ModalRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between rounded-xl bg-secondary/50 px-3 py-2">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold text-foreground">{value}</span>
+      <span className="font-semibold text-foreground font-mono tabular-nums">{value}</span>
     </div>
   );
 }
 
-function Check({ text }: { text: string }) {
+function ConfirmCheck({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-2 text-sm text-vh-green">
       <CheckCircle2 className="h-3.5 w-3.5" />

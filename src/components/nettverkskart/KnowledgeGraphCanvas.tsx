@@ -199,9 +199,11 @@ export function KnowledgeGraphCanvas({
         ctx.lineTo(edge.target.x, edge.target.y);
 
         if (isConflict) {
-          const pulse = Math.sin(timeRef.current * 4) * 0.4 + 0.6;
-          ctx.strokeStyle = `rgba(239, 68, 68, ${dimmed ? 0.15 : pulse})`;
-          ctx.lineWidth = dimmed ? 1 : 3 + Math.sin(timeRef.current * 3) * 1;
+          // Pulse for ~3 seconds then settle to steady glow
+          const t = timeRef.current;
+          const pulsePhase = t < 3 ? Math.sin(t * 4) * 0.4 + 0.6 : 0.7;
+          ctx.strokeStyle = `rgba(239, 68, 68, ${dimmed ? 0.15 : pulsePhase})`;
+          ctx.lineWidth = dimmed ? 1 : t < 3 ? 3 + Math.sin(t * 3) * 1 : 2.5;
           ctx.setLineDash([]);
         } else if (onCritPath) {
           ctx.strokeStyle = dimmed ? "rgba(234, 179, 8, 0.1)" : "rgba(234, 179, 8, 0.8)";

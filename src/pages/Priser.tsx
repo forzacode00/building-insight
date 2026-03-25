@@ -60,8 +60,15 @@ export default function Priser() {
         <p className="mt-2 text-muted-foreground">Skalér fra verifisering til full porteføljestyring</p>
       </motion.div>
 
+      {/* Tagline */}
+      <motion.div variants={item} className="mb-8 text-center">
+        <p className="text-lg font-medium text-muted-foreground italic">
+          «Crash test for bygninger» — verifiser at tekniske systemer fungerer før de bygges
+        </p>
+      </motion.div>
+
       {/* Pricing cards */}
-      <motion.div variants={item} className="mb-12 grid gap-6 lg:grid-cols-3">
+      <motion.div variants={item} className="mb-8 grid gap-6 lg:grid-cols-3">
         {plans.map((plan) => (
           <div
             key={plan.name}
@@ -79,7 +86,7 @@ export default function Priser() {
             )}
             <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-3xl font-extrabold text-foreground">{plan.price}</span>
+              <span className="text-3xl font-extrabold text-foreground font-mono tabular-nums">{plan.price}</span>
               <span className="text-sm text-muted-foreground">kr/mnd</span>
             </div>
             {plan.priceNote && <p className="text-xs text-muted-foreground">{plan.priceNote}</p>}
@@ -104,6 +111,20 @@ export default function Priser() {
         ))}
       </motion.div>
 
+      {/* Social proof */}
+      <motion.div variants={item} className="mb-12 text-center">
+        <p className="mb-4 text-sm font-medium text-muted-foreground">
+          Brukt av ledende aktører i norsk byggebransje
+        </p>
+        <div className="flex flex-wrap justify-center gap-6">
+          {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult", "Advansia", "Bravida"].map(name => (
+            <span key={name} className="text-lg font-bold text-muted-foreground/40 tracking-wide uppercase">
+              {name}
+            </span>
+          ))}
+        </div>
+      </motion.div>
+
       {/* ROI Calculator */}
       <motion.div variants={item} className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6">
         <h3 className="mb-4 text-lg font-bold text-foreground">ROI-kalkulator</h3>
@@ -114,7 +135,7 @@ export default function Priser() {
               type="number"
               value={bra}
               onChange={(e) => setBra(Number(e.target.value) || 0)}
-              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground font-mono tabular-nums"
             />
           </div>
           <div>
@@ -123,7 +144,7 @@ export default function Priser() {
               type="number"
               value={energiKost}
               onChange={(e) => setEnergiKost(Number(e.target.value) || 0)}
-              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground"
+              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground font-mono tabular-nums"
             />
           </div>
         </div>
@@ -133,7 +154,7 @@ export default function Priser() {
           <ROIRow label="Abonnement Optimize" value={`${roi.abb.toLocaleString("no-NO")} kr/år`} />
           <div className="flex items-center justify-between rounded-lg bg-vh-green/10 border border-vh-green/30 px-4 py-3">
             <span className="text-sm font-semibold text-foreground">Netto ROI</span>
-            <span className="text-sm font-bold text-vh-green">
+            <span className="text-sm font-bold text-vh-green font-mono tabular-nums">
               {roi.roiLow.toLocaleString("no-NO")} – {roi.roiHigh.toLocaleString("no-NO")} kr/år
             </span>
           </div>
@@ -152,7 +173,7 @@ function ROIRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-2.5">
       <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold text-foreground">{value}</span>
+      <span className="text-sm font-semibold text-foreground font-mono tabular-nums">{value}</span>
     </div>
   );
 }
