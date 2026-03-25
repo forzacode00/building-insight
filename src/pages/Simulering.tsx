@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play } from "lucide-react";
+import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play, TrendingUp } from "lucide-react";
 import { PIDDiagram } from "@/components/simulering/PIDDiagram";
 import { SimControls } from "@/components/simulering/SimControls";
 import { ResultsEnergi } from "@/components/simulering/ResultsEnergi";
