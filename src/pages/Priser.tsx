@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Building2, FileText } from "lucide-react";
+import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
 
 const plans = [
   {
@@ -165,6 +166,177 @@ export default function Priser() {
           </p>
         )}
       </motion.div>
+
+      {/* ESG-finansieringsrapport */}
+      <ESGSection />
+    </motion.div>
+  );
+}
+
+/* ─── ESG-finansieringsrapport ─── */
+
+function ESGSection() {
+  const r = useSimResult();
+  const opt = useOptimizedResult();
+
+  const co2Now = r.co2Tonnes;
+  const co2Opt = opt.co2Tonnes;
+  const co2m2Now = ((co2Now * 1000) / 6000).toFixed(1);
+  const co2m2Opt = ((co2Opt * 1000) / 6000).toFixed(1);
+  const energyNow = Math.round(r.totalEnergyKwhM2);
+  const energyOpt = Math.round(opt.totalEnergyKwhM2);
+  const merkeNow = energyNow > 130 ? "C" : energyNow > 100 ? "B" : "A";
+  const merkeOpt = energyOpt > 130 ? "C" : energyOpt > 100 ? "B (estimert)" : "A (estimert)";
+
+  const bankRows = [
+    { bank: "DNB", krav: "Energimerke A/B", now: merkeNow, after: merkeOpt, nowOk: merkeNow <= "B", afterOk: !merkeOpt.startsWith("C") },
+    { bank: "Danske Bank", krav: "EPC A (etter 2020)", now: merkeNow, after: merkeOpt, nowOk: merkeNow === "A", afterOk: merkeOpt.startsWith("A") },
+    { bank: "KLP Bank", krav: "≤TEK17-krav (115)", now: String(energyNow), after: String(energyOpt), nowOk: energyNow <= 115, afterOk: energyOpt <= 115 },
+    { bank: "EU-taksonomi", krav: "≤70 kWh/m²·år", now: String(energyNow), after: String(energyOpt), nowOk: energyNow <= 70, afterOk: energyOpt <= 70 },
+  ];
+
+  const handlePrint = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    const today = new Date().toLocaleDateString("nb-NO");
+    win.document.write(`<!DOCTYPE html><html><head><title>ESG-finansieringsrapport</title>
+<style>
+  body{font-family:system-ui,sans-serif;padding:40px;color:#1a1a2e;font-size:13px}
+  h1{font-size:20px;margin-bottom:4px}
+  .sub{color:#666;font-size:12px;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+  .card{border:1px solid #ddd;border-radius:8px;padding:14px}
+  .card h3{margin:0 0 6px;font-size:14px}
+  .card .val{font-size:22px;font-weight:700;margin-bottom:4px}
+  .card .note{font-size:11px;color:#666}
+  .red{color:#dc2626} .yellow{color:#ca8a04} .green{color:#16a34a}
+  table{width:100%;border-collapse:collapse;margin-top:16px}
+  th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:12px}
+  th{background:#f5f5f5;font-size:10px;text-transform:uppercase}
+  .footer{margin-top:24px;border-top:1px solid #ddd;padding-top:10px;font-size:10px;color:#888}
+</style></head><body>
+  <h1>🏦 ESG-finansieringsrapport</h1>
+  <p class="sub">Parkveien Kontorbygg — VirtualHouse™ — ${today}</p>
+  <div class="grid">
+    <div class="card"><h3>Nåværende</h3>
+      <p class="val ${energyNow > 115 ? "red" : "green"}">${energyNow} kWh/m²·år</p>
+      <p class="val ${co2Now > 50 ? "red" : "yellow"}">${co2Now} tonn CO₂/år (${co2m2Now} kg/m²)</p>
+      <p class="val yellow">Energimerke ${merkeNow}</p>
+    </div>
+    <div class="card"><h3>Etter optimalisering</h3>
+      <p class="val ${energyOpt > 115 ? "yellow" : "green"}">${energyOpt} kWh/m²·år</p>
+      <p class="val green">${co2Opt} tonn CO₂/år (${co2m2Opt} kg/m²)</p>
+      <p class="val green">Energimerke ${merkeOpt}</p>
+    </div>
+  </div>
+  <h3>Bankkrav-sjekkliste</h3>
+  <table>
+    <tr><th>Bank</th><th>Grønt lån-krav</th><th>Nåværende</th><th>Etter tiltak</th><th>Status</th></tr>
+    ${bankRows.map(b => `<tr><td>${b.bank}</td><td>${b.krav}</td><td>${b.now}</td><td>${b.after}</td><td>${!b.nowOk && b.afterOk ? "⚠️→✅" : b.nowOk ? "✅" : "❌→❌"}</td></tr>`).join("")}
+  </table>
+  <div class="footer">VirtualHouse™ — Basert på simuleringer. Faktisk energimerke må bekreftes av akkreditert energirådgiver.</div>
+</body></html>`);
+    win.document.close();
+    win.print();
+  };
+
+  return (
+    <motion.div variants={item} className="mx-auto mt-8 max-w-5xl">
+      <div className="mb-2 flex items-center gap-2">
+        <Building2 className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-bold text-foreground">ESG-finansieringsrapport</h2>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">For grønn lånesøknad og EU-taksonomi-vurdering</p>
+
+      {/* Scorecard */}
+      <div className="mb-6 grid gap-4 md:grid-cols-2">
+        {/* Nåværende */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Nåværende ESG-status</h3>
+          <div className="space-y-3">
+            <div className="rounded-lg bg-red-950/30 border border-red-800/40 p-3">
+              <p className="text-xl font-bold font-mono tabular-nums text-red-400">{energyNow} kWh/m²·år</p>
+              <p className="text-xs text-red-400/80">Over TEK17 (115). Over EU-taksonomi (70).</p>
+            </div>
+            <div className="rounded-lg bg-yellow-950/20 border border-yellow-800/40 p-3">
+              <p className="text-xl font-bold font-mono tabular-nums text-yellow-400">{co2Now} tonn/år = {co2m2Now} kg CO₂/m²·år</p>
+              <p className="text-xs text-yellow-400/80">Under EPC D-grense</p>
+            </div>
+            <div className="rounded-lg bg-yellow-950/20 border border-yellow-800/40 p-3">
+              <p className="text-xl font-bold text-yellow-400">Energimerke {merkeNow}</p>
+              <p className="text-xs text-yellow-400/80">Kvalifiserer ikke for grønt lån (krever A/B)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Etter optimalisering */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="mb-4 text-sm font-semibold text-foreground">Etter optimalisering</h3>
+          <div className="space-y-3">
+            <div className={`rounded-lg p-3 border ${energyOpt <= 115 ? "bg-emerald-950/20 border-emerald-800/40" : "bg-yellow-950/20 border-yellow-800/40"}`}>
+              <p className={`text-xl font-bold font-mono tabular-nums ${energyOpt <= 115 ? "text-emerald-400" : "text-yellow-400"}`}>{energyOpt} kWh/m²·år</p>
+              <p className={`text-xs ${energyOpt <= 115 ? "text-emerald-400/80" : "text-yellow-400/80"}`}>
+                {energyOpt <= 115 ? "Under TEK17 ✅." : "Over TEK17."} {energyOpt <= 70 ? "Under taksonomi ✅." : "Fremdeles over taksonomi (70)."}
+              </p>
+            </div>
+            <div className="rounded-lg bg-emerald-950/20 border border-emerald-800/40 p-3">
+              <p className="text-xl font-bold font-mono tabular-nums text-emerald-400">{co2Opt} tonn/år = {co2m2Opt} kg CO₂/m²·år</p>
+              <p className="text-xs text-emerald-400/80">Redusert fra {co2Now} tonn</p>
+            </div>
+            <div className="rounded-lg bg-emerald-950/20 border border-emerald-800/40 p-3">
+              <p className="text-xl font-bold text-emerald-400">Energimerke {merkeOpt}</p>
+              <p className="text-xs text-emerald-400/80">Kvalifiserer for grønt lån ✅</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bankkrav-sjekkliste */}
+      <div className="mb-4 overflow-x-auto rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-secondary/50">
+              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Bank</th>
+              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Grønt lån-krav</th>
+              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Nåværende</th>
+              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Etter tiltak</th>
+              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bankRows.map((b) => (
+              <tr key={b.bank} className="border-b border-border/50">
+                <td className="px-4 py-2.5 font-medium text-foreground">{b.bank}</td>
+                <td className="px-4 py-2.5 text-muted-foreground">{b.krav}</td>
+                <td className="px-4 py-2.5 font-mono tabular-nums text-foreground">{b.now}</td>
+                <td className="px-4 py-2.5 font-mono tabular-nums text-foreground">{b.after}</td>
+                <td className="px-4 py-2.5 text-sm font-semibold">
+                  {!b.nowOk && b.afterOk ? (
+                    <span className="text-emerald-400">⚠️→✅</span>
+                  ) : b.nowOk && b.afterOk ? (
+                    <span className="text-emerald-400">✅</span>
+                  ) : (
+                    <span className="text-red-400">❌→❌</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center justify-between">
+        <p className="text-[11px] text-muted-foreground/70">
+          Basert på simuleringer. Faktisk energimerke må bekreftes av akkreditert energirådgiver.
+        </p>
+        <button
+          onClick={handlePrint}
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+        >
+          <FileText className="h-4 w-4" />
+          Generer ESG-rapport for bankdialog
+        </button>
+      </div>
     </motion.div>
   );
 }
