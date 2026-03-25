@@ -6,10 +6,14 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSimInput } from "@/lib/SimContext";
 
-const buildingInfo = [
+const LOCATIONS = [
+  { value: "oslo", label: "Oslo" },
+  { value: "bergen", label: "Bergen" },
+  { value: "trondheim", label: "Trondheim" },
+];
+
+const staticBuildingInfo = [
   { icon: Building2, label: "Bygningstype", value: "Kontorbygning" },
-  { icon: MapPin, label: "Sted", value: "Oslo" },
-  { icon: Ruler, label: "BTA / BRA", value: "7 200 / 6 000 m²" },
   { icon: Building2, label: "Etasjer", value: "9 (U1 + plan 1-8)" },
   { icon: Calendar, label: "Byggeår", value: "2024 (rehabilitering)" },
   { icon: Award, label: "Energimerke", value: "C" },
