@@ -97,7 +97,7 @@ export function AppSidebar() {
 
       {/* Footer */}
       <div className="border-t border-border px-5 py-4">
-        <p className="text-[11px] text-muted-foreground/60">VirtualHouse v0.9 — Demo</p>
+        <p className="text-[11px] text-muted-foreground/60">VirtualHouse v1.0 — Investor Preview</p>
       </div>
     </aside>
   );

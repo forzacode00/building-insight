@@ -104,27 +104,21 @@ export default function Sammenligning() {
       {/* Green banner */}
       <motion.div
         variants={item}
-        className="rounded-xl border border-vh-green/30 bg-vh-green/10 p-6"
+        className="rounded-xl bg-gradient-to-r from-green-950/60 to-emerald-950/40 border border-green-700/40 p-8"
       >
-        <div className="flex items-center gap-4">
-          <TrendingDown className="h-8 w-8 text-vh-green" />
-          <div>
-            <p className="text-lg font-bold text-foreground">
-              Estimert årlig besparelse:{" "}
-              <motion.span
-                className="text-vh-green font-mono tabular-nums"
-                initial={{ opacity: 0 }}
-                animate={inView ? { opacity: 1 } : {}}
-                transition={{ delay: 0.6 }}
-              >
-                NOK 268 000
-              </motion.span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Tilbakebetalingstid:{" "}
-              <span className="font-semibold text-primary font-mono tabular-nums">3.3 år</span>
-            </p>
-          </div>
+        <div className="text-center">
+          <p className="text-sm uppercase tracking-wider text-green-300/70 mb-2">Estimert årlig besparelse</p>
+          <motion.p
+            className="text-5xl font-bold font-mono tabular-nums text-green-400"
+            initial={{ opacity: 0 }}
+            animate={inView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.6 }}
+          >
+            NOK 268 000
+          </motion.p>
+          <p className="mt-2 text-lg text-muted-foreground">
+            Tilbakebetalingstid: <span className="font-semibold text-primary font-mono tabular-nums">3.3 år</span>
+          </p>
         </div>
       </motion.div>
     </motion.div>

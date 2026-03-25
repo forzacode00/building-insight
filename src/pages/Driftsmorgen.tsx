@@ -187,7 +187,7 @@ export default function Driftsmorgen() {
           {[
             { icon: Zap, label: "Simuler endring", path: "/simulering", color: "text-vh-yellow", glow: "shadow-[0_0_20px_rgba(234,179,8,0.1)]" },
             { icon: Network, label: "Se nettverkskart", path: "/nettverkskart", color: "text-primary", glow: "shadow-[0_0_20px_rgba(59,130,246,0.1)]" },
-            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/datainput", color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
+            { icon: ClipboardList, label: "Åpne avviksrapport", path: "/simulering", color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
           ].map((action) => (
             <button
               key={action.path}

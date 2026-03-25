@@ -8,6 +8,7 @@ export interface GraphNode {
   value?: string;
   nsKode?: string;
   connections?: number;
+  iconHint?: string;
 }
 
 export interface GraphEdge {
@@ -30,22 +31,22 @@ export { NODE_COLORS };
 
 export const graphNodes: GraphNode[] = [
   // Climate (grey)
-  { id: "utetemperatur", label: "Utetemperatur", group: "climate", value: "-5.2°C", nsKode: "—" },
-  { id: "solinnstråling", label: "Solinnstråling sør-fasade", group: "climate", value: "340 W/m²", nsKode: "—" },
+  { id: "utetemperatur", label: "Utetemperatur", group: "climate", value: "-5.2°C", nsKode: "—", iconHint: "thermometer" },
+  { id: "solinnstråling", label: "Solinnstråling sør-fasade", group: "climate", value: "340 W/m²", nsKode: "—", iconHint: "sun" },
   // Varme (red)
-  { id: "varmebehov-rad", label: "Varmebehov radiatorer", group: "varme", value: "187 kW", nsKode: "32" },
-  { id: "turtemp-varme", label: "Turtemperatur varme 55°C", group: "varme", value: "55°C", nsKode: "32" },
-  { id: "radiator-kap", label: "Radiator kapasitet", group: "varme", value: "280 kW", nsKode: "32" },
-  { id: "pumpeeffekt", label: "Pumpeeffekt", group: "varme", value: "12.4 kW", nsKode: "32" },
+  { id: "varmebehov-rad", label: "Varmebehov radiatorer", group: "varme", value: "187 kW", nsKode: "32", iconHint: "flame" },
+  { id: "turtemp-varme", label: "Turtemperatur varme 55°C", group: "varme", value: "55°C", nsKode: "32", iconHint: "flame" },
+  { id: "radiator-kap", label: "Radiator kapasitet", group: "varme", value: "280 kW", nsKode: "32", iconHint: "flame" },
+  { id: "pumpeeffekt", label: "Pumpeeffekt", group: "varme", value: "12.4 kW", nsKode: "32", iconHint: "zap" },
   { id: "varmetap", label: "Varmetap ledningsnett", group: "varme", value: "8.2 kW", nsKode: "32" },
   { id: "fjernvarme-retur", label: "Fjernvarme returtemp", group: "varme", value: "38°C", nsKode: "32" },
   { id: "fjernvarme-eff", label: "Fjernvarme effektivitet", group: "varme", value: "92%", nsKode: "32" },
   { id: "rad-aktuator-4s", label: "Radiator aktuator sone 4S", group: "varme", value: "73% åpen", nsKode: "32" },
   // Kjøling (blue)
-  { id: "kjølebehov", label: "Kjølebehov", group: "kjøling", value: "142 kW", nsKode: "37" },
+  { id: "kjølebehov", label: "Kjølebehov", group: "kjøling", value: "142 kW", nsKode: "37", iconHint: "snowflake" },
   { id: "kjølebehov-sør", label: "Kjølebehov sør-soner", group: "kjøling", value: "68 kW", nsKode: "37" },
-  { id: "kjølemaskin", label: "Kjølemaskin", group: "kjøling", value: "400 kW nom.", nsKode: "35" },
-  { id: "isvannstemp", label: "Isvannstemperatur 6°C", group: "kjøling", value: "6.1°C", nsKode: "35" },
+  { id: "kjølemaskin", label: "Kjølemaskin", group: "kjøling", value: "400 kW nom.", nsKode: "35", iconHint: "snowflake" },
+  { id: "isvannstemp", label: "Isvannstemperatur 6°C", group: "kjøling", value: "6.1°C", nsKode: "35", iconHint: "snowflake" },
   { id: "kjølebafel-kap", label: "Kjølebafel kapasitet", group: "kjøling", value: "108 kW", nsKode: "37" },
   { id: "kondensfarerisiko", label: "Kondensfarerisiko", group: "kjøling", value: "Lav", nsKode: "37" },
   { id: "elkraft-kjøling", label: "Elkraftforbruk kjøling", group: "kjøling", value: "89 kW", nsKode: "44" },
@@ -53,21 +54,21 @@ export const graphNodes: GraphNode[] = [
   { id: "frikjøling", label: "Frikjøling tilgjengelig?", group: "kjøling", value: "Nei (>12°C)", nsKode: "35" },
   { id: "kjølebafel-ventil-4s", label: "Kjølebafel ventil sone 4S", group: "kjøling", value: "45% åpen", nsKode: "37" },
   // Ventilasjon (green)
-  { id: "luftmengde-vav", label: "Luftmengde (VAV)", group: "ventilasjon", value: "34,200 m³/h", nsKode: "36" },
-  { id: "co2-nivå", label: "CO₂-nivå", group: "ventilasjon", value: "720 ppm", nsKode: "36" },
-  { id: "vifteeffekt-sfp", label: "Vifteeffekt (SFP)", group: "ventilasjon", value: "1.82 kW/(m³/s)", nsKode: "36" },
+  { id: "luftmengde-vav", label: "Luftmengde (VAV)", group: "ventilasjon", value: "34,200 m³/h", nsKode: "36", iconHint: "wind" },
+  { id: "co2-nivå", label: "CO₂-nivå", group: "ventilasjon", value: "720 ppm", nsKode: "36", iconHint: "wind" },
+  { id: "vifteeffekt-sfp", label: "Vifteeffekt (SFP)", group: "ventilasjon", value: "1.82 kW/(m³/s)", nsKode: "36", iconHint: "wind" },
   { id: "trykktap", label: "Trykktap kanalnett", group: "ventilasjon", value: "312 Pa", nsKode: "36" },
   { id: "varmebatteri-eff", label: "Varmebatteri effekt", group: "ventilasjon", value: "64 kW", nsKode: "36" },
   { id: "kjølebatteri-eff", label: "Kjølebatteri effekt", group: "ventilasjon", value: "48 kW", nsKode: "36" },
   { id: "gjenvinner-eff", label: "Gjenvinner effektivitet", group: "ventilasjon", value: "76%", nsKode: "36" },
   { id: "gjenvinner-last", label: "Gjenvinner last", group: "ventilasjon", value: "82%", nsKode: "36" },
-  { id: "brannspjeld", label: "Brannspjeld status", group: "ventilasjon", value: "Normal", nsKode: "33" },
+  { id: "brannspjeld", label: "Brannspjeld status", group: "ventilasjon", value: "Normal", nsKode: "33", iconHint: "shield" },
   { id: "luftfordeling", label: "Luftfordeling", group: "ventilasjon", value: "Balansert", nsKode: "36" },
   { id: "avkastluft-temp", label: "Avkastluft temperatur", group: "ventilasjon", value: "22.4°C", nsKode: "36" },
   // Automasjon (purple)
-  { id: "sd-settpunkt", label: "SD-anlegg settpunkt romtemp", group: "automasjon", value: "21.0°C", nsKode: "56" },
+  { id: "sd-settpunkt", label: "SD-anlegg settpunkt romtemp", group: "automasjon", value: "21.0°C", nsKode: "56", iconHint: "cpu" },
   { id: "vav-spjeld", label: "VAV-spjeld posisjon", group: "automasjon", value: "62% åpen", nsKode: "56" },
-  { id: "internlast", label: "Internlast (personer + utstyr)", group: "automasjon", value: "38 W/m²", nsKode: "56" },
+  { id: "internlast", label: "Internlast (personer + utstyr)", group: "automasjon", value: "38 W/m²", nsKode: "56", iconHint: "cpu" },
 ];
 
 export const graphEdges: GraphEdge[] = [
