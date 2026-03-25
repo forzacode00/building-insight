@@ -4,8 +4,15 @@ import { Flame, Snowflake } from "lucide-react";
 
 const fadeIn = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, ease: "easeOut" as const } };
 
+export interface PIDHighlights {
+  sfp: boolean;
+  overtemp: boolean;
+  simultaneous: boolean;
+}
+
 interface PIDDiagramProps {
   buildStep?: number;
+  highlights?: PIDHighlights;
 }
 
 function SourceLabel({ text, show }: { text: string; show: boolean }) {
@@ -22,7 +29,7 @@ function SourceLabel({ text, show }: { text: string; show: boolean }) {
   );
 }
 
-export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
+export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtemp: false, simultaneous: false } }: PIDDiagramProps) {
   const showFlow = buildStep >= 38;
   const showTemps = buildStep >= 36;
   const showReturn = buildStep >= 34;
@@ -56,7 +63,7 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
                     <div className="flex flex-col gap-2">
                       {buildStep >= 10 && (
                         <motion.div {...fadeIn}>
-                          <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp={showTemps ? "55/40°C" : ""} />
+                          <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp={showTemps ? "55/40°C" : ""} highlight={highlights.simultaneous ? "red" : undefined} />
                           <SourceLabel text="fra s.12" show={buildStep >= 10 && buildStep < 40} />
                         </motion.div>
                       )}
@@ -82,7 +89,6 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
                   </>
                 )}
               </div>
-              {/* Return flow */}
               {showReturn && (
                 <motion.div {...fadeIn} className="mt-1 flex items-center gap-3 pl-2">
                   <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
@@ -95,6 +101,19 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Simultaneous heating/cooling warning line */}
+        {highlights.simultaneous && (
+          <motion.div
+            className="mx-8 border-t-2 border-dashed border-vh-red/60 relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded bg-vh-red/20 px-2 py-0.5 text-[9px] font-medium text-vh-red whitespace-nowrap">
+              ⚠ Samtidig varme/kjøle-drift
+            </span>
+          </motion.div>
+        )}
 
         {/* Kjøle section */}
         <AnimatePresence>
@@ -116,7 +135,7 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
                     <PipeArrow color="blue" animate={showFlow} />
                     <div className="flex flex-col gap-2">
                       <motion.div {...fadeIn}>
-                        <BranchRow icon="kjølebafel" label="180 Kjølebafler" color="blue" temp={showTemps ? "600W/stk" : ""} />
+                        <BranchRow icon="kjølebafel" label="180 Kjølebafler" color="blue" temp={showTemps ? "600W/stk" : ""} highlight={highlights.simultaneous ? "red" : undefined} />
                       </motion.div>
                       <motion.div {...fadeIn} transition={{ delay: 0.2 }}>
                         <BranchRow icon="kjølebatteri" label="Isvannsbatteri AHU" color="blue" temp={showTemps ? "6/12°C" : ""} />
@@ -145,7 +164,7 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
                 className="rounded-xl border border-vh-green/30 bg-vh-green/5 px-3 py-3"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
+                transition={{ duration: 0.5, ease: "easeOut" as const }}
                 style={{ transformOrigin: "left" }}
               >
                 <div className="flex items-center gap-0">
@@ -154,22 +173,31 @@ export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
                     { label: "Gjenvinner 82%", icon: "gjenvinner", step: 25, src: "s.31" },
                     { label: "Varmebatteri", icon: "varmebatteri", step: 26, src: "s.32" },
                     { label: "Kjølebatteri", icon: "kjølebatteri", step: 27, src: "s.33" },
-                    { label: "Vifte", icon: "vifte", step: 28, src: "s.34" },
+                    { label: "Vifte", icon: "vifte", step: 28, src: "s.34", highlight: highlights.sfp ? "red" as const : undefined },
                     { label: "Kanalnett", icon: "kanal", step: 29, src: "s.35" },
                     { label: "VAV", icon: "vav", step: 30, src: "s.36" },
-                    { label: "Rom", icon: "rom", step: 32, src: "s.38" },
+                    { label: "Rom", icon: "rom", step: 32, src: "s.38", highlight: highlights.overtemp ? "yellow" as const : undefined },
                   ].map((comp, i, arr) => (
                     <div key={comp.label} className="flex items-center">
                       <AnimatePresence>
                         {buildStep >= comp.step && (
                           <motion.div
-                            className="flex flex-col items-center px-2 py-1"
+                            className={`flex flex-col items-center px-2 py-1 rounded-lg transition-all ${
+                              comp.highlight === "red" ? "ring-2 ring-vh-red/70 bg-vh-red/10" :
+                              comp.highlight === "yellow" ? "ring-2 ring-vh-yellow/70 bg-vh-yellow/10" : ""
+                            }`}
                             initial={{ opacity: 0, scale: 0.5 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
                           >
                             <AHUIcon type={comp.icon} />
                             <span className="mt-1 text-[9px] font-medium text-vh-green whitespace-nowrap">{comp.label}</span>
+                            {comp.highlight === "red" && (
+                              <span className="text-[8px] font-medium text-vh-red">SFP ⚠</span>
+                            )}
+                            {comp.highlight === "yellow" && (
+                              <span className="text-[8px] font-medium text-vh-yellow">&gt;26°C</span>
+                            )}
                             <SourceLabel text={`fra ${comp.src}`} show={buildStep >= comp.step && buildStep < 40} />
                           </motion.div>
                         )}
@@ -213,7 +241,7 @@ function EquipmentIcon({ type, color }: { type: string; color: string }) {
     case "fjernvarme":
       return (
         <div className="flex items-center justify-center h-10 w-10">
-          <div className={`rounded-lg border p-1.5 border-vh-red/40 bg-vh-red/10`}>
+          <div className="rounded-lg border p-1.5 border-vh-red/40 bg-vh-red/10">
             <Flame className="h-5 w-5 text-vh-red" />
           </div>
         </div>
@@ -403,11 +431,12 @@ function ReturnPipe({ color, animate = true }: { color: string; animate?: boolea
   );
 }
 
-function BranchRow({ icon, label, color, temp }: { icon: string; label: string; color: string; temp: string }) {
+function BranchRow({ icon, label, color, temp, highlight }: { icon: string; label: string; color: string; temp: string; highlight?: "red" | "yellow" }) {
   const textClass = color === "red" ? "text-vh-red" : color === "blue" ? "text-vh-blue" : "text-vh-green";
   const dotClass = color === "red" ? "bg-vh-red" : color === "blue" ? "bg-vh-blue" : "bg-vh-green";
+  const highlightClass = highlight === "red" ? "ring-2 ring-vh-red/60 rounded-lg px-1 bg-vh-red/5" : highlight === "yellow" ? "ring-2 ring-vh-yellow/60 rounded-lg px-1 bg-vh-yellow/5" : "";
   return (
-    <div className="flex items-center gap-2">
+    <div className={`flex items-center gap-2 ${highlightClass}`}>
       <motion.div
         className={`h-2 w-2 rounded-full ${dotClass}`}
         animate={{ opacity: [0.4, 1, 0.4] }}
