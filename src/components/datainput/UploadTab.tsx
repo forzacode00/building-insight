@@ -21,6 +21,7 @@ const parseResults = [
 ];
 
 export function UploadTab() {
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<"idle" | "parsing" | "done">("idle");
   const [parseStep, setParseStep] = useState(0);
 
@@ -147,7 +148,10 @@ export function UploadTab() {
             </div>
 
             <div className="mt-4 flex justify-end">
-              <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">
+              <button
+                onClick={() => navigate("/simulering", { state: { startBuild: true } })}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
                 Godkjenn alle parametere og start simulering →
               </button>
             </div>
