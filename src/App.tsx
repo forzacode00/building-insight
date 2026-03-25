@@ -7,6 +7,7 @@ import { AppLayout } from "./components/AppLayout";
 import Driftsmorgen from "./pages/Driftsmorgen";
 import Datainput from "./pages/Datainput";
 import Simulering from "./pages/Simulering";
+import Nettverkskart from "./pages/Nettverkskart";
 import StubPage from "./pages/StubPage";
 import NotFound from "./pages/NotFound";
 
@@ -25,7 +26,7 @@ const App = () => (
             <Route path="/datainput" element={<Datainput />} />
             <Route path="/simulering" element={<Simulering />} />
             <Route path="/sammenligning" element={<StubPage />} />
-            <Route path="/nettverkskart" element={<StubPage />} />
+            <Route path="/nettverkskart" element={<Nettverkskart />} />
             <Route path="/sd-live" element={<StubPage />} />
             <Route path="/priser" element={<StubPage />} />
           </Route>
