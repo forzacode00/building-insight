@@ -17,6 +17,7 @@ export default function Sammenligning() {
   const opt = useOptimizedResult();
 
   const savings = r.annualCostNOK - opt.annualCostNOK;
+  const energyReductionPct = Math.round(((r.totalEnergyKwhM2 - opt.totalEnergyKwhM2) / r.totalEnergyKwhM2) * 100);
 
   const rows = [
     {
