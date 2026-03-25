@@ -227,6 +227,10 @@ export default function Nettverkskart() {
           )}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {matrixOpen && <InterfaceMatrixModal open={matrixOpen} onClose={() => setMatrixOpen(false)} />}
+      </AnimatePresence>
     </motion.div>
   );
 }
