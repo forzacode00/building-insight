@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, ArrowLeft, Zap } from "lucide-react";
+import { X, ArrowRight, ArrowLeft, Zap, ClipboardList } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { graphNodes, graphEdges, NODE_COLORS, type GraphNode, type GraphEdge, type NodeGroup } from "@/components/nettverkskart/graphData";
 import { KnowledgeGraphCanvas } from "@/components/nettverkskart/KnowledgeGraphCanvas";
+import { InterfaceMatrixModal } from "@/components/nettverkskart/InterfaceMatrixModal";
 
 type FilterMode = "alle" | "varme" | "kjøling" | "ventilasjon" | "konflikter" | "kritisk";
 
@@ -26,6 +27,7 @@ export default function Nettverkskart() {
   const [activeFilter, setActiveFilter] = useState<FilterMode>("alle");
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<GraphEdge | null>(null);
+  const [matrixOpen, setMatrixOpen] = useState(false);
   const navigate = useNavigate();
 
   const filteredData = useMemo(() => {
@@ -91,7 +93,7 @@ export default function Nettverkskart() {
         <p className="text-sm text-muted-foreground">Interaktivt avhengighetskart som viser hvordan hvert system påvirker de andre</p>
 
         {/* Filters */}
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           {filters.map((f) => (
             <button
               key={f.id}
@@ -106,6 +108,15 @@ export default function Nettverkskart() {
               {f.label}
             </button>
           ))}
+          <div className="ml-auto">
+            <button
+              onClick={() => setMatrixOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+            >
+              <ClipboardList className="h-3.5 w-3.5" />
+              Grensesnittmatrise
+            </button>
+          </div>
         </div>
       </div>
 
