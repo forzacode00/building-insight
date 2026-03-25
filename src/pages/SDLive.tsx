@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck } from "lucide-react";
+import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck, Upload, Plug } from "lucide-react";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation, type SimResult, type SimInput } from "@/lib/simulationEngine";
 
@@ -244,6 +244,9 @@ export default function SDLive() {
           <span className="inline-block h-3 w-1.5 animate-pulse bg-primary" />
         </div>
       </motion.div>
+
+      {/* BACnet punktliste verifisering */}
+      <BACnetPunktliste />
 
       {/* Live vs Design table */}
       <motion.div variants={item} className="mb-6">
@@ -688,6 +691,202 @@ function OverleveringSjekkliste() {
         <FileText className="h-4 w-4" />
         Generer overleveringsdokument
       </button>
+    </motion.div>
+  );
+}
+
+/* ─── BACnet Punktliste Verifisering ─── */
+
+interface BACnetPoint {
+  id: string;
+  description: string;
+  pointValue: string;
+  designValue: string;
+  deviation: string;
+  status: "ok" | "warning" | "critical";
+}
+
+const DEMO_POINTS: BACnetPoint[] = [
+  { id: "AI:1001", description: "Romtemp kontor 4.etg sør", pointValue: "23.4°C", designValue: "21.0°C", deviation: "+2.4°C", status: "warning" },
+  { id: "AV:5001", description: "Romtemp settpunkt 4.etg sør", pointValue: "21.0°C", designValue: "21.0°C", deviation: "0", status: "ok" },
+  { id: "AI:7002", description: "SFP AHU-1", pointValue: "1.78", designValue: "1.50", deviation: "+0.28", status: "critical" },
+  { id: "AI:4001", description: "Isvannstemperatur", pointValue: "6.8°C", designValue: "6.0°C", deviation: "+0.8°C", status: "ok" },
+  { id: "AI:7001", description: "COP kjølemaskin", pointValue: "4.2", designValue: "4.5", deviation: "−0.3", status: "ok" },
+];
+
+const designLookup: Record<string, string> = {
+  "AI:1001": "21.0°C", "AV:5001": "21.0°C", "AI:7002": "1.50",
+  "AI:4001": "6.0°C", "AI:7001": "4.5", "AI:2001": "19.0°C",
+  "AI:3001": "55.0°C", "AI:3002": "40.0°C",
+};
+
+function matchStatus(id: string, val: string, design: string): { deviation: string; status: "ok" | "warning" | "critical" } {
+  const numVal = parseFloat(val);
+  const numDesign = parseFloat(design);
+  if (isNaN(numVal) || isNaN(numDesign)) return { deviation: "—", status: "ok" };
+  const diff = numVal - numDesign;
+  const absDiff = Math.abs(diff);
+  const pct = numDesign !== 0 ? (absDiff / Math.abs(numDesign)) * 100 : 0;
+  const deviation = `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}`;
+  if (pct > 15 || absDiff > 2) return { deviation, status: "critical" };
+  if (pct > 5 || absDiff > 1) return { deviation, status: "warning" };
+  return { deviation, status: "ok" };
+}
+
+function BACnetPunktliste() {
+  const [points, setPoints] = useState<BACnetPoint[]>(DEMO_POINTS);
+  const [isDemo, setIsDemo] = useState(true);
+  const [parsing, setParsing] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setParsing(true);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setTimeout(() => {
+        const text = ev.target?.result as string;
+        const lines = text.split("\n").filter((l) => l.trim());
+        const parsed: BACnetPoint[] = [];
+        // skip header
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].split(/[;,\t]/);
+          if (cols.length < 3) continue;
+          const id = cols[0].trim();
+          const desc = cols[1].trim();
+          const val = cols[2].trim();
+          const design = designLookup[id] || "—";
+          const { deviation, status } = design !== "—"
+            ? matchStatus(id, val, design)
+            : { deviation: "—", status: "ok" as const };
+          parsed.push({ id, description: desc, pointValue: val + (cols[3]?.trim() ? ` ${cols[3].trim()}` : ""), designValue: design, deviation, status });
+        }
+        if (parsed.length > 0) {
+          setPoints(parsed);
+          setIsDemo(false);
+        }
+        setParsing(false);
+      }, 1500);
+    };
+    reader.readAsText(file);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const okCount = points.filter((p) => p.status === "ok").length;
+  const warnCount = points.filter((p) => p.status === "warning").length;
+  const critCount = points.filter((p) => p.status === "critical").length;
+
+  const statusIcon = (s: BACnetPoint["status"]) => s === "ok" ? "✅" : s === "warning" ? "⚠️" : "❌";
+  const rowBgClass = (s: BACnetPoint["status"]) => s === "critical" ? "bg-red-950/30" : s === "warning" ? "bg-yellow-950/20" : "";
+
+  const handleExportAvvik = () => {
+    const avvik = points.filter((p) => p.status !== "ok");
+    const header = "BACnet ID;Beskrivelse;Punktlisteverdi;Designverdi;Avvik;Status";
+    const rows = avvik.map((p) => `${p.id};${p.description};${p.pointValue};${p.designValue};${p.deviation};${statusIcon(p.status)}`);
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "bacnet_avviksrapport.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <motion.div variants={item} className="mb-6">
+      <div className="mb-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Plug className="h-5 w-5 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">BACnet-punktliste: Verifisering</h3>
+        </div>
+        <div>
+          <input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleFile} className="hidden" />
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Last opp punktliste (CSV)
+          </button>
+        </div>
+      </div>
+
+      {parsing && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-4 flex items-center gap-3 rounded-xl border border-primary/30 bg-primary/5 p-4"
+        >
+          <motion.div
+            className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <span className="text-sm text-foreground">Leser punktliste... Matcher mot VirtualHouse-design...</span>
+        </motion.div>
+      )}
+
+      {!parsing && (
+        <>
+          {isDemo && (
+            <div className="mb-3 rounded-lg bg-secondary/50 px-3 py-2 text-xs text-muted-foreground">
+              Demo-modus: Viser eksempel-punktliste for Parkveien Kontorbygg
+            </div>
+          )}
+
+          {/* Summary */}
+          <div className="mb-3 flex flex-wrap gap-3 text-xs">
+            <span className="text-muted-foreground">Totalt: <span className="font-semibold text-foreground">{points.length} punkter</span></span>
+            <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">✅ {okCount} OK</span>
+            <span className="inline-flex items-center gap-1 text-yellow-400 font-semibold">⚠️ {warnCount} Avvik</span>
+            <span className="inline-flex items-center gap-1 text-red-400 font-semibold">❌ {critCount} Kritisk</span>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto rounded-xl border border-border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border bg-secondary/50">
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">BACnet ID</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Beskrivelse</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Punktlisteverdi</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Designverdi</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Avvik</th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {points.map((p) => (
+                  <tr key={p.id} className={`border-b border-border/50 transition-colors ${rowBgClass(p.status)}`}>
+                    <td className="px-3 py-2 font-mono text-xs text-primary">{p.id}</td>
+                    <td className="px-3 py-2 text-foreground">{p.description}</td>
+                    <td className="px-3 py-2 font-mono tabular-nums text-foreground">{p.pointValue}</td>
+                    <td className="px-3 py-2 font-mono tabular-nums text-muted-foreground">{p.designValue}</td>
+                    <td className="px-3 py-2 font-mono tabular-nums text-foreground">{p.deviation}</td>
+                    <td className="px-3 py-2 text-xs font-semibold">
+                      <span className={p.status === "ok" ? "text-emerald-400" : p.status === "warning" ? "text-yellow-400" : "text-red-400"}>
+                        {statusIcon(p.status)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {(warnCount + critCount > 0) && (
+            <button
+              onClick={handleExportAvvik}
+              className="mt-3 inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              Eksporter avviksrapport
+            </button>
+          )}
+        </>
+      )}
     </motion.div>
   );
 }
