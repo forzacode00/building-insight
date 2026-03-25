@@ -8,6 +8,7 @@ export interface GraphNode {
   value?: string;
   nsKode?: string;
   connections?: number;
+  iconHint?: string;
 }
 
 export interface GraphEdge {

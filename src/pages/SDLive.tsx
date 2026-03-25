@@ -46,6 +46,7 @@ const bacnetLines = [
   { time: "12:14:02", obj: "BACnet/AV:5010", desc: "Tillufttemp settpunkt AHU-1", val: "19.0°C" },
   { time: "12:14:02", obj: "BACnet/AV:5011", desc: "CO₂ settpunkt kontor", val: "800 ppm" },
   { time: "12:14:02", obj: "BACnet/BI:6001", desc: "Kjølemaskin 1 driftstatus", val: "PÅ" },
+  { time: "12:14:02", obj: "BACnet/BO:6002", desc: "Kjølemaskin 1 startkommando", val: "PÅ" },
   { time: "12:14:02", obj: "BACnet/AI:7001", desc: "COP kjølemaskin 1", val: "4.2" },
   { time: "12:14:03", obj: "BACnet/AI:7002", desc: "SFP AHU-1", val: "1.78" },
   { time: "12:14:03", obj: "BACnet/AI:7003", desc: "CO₂ kontor 4.etg", val: "680 ppm" },

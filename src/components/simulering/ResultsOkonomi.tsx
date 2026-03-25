@@ -43,7 +43,7 @@ export function ResultsOkonomi() {
           <TrendingDown className="h-6 w-6 text-vh-green" />
           <div>
             <p className="text-sm font-semibold text-foreground">CO₂-reduksjon</p>
-            <p className="text-4xl font-bold font-mono tabular-nums text-vh-green">42 → 31 <span className="text-sm font-normal font-sans text-muted-foreground">tonn (-26%)</span></p>
+            <p className="text-4xl font-bold font-mono tabular-nums text-vh-green">42 → 31 <span className="text-sm font-normal font-sans text-muted-foreground">tonn/år — scope 2 (−26%)</span></p>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { CheckCircle2, AlertTriangle } from "lucide-react";
 
 const metrics = [
-  { label: "Timer >26°C sommer", value: "87 timer", status: "warning" as const, detail: "Overskridelse i sørvendte soner" },
+  { label: "Timer >26°C sommer", value: "87 timer", status: "warning" as const, detail: "Overskrider kategori II (NS-EN 16798-1) for sørvendte soner" },
   { label: "Timer <19°C vinter", value: "12 timer", status: "ok" as const, detail: "Innenfor akseptabelt nivå" },
   { label: "CO₂ gjennomsnitt", value: "720 ppm", status: "ok" as const, detail: "Under settpunkt 800 ppm" },
   { label: "RF vinter", value: "18%", status: "warning" as const, detail: "Under anbefalt 20%" },
