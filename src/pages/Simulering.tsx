@@ -251,11 +251,15 @@ export default function Simulering() {
               <TabsTrigger value="okonomi" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                 <DollarSign className="mr-1.5 h-3.5 w-3.5" /> Økonomi
               </TabsTrigger>
+              <TabsTrigger value="parameterstudie" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Parameterstudie
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="energi"><ResultsEnergi /></TabsContent>
             <TabsContent value="komfort"><ResultsKomfort /></TabsContent>
             <TabsContent value="avvik"><div ref={avvikRef}><ResultsAvvik /></div></TabsContent>
             <TabsContent value="okonomi"><ResultsOkonomi /></TabsContent>
+            <TabsContent value="parameterstudie"><ParameterStudy /></TabsContent>
           </Tabs>
         </motion.div>
       )}
