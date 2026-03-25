@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Building2, MapPin, Calendar, Ruler, Award, ChevronDown, ChevronRight, CheckSquare, Square } from "lucide-react";
+import { Building2, MapPin, Calendar, Ruler, Award, ChevronDown, ChevronRight, CheckSquare, Square, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const buildingInfo = [
   { icon: Building2, label: "Bygningstype", value: "Kontorbygning" },
