@@ -199,9 +199,11 @@ export function KnowledgeGraphCanvas({
         ctx.lineTo(edge.target.x, edge.target.y);
 
         if (isConflict) {
-          const pulse = Math.sin(timeRef.current * 4) * 0.4 + 0.6;
-          ctx.strokeStyle = `rgba(239, 68, 68, ${dimmed ? 0.15 : pulse})`;
-          ctx.lineWidth = dimmed ? 1 : 3 + Math.sin(timeRef.current * 3) * 1;
+          // Pulse for ~3 seconds then settle to steady glow
+          const t = timeRef.current;
+          const pulsePhase = t < 3 ? Math.sin(t * 4) * 0.4 + 0.6 : 0.7;
+          ctx.strokeStyle = `rgba(239, 68, 68, ${dimmed ? 0.15 : pulsePhase})`;
+          ctx.lineWidth = dimmed ? 1 : t < 3 ? 3 + Math.sin(t * 3) * 1 : 2.5;
           ctx.setLineDash([]);
         } else if (onCritPath) {
           ctx.strokeStyle = dimmed ? "rgba(234, 179, 8, 0.1)" : "rgba(234, 179, 8, 0.8)";
@@ -239,9 +241,11 @@ export function KnowledgeGraphCanvas({
         if (isConflict && !dimmed) {
           const midX = (edge.source.x + edge.target.x) / 2;
           const midY = (edge.source.y + edge.target.y) / 2;
-          const glowR = 15 + Math.sin(timeRef.current * 3) * 5;
+          const t = timeRef.current;
+          const glowR = t < 3 ? 15 + Math.sin(t * 3) * 5 : 14;
+          const glowAlpha = t < 3 ? 0.4 + Math.sin(t * 4) * 0.2 : 0.3;
           const gradient = ctx.createRadialGradient(midX, midY, 0, midX, midY, glowR);
-          gradient.addColorStop(0, "rgba(239, 68, 68, 0.4)");
+          gradient.addColorStop(0, `rgba(239, 68, 68, ${glowAlpha})`);
           gradient.addColorStop(1, "rgba(239, 68, 68, 0)");
           ctx.beginPath();
           ctx.arc(midX, midY, glowR, 0, Math.PI * 2);

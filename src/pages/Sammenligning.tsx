@@ -3,13 +3,13 @@ import { useRef } from "react";
 import { ArrowDown, ArrowUp, TrendingDown } from "lucide-react";
 
 const rows = [
-  { param: "Netto energibehov", orig: "138 kWh/m²·år", opt: "110 kWh/m²·år", delta: "−20%", good: true },
+  { param: "Netto energibehov", orig: "138 kWh/m²·år", opt: "110 kWh/m²·år", delta: "−20%", good: true, origPct: 100, optPct: 80 },
   { param: "TEK17-krav", orig: "❌ Overskrider (115)", opt: "✅ Oppfyller", delta: "—", good: true, isBool: true },
-  { param: "SFP-faktor", orig: "1.8 kW/(m³/s)", opt: "1.4 kW/(m³/s)", delta: "−22%", good: true },
-  { param: "Timer >26°C sommer", orig: "87 timer", opt: "14 timer", delta: "−84%", good: true },
-  { param: "Årlig energikostnad", orig: "NOK 1 104 000", opt: "NOK 836 000", delta: "−NOK 268 000", good: true },
-  { param: "CO₂ scope 2", orig: "42 tonn/år", opt: "31 tonn/år", delta: "−26%", good: true },
-  { param: "Gjenvinner virkningsgrad", orig: "76%", opt: "85%", delta: "+9 pp", good: true },
+  { param: "SFP-faktor", orig: "1.8 kW/(m³/s)", opt: "1.4 kW/(m³/s)", delta: "−22%", good: true, origPct: 100, optPct: 78 },
+  { param: "Timer >26°C sommer", orig: "87 timer", opt: "14 timer", delta: "−84%", good: true, origPct: 100, optPct: 16 },
+  { param: "Årlig energikostnad", orig: "NOK 1 104 000", opt: "NOK 836 000", delta: "−NOK 268 000", good: true, origPct: 100, optPct: 76 },
+  { param: "CO₂ scope 2", orig: "42 tonn/år", opt: "31 tonn/år", delta: "−26%", good: true, origPct: 100, optPct: 74 },
+  { param: "Gjenvinner virkningsgrad", orig: "76%", opt: "85%", delta: "+9 pp", good: true, origPct: 76, optPct: 85 },
 ];
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
@@ -63,6 +63,42 @@ export default function Sammenligning() {
             ))}
           </tbody>
         </table>
+      </motion.div>
+
+      {/* Visual delta bars */}
+      <motion.div variants={item} className="mb-6 rounded-xl border border-border bg-card p-5">
+        <h3 className="mb-4 text-sm font-semibold text-foreground">Visuell sammenligning</h3>
+        <div className="space-y-3">
+          {rows.filter(r => !r.isBool && r.origPct !== undefined).map((r, i) => (
+            <div key={r.param} className="flex items-center gap-3">
+              <span className="w-48 text-xs text-muted-foreground truncate">{r.param}</span>
+              <div className="flex-1 flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-16 text-[10px] text-muted-foreground text-right">Opprinnelig</span>
+                  <div className="flex-1 h-3 rounded-full bg-secondary/50 overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-muted-foreground/30"
+                      initial={{ width: 0 }}
+                      animate={inView ? { width: `${r.origPct}%` } : {}}
+                      transition={{ delay: i * 0.1 + 0.3, duration: 0.6 }}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-16 text-[10px] text-vh-green text-right">Optimalisert</span>
+                  <div className="flex-1 h-3 rounded-full bg-secondary/50 overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full bg-vh-green/60"
+                      initial={{ width: 0 }}
+                      animate={inView ? { width: `${r.optPct}%` } : {}}
+                      transition={{ delay: i * 0.1 + 0.5, duration: 0.6 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Green banner */}
