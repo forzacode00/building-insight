@@ -1,93 +1,203 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Flame, Snowflake } from "lucide-react";
 
-export function PIDDiagram() {
+const fadeIn = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, ease: "easeOut" } };
+
+interface PIDDiagramProps {
+  buildStep?: number;
+}
+
+function SourceLabel({ text, show }: { text: string; show: boolean }) {
+  if (!show) return null;
+  return (
+    <motion.span
+      className="text-[8px] italic text-primary/50 ml-1"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 0 }}
+      transition={{ delay: 2, duration: 0.5 }}
+    >
+      {text}
+    </motion.span>
+  );
+}
+
+export function PIDDiagram({ buildStep = 999 }: PIDDiagramProps) {
+  const showFlow = buildStep >= 38;
+  const showTemps = buildStep >= 36;
+  const showReturn = buildStep >= 34;
+
   return (
     <div className="rounded-xl border border-border bg-card p-5">
       <h3 className="mb-4 text-sm font-semibold text-foreground">P&ID Flytdiagram</h3>
       <div className="relative space-y-6">
         {/* Varme section */}
-        <div>
-          <p className="mb-3 text-xs font-medium text-vh-red">Varmesystem</p>
-          <div className="flex items-start gap-3">
-            <EquipmentNode icon="fjernvarme" label="Fjernvarme-sentral" color="red" temp="80°C" />
-            <PipeArrow color="red" />
-            <EquipmentNode icon="samlestokk" label="Samlestokk" color="red" temp="55°C" />
-            <PipeArrow color="red" />
-            <div className="flex flex-col gap-2">
-              <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp="55/40°C" />
-              <BranchRow icon="gulvvarme" label="Gulvvarme (10%)" color="red" temp="35/28°C" />
-              <BranchRow icon="varmebatteri" label="Varmebatteri AHU (20%)" color="red" temp="55/35°C" />
-              <BranchRow icon="pumpe" label="Luftporter (5%)" color="red" temp="55/40°C" />
-            </div>
-          </div>
-          {/* Return flow */}
-          <div className="mt-1 flex items-center gap-3 pl-2">
-            <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
-            <ReturnPipe color="red" />
-            <span className="text-[9px] text-muted-foreground font-mono tabular-nums">40°C</span>
-            <ReturnPipe color="red" />
-            <span className="text-[9px] text-muted-foreground font-mono tabular-nums">35°C</span>
-          </div>
-        </div>
+        <AnimatePresence>
+          {buildStep >= 5 && (
+            <motion.div {...fadeIn} key="varme-section">
+              <p className="mb-3 text-xs font-medium text-vh-red">Varmesystem</p>
+              <div className="flex items-start gap-3">
+                <motion.div {...fadeIn}>
+                  <EquipmentNode icon="fjernvarme" label="Fjernvarme-sentral" color="red" temp={showTemps ? "80°C" : ""} />
+                  <SourceLabel text="fra s.8" show={buildStep >= 5 && buildStep < 40} />
+                </motion.div>
+                {buildStep >= 8 && (
+                  <>
+                    <PipeArrow color="red" animate={showFlow} />
+                    <motion.div {...fadeIn}>
+                      <EquipmentNode icon="samlestokk" label="Samlestokk" color="red" temp={showTemps ? "55°C" : ""} />
+                      <SourceLabel text="fra s.9" show={buildStep >= 8 && buildStep < 40} />
+                    </motion.div>
+                  </>
+                )}
+                {buildStep >= 10 && (
+                  <>
+                    <PipeArrow color="red" animate={showFlow} />
+                    <div className="flex flex-col gap-2">
+                      {buildStep >= 10 && (
+                        <motion.div {...fadeIn}>
+                          <BranchRow icon="radiator" label="Radiatorer (65%)" color="red" temp={showTemps ? "55/40°C" : ""} />
+                          <SourceLabel text="fra s.12" show={buildStep >= 10 && buildStep < 40} />
+                        </motion.div>
+                      )}
+                      {buildStep >= 11 && (
+                        <motion.div {...fadeIn}>
+                          <BranchRow icon="gulvvarme" label="Gulvvarme (10%)" color="red" temp={showTemps ? "35/28°C" : ""} />
+                          <SourceLabel text="fra s.14" show={buildStep >= 11 && buildStep < 40} />
+                        </motion.div>
+                      )}
+                      {buildStep >= 12 && (
+                        <motion.div {...fadeIn}>
+                          <BranchRow icon="varmebatteri" label="Varmebatteri AHU (20%)" color="red" temp={showTemps ? "55/35°C" : ""} />
+                          <SourceLabel text="fra s.15" show={buildStep >= 12 && buildStep < 40} />
+                        </motion.div>
+                      )}
+                      {buildStep >= 14 && (
+                        <motion.div {...fadeIn}>
+                          <BranchRow icon="pumpe" label="Luftporter (5%)" color="red" temp={showTemps ? "55/40°C" : ""} />
+                          <SourceLabel text="fra s.16" show={buildStep >= 14 && buildStep < 40} />
+                        </motion.div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+              {/* Return flow */}
+              {showReturn && (
+                <motion.div {...fadeIn} className="mt-1 flex items-center gap-3 pl-2">
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
+                  <ReturnPipe color="red" animate={showFlow} />
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "40°C" : ""}</span>
+                  <ReturnPipe color="red" animate={showFlow} />
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "35°C" : ""}</span>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Kjøle section */}
-        <div>
-          <p className="mb-3 text-xs font-medium text-vh-blue">Kjølesystem</p>
-          <div className="flex items-start gap-3">
-            <EquipmentNode icon="kjølemaskin" label="Kjølemaskin 400kW" color="blue" temp="COP 4.5" />
-            <PipeArrow color="blue" />
-            <EquipmentNode icon="isvannstank" label="Isvann" color="blue" temp="6/12°C" />
-            <PipeArrow color="blue" />
-            <div className="flex flex-col gap-2">
-              <BranchRow icon="kjølebafel" label="180 Kjølebafler" color="blue" temp="600W/stk" />
-              <BranchRow icon="kjølebatteri" label="Isvannsbatteri AHU" color="blue" temp="6/12°C" />
-            </div>
-          </div>
-          <div className="mt-1 flex items-center gap-3 pl-2">
-            <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
-            <ReturnPipe color="blue" />
-            <span className="text-[9px] text-muted-foreground font-mono tabular-nums">12°C</span>
-          </div>
-        </div>
-
-        {/* AHU section — horizontal housing */}
-        <div>
-          <p className="mb-3 text-xs font-medium text-vh-green">Luftbehandling (AHU)</p>
-          <div className="rounded-xl border border-vh-green/30 bg-vh-green/5 px-3 py-3">
-            <div className="flex items-center gap-0">
-              {[
-                { label: "Filter F7", icon: "filter" },
-                { label: "Gjenvinner 82%", icon: "gjenvinner" },
-                { label: "Varmebatteri", icon: "varmebatteri" },
-                { label: "Kjølebatteri", icon: "kjølebatteri" },
-                { label: "Vifte", icon: "vifte" },
-                { label: "Kanalnett", icon: "kanal" },
-                { label: "VAV", icon: "vav" },
-                { label: "Rom", icon: "rom" },
-              ].map((step, i, arr) => (
-                <div key={step.label} className="flex items-center">
-                  <div className="flex flex-col items-center px-2 py-1">
-                    <AHUIcon type={step.icon} />
-                    <span className="mt-1 text-[9px] font-medium text-vh-green whitespace-nowrap">{step.label}</span>
-                  </div>
-                  {i < arr.length - 1 && (
-                    <div className="relative h-1 w-8 bg-vh-green/20 overflow-hidden rounded-full">
-                      <motion.div
-                        className="absolute top-0 left-0 h-full w-2 rounded-full bg-vh-green"
-                        animate={{ x: [0, 24, 0] }}
-                        transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: i * 0.15 }}
-                      />
+        <AnimatePresence>
+          {buildStep >= 16 && (
+            <motion.div {...fadeIn} key="kjoele-section">
+              <p className="mb-3 text-xs font-medium text-vh-blue">Kjølesystem</p>
+              <div className="flex items-start gap-3">
+                <motion.div {...fadeIn}>
+                  <EquipmentNode icon="kjølemaskin" label="Kjølemaskin 400kW" color="blue" temp={showTemps ? "COP 4.5" : ""} />
+                  <SourceLabel text="fra s.22" show={buildStep >= 16 && buildStep < 40} />
+                </motion.div>
+                {buildStep >= 18 && (
+                  <>
+                    <PipeArrow color="blue" animate={showFlow} />
+                    <motion.div {...fadeIn}>
+                      <EquipmentNode icon="isvannstank" label="Isvann" color="blue" temp={showTemps ? "6/12°C" : ""} />
+                      <SourceLabel text="fra s.23" show={buildStep >= 18 && buildStep < 40} />
+                    </motion.div>
+                    <PipeArrow color="blue" animate={showFlow} />
+                    <div className="flex flex-col gap-2">
+                      <motion.div {...fadeIn}>
+                        <BranchRow icon="kjølebafel" label="180 Kjølebafler" color="blue" temp={showTemps ? "600W/stk" : ""} />
+                      </motion.div>
+                      <motion.div {...fadeIn} transition={{ delay: 0.2 }}>
+                        <BranchRow icon="kjølebatteri" label="Isvannsbatteri AHU" color="blue" temp={showTemps ? "6/12°C" : ""} />
+                      </motion.div>
                     </div>
-                  )}
+                  </>
+                )}
+              </div>
+              {showReturn && (
+                <motion.div {...fadeIn} className="mt-1 flex items-center gap-3 pl-2">
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums italic">Retur →</span>
+                  <ReturnPipe color="blue" animate={showFlow} />
+                  <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{showTemps ? "12°C" : ""}</span>
+                </motion.div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* AHU section */}
+        <AnimatePresence>
+          {buildStep >= 22 && (
+            <motion.div {...fadeIn} key="ahu-section">
+              <p className="mb-3 text-xs font-medium text-vh-green">Luftbehandling (AHU)</p>
+              <motion.div
+                className="rounded-xl border border-vh-green/30 bg-vh-green/5 px-3 py-3"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                style={{ transformOrigin: "left" }}
+              >
+                <div className="flex items-center gap-0">
+                  {[
+                    { label: "Filter F7", icon: "filter", step: 24, src: "s.30" },
+                    { label: "Gjenvinner 82%", icon: "gjenvinner", step: 25, src: "s.31" },
+                    { label: "Varmebatteri", icon: "varmebatteri", step: 26, src: "s.32" },
+                    { label: "Kjølebatteri", icon: "kjølebatteri", step: 27, src: "s.33" },
+                    { label: "Vifte", icon: "vifte", step: 28, src: "s.34" },
+                    { label: "Kanalnett", icon: "kanal", step: 29, src: "s.35" },
+                    { label: "VAV", icon: "vav", step: 30, src: "s.36" },
+                    { label: "Rom", icon: "rom", step: 32, src: "s.38" },
+                  ].map((comp, i, arr) => (
+                    <div key={comp.label} className="flex items-center">
+                      <AnimatePresence>
+                        {buildStep >= comp.step && (
+                          <motion.div
+                            className="flex flex-col items-center px-2 py-1"
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            <AHUIcon type={comp.icon} />
+                            <span className="mt-1 text-[9px] font-medium text-vh-green whitespace-nowrap">{comp.label}</span>
+                            <SourceLabel text={`fra ${comp.src}`} show={buildStep >= comp.step && buildStep < 40} />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                      {i < arr.length - 1 && buildStep >= comp.step && showFlow && (
+                        <div className="relative h-1 w-8 bg-vh-green/20 overflow-hidden rounded-full">
+                          <motion.div
+                            className="absolute top-0 left-0 h-full w-2 rounded-full bg-vh-green"
+                            animate={{ x: [0, 24, 0] }}
+                            transition={{ duration: 1.2, repeat: Infinity, ease: "linear", delay: i * 0.15 }}
+                          />
+                        </div>
+                      )}
+                      {i < arr.length - 1 && buildStep >= comp.step && !showFlow && (
+                        <div className="h-1 w-8 bg-vh-green/20 rounded-full" />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-          <p className="mt-2 text-[10px] text-muted-foreground font-mono tabular-nums">
-            Tilluft: 42 000 m³/h | Avtrekk: 40 500 m³/h | SFP: 1.5 kW/(m³/s)
-          </p>
-        </div>
+              </motion.div>
+              {showTemps && (
+                <motion.p {...fadeIn} className="mt-2 text-[10px] text-muted-foreground font-mono tabular-nums">
+                  Tilluft: 42 000 m³/h | Avtrekk: 40 500 m³/h | SFP: 1.5 kW/(m³/s)
+                </motion.p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -103,7 +213,7 @@ function EquipmentIcon({ type, color }: { type: string; color: string }) {
     case "fjernvarme":
       return (
         <div className="flex items-center justify-center h-10 w-10">
-          <div className={`rounded-lg border p-1.5 ${color === "red" ? "border-vh-red/40 bg-vh-red/10" : ""}`}>
+          <div className={`rounded-lg border p-1.5 border-vh-red/40 bg-vh-red/10`}>
             <Flame className="h-5 w-5 text-vh-red" />
           </div>
         </div>
@@ -253,38 +363,42 @@ function EquipmentNode({ icon, label, color, temp }: { icon: string; label: stri
     <div className={`flex flex-col items-center gap-1 rounded-xl border ${borderClass} px-3 py-2`}>
       <EquipmentIcon type={icon} color={color} />
       <p className={`text-[10px] font-semibold ${textClass} text-center leading-tight`}>{label}</p>
-      <p className="text-[9px] text-muted-foreground font-mono tabular-nums">{temp}</p>
+      {temp && <p className="text-[9px] text-muted-foreground font-mono tabular-nums">{temp}</p>}
     </div>
   );
 }
 
-function PipeArrow({ color }: { color: string }) {
+function PipeArrow({ color, animate = true }: { color: string; animate?: boolean }) {
   const bgClass = color === "red" ? "bg-vh-red/20" : color === "blue" ? "bg-vh-blue/20" : "bg-vh-green/20";
   const dotClass = color === "red" ? "bg-vh-red" : color === "blue" ? "bg-vh-blue" : "bg-vh-green";
   return (
     <div className="flex items-center self-center">
       <div className={`relative h-1 w-10 ${bgClass} overflow-hidden rounded-full`}>
-        <motion.div
-          className={`absolute top-[-1px] left-0 h-2 w-2 rounded-full ${dotClass}`}
-          animate={{ x: [0, 32, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-        />
+        {animate && (
+          <motion.div
+            className={`absolute top-[-1px] left-0 h-2 w-2 rounded-full ${dotClass}`}
+            animate={{ x: [0, 32, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+        )}
       </div>
       <div className={`h-0 w-0 border-y-[4px] border-y-transparent ${color === "red" ? "border-l-[6px] border-l-vh-red/60" : color === "blue" ? "border-l-[6px] border-l-vh-blue/60" : "border-l-[6px] border-l-vh-green/60"}`} />
     </div>
   );
 }
 
-function ReturnPipe({ color }: { color: string }) {
+function ReturnPipe({ color, animate = true }: { color: string; animate?: boolean }) {
   const bgClass = color === "red" ? "bg-vh-red/15" : color === "blue" ? "bg-vh-blue/15" : "bg-vh-green/15";
   const dotClass = color === "red" ? "bg-vh-red/60" : color === "blue" ? "bg-vh-blue/60" : "bg-vh-green/60";
   return (
     <div className={`relative h-0.5 w-12 ${bgClass} overflow-hidden rounded-full`} style={{ borderTop: '1px dashed' }}>
-      <motion.div
-        className={`absolute top-[-2px] left-0 h-1.5 w-1.5 rounded-full ${dotClass}`}
-        animate={{ x: [40, 0, 40] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-      />
+      {animate && (
+        <motion.div
+          className={`absolute top-[-2px] left-0 h-1.5 w-1.5 rounded-full ${dotClass}`}
+          animate={{ x: [40, 0, 40] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
+      )}
     </div>
   );
 }
@@ -303,7 +417,7 @@ function BranchRow({ icon, label, color, temp }: { icon: string; label: string; 
         <EquipmentIcon type={icon} color={color} />
       </div>
       <span className={`text-[10px] font-medium ${textClass}`}>{label}</span>
-      <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{temp}</span>
+      {temp && <span className="text-[9px] text-muted-foreground font-mono tabular-nums">{temp}</span>}
     </div>
   );
 }
