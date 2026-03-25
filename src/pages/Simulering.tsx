@@ -9,6 +9,7 @@ import { ResultsKomfort } from "@/components/simulering/ResultsKomfort";
 import { ResultsAvvik } from "@/components/simulering/ResultsAvvik";
 import { ResultsOkonomi } from "@/components/simulering/ResultsOkonomi";
 import { SimTimeline } from "@/components/simulering/SimTimeline";
+import { ParameterStudy } from "@/components/simulering/ParameterStudy";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocation } from "react-router-dom";
 import { useSimResult } from "@/lib/SimContext";
