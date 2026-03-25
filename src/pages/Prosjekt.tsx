@@ -68,7 +68,43 @@ export default function Prosjekt() {
           <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="mb-4 text-lg font-semibold text-foreground">Bygningsinformasjon</h2>
             <div className="space-y-4">
-              {buildingInfo.map((info) => (
+              {/* Editable: Sted */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <MapPin className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">Sted</p>
+                  <select
+                    value={input.location}
+                    onChange={(e) => updateInput("location", e.target.value as "oslo" | "bergen" | "trondheim")}
+                    className="mt-0.5 w-full rounded border border-border bg-secondary/50 px-2 py-1 text-sm font-semibold text-foreground"
+                  >
+                    {LOCATIONS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Editable: BRA */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+                  <Ruler className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">BTA / BRA</p>
+                  <div className="mt-0.5 flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">7 200 /</span>
+                    <input
+                      type="number"
+                      value={input.bra}
+                      onChange={(e) => updateInput("bra", Number(e.target.value))}
+                      className="w-24 rounded border border-border bg-secondary/50 px-2 py-1 text-sm font-semibold text-foreground font-mono tabular-nums"
+                    />
+                    <span className="text-sm text-muted-foreground">m²</span>
+                  </div>
+                </div>
+              </div>
+              {/* Static info */}
+              {staticBuildingInfo.map((info) => (
                 <div key={info.label} className="flex items-center gap-3">
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
                     <info.icon className="h-4 w-4 text-primary" />
