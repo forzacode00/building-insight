@@ -4,6 +4,7 @@ import { Building2, MapPin, Calendar, Ruler, Award, ChevronDown, ChevronRight, C
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useSimInput } from "@/lib/SimContext";
 
 const buildingInfo = [
   { icon: Building2, label: "Bygningstype", value: "Kontorbygning" },
@@ -32,6 +33,7 @@ const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transiti
 
 export default function Prosjekt() {
   const navigate = useNavigate();
+  const { input, updateInput } = useSimInput();
   const [systems, setSystems] = useState(systemTree);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 

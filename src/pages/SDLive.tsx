@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck, Upload, Plug } from "lucide-react";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
@@ -534,21 +534,33 @@ interface ChecklistRow {
   checked: boolean;
 }
 
-const INITIAL_CHECKLIST: ChecklistRow[] = [
-  { nr: 1, system: "Varme (32)", parameter: "Turtemp radiator", design: "55°C", measured: "48.2°C", deviation: "−6.8°C", status: "ok", statusText: "Værkompensert", checked: true },
-  { nr: 2, system: "Varme (32)", parameter: "Returtemp radiator", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
-  { nr: 3, system: "Luft (36)", parameter: "Tillufttemp AHU-1", design: "19°C", measured: "19.2°C", deviation: "+0.2°C", status: "ok", statusText: "Innenfor", checked: true },
-  { nr: 4, system: "Luft (36)", parameter: "SFP AHU-1", design: "1.5", measured: "1.78", deviation: "+0.28", status: "critical", statusText: "Over TEK17", checked: false },
-  { nr: 5, system: "Komfort", parameter: "Romtemp 4.etg sør", design: "21°C", measured: "23.4°C", deviation: "+2.4°C", status: "warning", statusText: "Over settpunkt", checked: false },
-  { nr: 6, system: "Kjøling (37)", parameter: "Isvannstemperatur", design: "6°C", measured: "6.8°C", deviation: "+0.8°C", status: "ok", statusText: "OK", checked: true },
-  { nr: 7, system: "Luft (36)", parameter: "CO₂ kontor 4.etg", design: "800 ppm", measured: "680 ppm", deviation: "−120", status: "ok", statusText: "Under grense", checked: true },
-  { nr: 8, system: "Kjøling (35)", parameter: "COP kjølemaskin", design: "4.5", measured: "4.2", deviation: "−0.3", status: "ok", statusText: "Normalt", checked: true },
-  { nr: 9, system: "Varme (32)", parameter: "Fjernvarme retur", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
-  { nr: 10, system: "Luft (36)", parameter: "VAV 4.etg sør", design: "Behovsstyrt", measured: "72%", deviation: "—", status: "warning", statusText: "Høy last", checked: false },
-];
+function buildChecklist(r: import("@/lib/simulationEngine").SimResult): ChecklistRow[] {
+  const sfpStatus: ChecklistRow["status"] = r.sfpActual <= 1.5 ? "ok" : "critical";
+  const hrActual = Math.round(r.heatRecoveryActual * 100);
+  const hrStatus: ChecklistRow["status"] = r.heatRecoveryActual >= 0.80 ? "ok" : "warning";
+  const energyStatus: ChecklistRow["status"] = r.totalEnergyKwhM2 <= 115 ? "ok" : "critical";
+
+  return [
+    { nr: 1, system: "Varme (32)", parameter: "Turtemp radiator", design: "55°C", measured: "48.2°C", deviation: "−6.8°C", status: "ok", statusText: "Værkompensert", checked: true },
+    { nr: 2, system: "Varme (32)", parameter: "Returtemp radiator", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
+    { nr: 3, system: "Luft (36)", parameter: "Tillufttemp AHU-1", design: "19°C", measured: "19.2°C", deviation: "+0.2°C", status: "ok", statusText: "Innenfor", checked: true },
+    { nr: 4, system: "Luft (36)", parameter: "SFP AHU-1", design: "1.5", measured: String(r.sfpActual), deviation: `+${(r.sfpActual - 1.5).toFixed(2)}`, status: sfpStatus, statusText: sfpStatus === "ok" ? "Innenfor" : "Over TEK17", checked: sfpStatus === "ok" },
+    { nr: 5, system: "Komfort", parameter: "Romtemp 4.etg sør", design: "21°C", measured: "23.4°C", deviation: "+2.4°C", status: "warning", statusText: "Over settpunkt", checked: false },
+    { nr: 6, system: "Kjøling (37)", parameter: "Isvannstemperatur", design: "6°C", measured: "6.8°C", deviation: "+0.8°C", status: "ok", statusText: "OK", checked: true },
+    { nr: 7, system: "Luft (36)", parameter: "Gjenvinner virkningsgrad", design: "80%", measured: `${hrActual}%`, deviation: `${hrActual - 80}%`, status: hrStatus, statusText: hrStatus === "ok" ? "Innenfor" : "Under krav", checked: hrStatus === "ok" },
+    { nr: 8, system: "Energi", parameter: "Energiramme", design: "115 kWh/m²", measured: `${Math.round(r.totalEnergyKwhM2)} kWh/m²`, deviation: `+${Math.round(r.totalEnergyKwhM2 - 115)}`, status: energyStatus, statusText: energyStatus === "ok" ? "Innenfor TEK17" : "Over TEK17", checked: energyStatus === "ok" },
+    { nr: 9, system: "Varme (32)", parameter: "Fjernvarme retur", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
+    { nr: 10, system: "Luft (36)", parameter: "VAV 4.etg sør", design: "Behovsstyrt", measured: "72%", deviation: "—", status: "warning", statusText: "Høy last", checked: false },
+  ];
+}
 
 function OverleveringSjekkliste() {
-  const [rows, setRows] = useState<ChecklistRow[]>(INITIAL_CHECKLIST);
+  const result = useSimResult();
+  const [rows, setRows] = useState<ChecklistRow[]>(() => buildChecklist(result));
+
+  useEffect(() => {
+    setRows(buildChecklist(result));
+  }, [result]);
 
   const toggleCheck = (nr: number) => {
     setRows((prev) => prev.map((r) => (r.nr === nr ? { ...r, checked: !r.checked } : r)));
