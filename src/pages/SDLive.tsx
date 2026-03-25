@@ -1,6 +1,31 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, AlertTriangle, AlertCircle, Wifi, Play, X, Undo2 } from "lucide-react";
+import { CheckCircle2, Wifi, Play, X, Undo2 } from "lucide-react";
+
+function StatusBadge({ status, note }: { status: "ok" | "warning" | "critical"; note: string }) {
+  if (status === "critical") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-md border border-red-800/50 bg-red-950/50 px-2.5 py-1 text-xs font-semibold text-red-400">
+        <span className="h-2 w-2 rounded-full bg-red-400" />
+        {note}
+      </span>
+    );
+  }
+  if (status === "warning") {
+    return (
+      <span className="inline-flex items-center gap-1.5 rounded-md border border-yellow-800/50 bg-yellow-950/50 px-2.5 py-1 text-xs font-semibold text-yellow-400">
+        <span className="h-2 w-2 rounded-full bg-yellow-400" />
+        {note}
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-md border border-green-800/50 bg-green-950/50 px-2.5 py-1 text-xs font-semibold text-green-400">
+      <span className="h-2 w-2 rounded-full bg-green-400" />
+      {note}
+    </span>
+  );
+}
 
 const bacnetLines = [
   { time: "12:14:00", obj: "BACnet/AI:1001", desc: "Romtemp kontor 4.etg sør", val: "23.4°C" },
@@ -20,16 +45,16 @@ const bacnetLines = [
 ];
 
 const liveTable = [
-  { param: "Turtemp radiator", design: "55°C", live: "48.2°C", avvik: "−6.8°C", status: "ok", note: "Værkompensert" },
-  { param: "Returtemp radiator", design: "40°C", live: "35.1°C", avvik: "−4.9°C", status: "ok", note: "OK" },
-  { param: "Tillufttemp AHU-1", design: "19°C", live: "19.2°C", avvik: "+0.2°C", status: "ok", note: "Innenfor ±10%" },
-  { param: "SFP AHU-1", design: "1.5", live: "1.78", avvik: "+0.28", status: "critical", note: "Over TEK17" },
-  { param: "Romtemp 4.etg sør", design: "21°C", live: "23.4°C", avvik: "+2.4°C", status: "warning", note: "Over settpunkt" },
-  { param: "Romtemp 4.etg nord", design: "21°C", live: "21.8°C", avvik: "+0.8°C", status: "ok", note: "Innenfor" },
-  { param: "VAV-spjeld 4.etg sør", design: "Behovsstyrt", live: "72%", avvik: "—", status: "warning", note: "Høy last" },
-  { param: "Kjølemaskin COP", design: "4.5", live: "4.2", avvik: "−0.3", status: "ok", note: "Normalt" },
-  { param: "CO₂ kontor 4.etg", design: "800 ppm", live: "680 ppm", avvik: "−120", status: "ok", note: "Under settpunkt" },
-  { param: "Fjernvarme retur", design: "40°C", live: "35.1°C", avvik: "−4.9°C", status: "ok", note: "Bra for fjernvarme" },
+  { param: "Turtemp radiator", design: "55°C", live: "48.2°C", avvik: "−6.8°C", status: "ok" as const, note: "Værkompensert" },
+  { param: "Returtemp radiator", design: "40°C", live: "35.1°C", avvik: "−4.9°C", status: "ok" as const, note: "OK" },
+  { param: "Tillufttemp AHU-1", design: "19°C", live: "19.2°C", avvik: "+0.2°C", status: "ok" as const, note: "Innenfor ±10%" },
+  { param: "SFP AHU-1", design: "1.5", live: "1.78", avvik: "+0.28", status: "critical" as const, note: "Over TEK17" },
+  { param: "Romtemp 4.etg sør", design: "21°C", live: "23.4°C", avvik: "+2.4°C", status: "warning" as const, note: "Over settpunkt" },
+  { param: "Romtemp 4.etg nord", design: "21°C", live: "21.8°C", avvik: "+0.8°C", status: "ok" as const, note: "Innenfor" },
+  { param: "VAV-spjeld 4.etg sør", design: "Behovsstyrt", live: "72%", avvik: "—", status: "warning" as const, note: "Høy last" },
+  { param: "Kjølemaskin COP", design: "4.5", live: "4.2", avvik: "−0.3", status: "ok" as const, note: "Normalt" },
+  { param: "CO₂ kontor 4.etg", design: "800 ppm", live: "680 ppm", avvik: "−120", status: "ok" as const, note: "Under settpunkt" },
+  { param: "Fjernvarme retur", design: "40°C", live: "35.1°C", avvik: "−4.9°C", status: "ok" as const, note: "Bra for fjernvarme" },
 ];
 
 const consequences = [
@@ -58,7 +83,6 @@ export default function SDLive() {
   const [undoTimer, setUndoTimer] = useState(0);
   const feedRef = useRef<HTMLDivElement>(null);
 
-  // Animated BACnet feed
   useEffect(() => {
     if (visibleLines >= bacnetLines.length) {
       const timeout = setTimeout(() => setVisibleLines(0), 2000);
@@ -72,7 +96,6 @@ export default function SDLive() {
     if (feedRef.current) feedRef.current.scrollTop = feedRef.current.scrollHeight;
   }, [visibleLines]);
 
-  // Undo countdown
   useEffect(() => {
     if (!sent) return;
     setUndoTimer(900);
@@ -88,7 +111,7 @@ export default function SDLive() {
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">SD Live & What-If</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">SD Live & What-If</h1>
         <p className="text-sm text-muted-foreground">Koble til SD-anlegget, les live verdier, simuler endringer</p>
       </motion.div>
 
@@ -113,7 +136,7 @@ export default function SDLive() {
             </span>
           </div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>847 datapunkter</span>
+            <span className="font-mono tabular-nums">847 datapunkter</span>
             <span>Intervall: 60 sek</span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-vh-green animate-pulse" />
@@ -140,7 +163,7 @@ export default function SDLive() {
               <span className="text-muted-foreground">{line.time}</span>
               <span className="text-vh-purple">{line.obj}</span>
               <span className="flex-1 text-foreground/70">{line.desc}</span>
-              <span className="font-semibold text-primary">{line.val}</span>
+              <span className="font-semibold text-primary tabular-nums">{line.val}</span>
             </motion.div>
           ))}
           <span className="inline-block h-3 w-1.5 animate-pulse bg-primary" />
@@ -167,13 +190,11 @@ export default function SDLive() {
                 return (
                   <tr key={r.param} className={`border-b border-border ${rowBg}`}>
                     <td className="px-4 py-2.5 font-medium text-foreground">{r.param}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{r.design}</td>
-                    <td className="px-4 py-2.5 font-semibold text-foreground">{r.live}</td>
-                    <td className="px-4 py-2.5 text-muted-foreground">{r.avvik}</td>
+                    <td className="px-4 py-2.5 font-mono tabular-nums text-muted-foreground">{r.design}</td>
+                    <td className="px-4 py-2.5 font-semibold font-mono tabular-nums text-foreground">{r.live}</td>
+                    <td className="px-4 py-2.5 font-mono tabular-nums text-muted-foreground">{r.avvik}</td>
                     <td className="px-4 py-2.5">
-                      {r.status === "ok" && <span className="inline-flex items-center gap-1 text-vh-green"><CheckCircle2 className="h-3.5 w-3.5" />{r.note}</span>}
-                      {r.status === "warning" && <span className="inline-flex items-center gap-1 text-vh-yellow"><AlertTriangle className="h-3.5 w-3.5" />{r.note}</span>}
-                      {r.status === "critical" && <span className="inline-flex items-center gap-1 text-vh-red"><AlertCircle className="h-3.5 w-3.5" />{r.note}</span>}
+                      <StatusBadge status={r.status} note={r.note} />
                     </td>
                   </tr>
                 );
@@ -189,7 +210,7 @@ export default function SDLive() {
         <p className="mb-4 text-sm text-muted-foreground">Simuler endring før den sendes til SD-anlegget</p>
 
         <div className="mb-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg bg-secondary/50 px-4 py-3">
+          <div className="rounded-xl bg-secondary/50 px-4 py-3">
             <p className="text-xs text-muted-foreground">Velg parameter</p>
             <select className="mt-1 w-full rounded border border-border bg-card px-2 py-1.5 text-sm text-foreground">
               <option>Romtemperatur settpunkt 4.etg sør (BACnet/AV:5001)</option>
@@ -197,10 +218,10 @@ export default function SDLive() {
               <option>CO₂ settpunkt kontor (BACnet/AV:5011)</option>
             </select>
           </div>
-          <div className="rounded-lg bg-secondary/50 px-4 py-3">
+          <div className="rounded-xl bg-secondary/50 px-4 py-3">
             <div className="flex items-center justify-between">
               <p className="text-xs text-muted-foreground">Nåværende: 21.0°C</p>
-              <p className="text-sm font-bold text-primary">{sliderValue.toFixed(1)}°C</p>
+              <p className="text-sm font-bold font-mono tabular-nums text-primary">{sliderValue.toFixed(1)}°C</p>
             </div>
             <input
               type="range"
@@ -220,7 +241,7 @@ export default function SDLive() {
         <button
           onClick={runSim}
           disabled={simState === "loading"}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           <Play className="h-4 w-4" />
           {simState === "loading" ? "Simulerer..." : "▶ Simuler konsekvens"}
@@ -254,20 +275,20 @@ export default function SDLive() {
                 <SummaryCard label="Fysisk trygt" value="✅ Innenfor kapasitet" color="text-vh-green" />
               </div>
 
-              <div className="mb-4 rounded-lg bg-vh-yellow/10 border border-vh-yellow/30 px-4 py-2.5 text-sm text-vh-yellow">
-                ⚠️ Anbefaling: Moderat merkostnad, vesentlig komfortforbedring
+              <div className="mb-4 rounded-xl border border-vh-yellow/30 bg-vh-yellow/10 px-4 py-2.5 text-sm text-vh-yellow">
+                Anbefaling: Moderat merkostnad, vesentlig komfortforbedring
               </div>
 
               <div className="flex gap-3">
                 <button
                   onClick={() => setSimState("idle")}
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
+                  className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
                 >
                   <X className="h-4 w-4" /> Forkast
                 </button>
                 <button
                   onClick={() => setShowModal(true)}
-                  className="inline-flex items-center gap-2 rounded-lg bg-vh-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-vh-green/90"
+                  className="inline-flex items-center gap-2 rounded-xl bg-vh-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-vh-green/90"
                 >
                   <CheckCircle2 className="h-4 w-4" /> Godkjenn og send til SD
                 </button>
@@ -289,16 +310,16 @@ export default function SDLive() {
             <div className="flex items-center gap-3">
               <CheckCircle2 className="h-5 w-5 text-vh-green" />
               <span className="text-sm text-foreground">
-                ✅ Endring sendt — BACnet AV:5001 oppdatert til {sliderValue.toFixed(1)}°C
+                Endring sendt — BACnet AV:5001 oppdatert til {sliderValue.toFixed(1)}°C
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs font-mono tabular-nums text-muted-foreground">
                 {Math.floor(undoTimer / 60)}:{String(undoTimer % 60).padStart(2, "0")} gjenstår
               </span>
               <button
                 onClick={() => { setSent(false); setSimState("idle"); }}
-                className="inline-flex items-center gap-1 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary/80"
+                className="inline-flex items-center gap-1 rounded-xl bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary/80"
               >
                 <Undo2 className="h-3 w-3" /> Angre
               </button>
@@ -340,13 +361,13 @@ export default function SDLive() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 rounded-lg border border-border bg-secondary py-2.5 text-sm font-medium text-foreground hover:bg-secondary/80"
+                  className="flex-1 rounded-xl border border-border bg-secondary py-2.5 text-sm font-medium text-foreground hover:bg-secondary/80"
                 >
                   Avbryt
                 </button>
                 <button
                   onClick={() => { setShowModal(false); setSent(true); setSimState("idle"); }}
-                  className="flex-1 rounded-lg bg-vh-green py-2.5 text-sm font-semibold text-white hover:bg-vh-green/90"
+                  className="flex-1 rounded-xl bg-vh-green py-2.5 text-sm font-semibold text-white hover:bg-vh-green/90"
                 >
                   Bekreft og send →
                 </button>
@@ -361,16 +382,16 @@ export default function SDLive() {
 
 function SummaryCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="rounded-lg border border-border bg-secondary/30 p-3">
+    <div className="rounded-xl border border-border bg-secondary/30 p-5">
       <p className="text-[10px] text-muted-foreground">{label}</p>
-      <p className={`text-sm font-bold ${color}`}>{value}</p>
+      <p className={`text-sm font-bold font-mono tabular-nums ${color}`}>{value}</p>
     </div>
   );
 }
 
 function ModalRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between rounded-lg bg-secondary/50 px-3 py-2">
+    <div className="flex justify-between rounded-xl bg-secondary/50 px-3 py-2">
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold text-foreground">{value}</span>
     </div>

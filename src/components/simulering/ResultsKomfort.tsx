@@ -25,7 +25,7 @@ export function ResultsKomfort() {
             )}
             <span className="text-sm font-semibold text-foreground">{m.label}</span>
           </div>
-          <p className={`text-2xl font-bold ${m.status === "ok" ? "text-vh-green" : "text-vh-yellow"}`}>
+          <p className={`text-4xl font-bold font-mono tabular-nums ${m.status === "ok" ? "text-vh-green" : "text-vh-yellow"}`}>
             {m.value}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{m.detail}</p>

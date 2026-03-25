@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import { ArrowDown, ArrowUp, CheckCircle2, XCircle, TrendingDown } from "lucide-react";
+import { ArrowDown, ArrowUp, TrendingDown } from "lucide-react";
 
 const rows = [
   { param: "Netto energibehov", orig: "138 kWh/m²·år", opt: "110 kWh/m²·år", delta: "−20%", good: true },
@@ -22,7 +22,7 @@ export default function Sammenligning() {
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">Sammenligning</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Sammenligning</h1>
         <p className="text-sm text-muted-foreground">Opprinnelig design vs. optimalisert løsning</p>
       </motion.div>
 
@@ -47,11 +47,11 @@ export default function Sammenligning() {
                 className="border-b border-border"
               >
                 <td className="px-5 py-3.5 font-medium text-foreground">{r.param}</td>
-                <td className="px-5 py-3.5 text-muted-foreground">{r.orig}</td>
-                <td className="px-5 py-3.5 font-semibold text-vh-green">{r.opt}</td>
+                <td className="px-5 py-3.5 font-mono tabular-nums text-muted-foreground">{r.orig}</td>
+                <td className="px-5 py-3.5 font-semibold font-mono tabular-nums text-vh-green">{r.opt}</td>
                 <td className="px-5 py-3.5">
                   {r.delta !== "—" ? (
-                    <span className="inline-flex items-center gap-1 font-semibold text-vh-green">
+                    <span className="inline-flex items-center gap-1 font-semibold font-mono tabular-nums text-vh-green">
                       {r.good ? <ArrowDown className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5 text-vh-red" />}
                       {r.delta}
                     </span>
@@ -76,7 +76,7 @@ export default function Sammenligning() {
             <p className="text-lg font-bold text-foreground">
               Estimert årlig besparelse:{" "}
               <motion.span
-                className="text-vh-green"
+                className="text-vh-green font-mono tabular-nums"
                 initial={{ opacity: 0 }}
                 animate={inView ? { opacity: 1 } : {}}
                 transition={{ delay: 0.6 }}
@@ -86,7 +86,7 @@ export default function Sammenligning() {
             </p>
             <p className="text-sm text-muted-foreground">
               Tilbakebetalingstid:{" "}
-              <span className="font-semibold text-primary">3.3 år</span>
+              <span className="font-semibold text-primary font-mono tabular-nums">3.3 år</span>
             </p>
           </div>
         </div>
