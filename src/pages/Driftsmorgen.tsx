@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, AlertCircle, Zap, Network, ClipboardList, TrendingUp, Clock, ChevronRight } from "lucide-react";
+import { AlertTriangle, AlertCircle, Zap, Network, ClipboardList, TrendingUp, Clock, ChevronRight, Upload, Play } from "lucide-react";
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import { useNavigate } from "react-router-dom";
 
@@ -38,7 +38,6 @@ function useCountUp(target: number, duration = 1200) {
     const animate = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      // ease out cubic
       const eased = 1 - Math.pow(1 - progress, 3);
       setValue(Math.round(target * eased));
       if (progress < 1) {
@@ -55,7 +54,7 @@ function useCountUp(target: number, duration = 1200) {
 export default function Driftsmorgen() {
   const navigate = useNavigate();
   const kwhValue = useCountUp(2340, 1400);
-  const pctValue = useCountUp(73, 1200); // for +7.3%
+  const pctValue = useCountUp(73, 1200);
 
   return (
     <motion.div
@@ -74,6 +73,32 @@ export default function Driftsmorgen() {
           <p className="text-sm text-muted-foreground">
             Tirsdag 25. mars 2026, kl. 07:32
           </p>
+        </div>
+      </motion.div>
+
+      {/* CTA Card */}
+      <motion.div variants={item} className="mb-8">
+        <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-primary/5 p-6">
+          <h2 className="text-lg font-bold text-foreground mb-1">Prøv VirtualHouse-simulatoren</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Se hvordan VirtualHouse bygger og simulerer det tekniske systemet automatisk.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/datainput")}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              <Upload className="h-4 w-4" />
+              Last opp funksjonsbeskrivelse
+            </button>
+            <button
+              onClick={() => navigate("/simulering", { state: { startBuild: true } })}
+              className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              <Play className="h-4 w-4" />
+              Se demo-simulering
+            </button>
+          </div>
         </div>
       </motion.div>
 
@@ -190,7 +215,7 @@ export default function Driftsmorgen() {
             { icon: ClipboardList, label: "Åpne avviksrapport", path: "/simulering", color: "text-vh-green", glow: "shadow-[0_0_20px_rgba(34,197,94,0.1)]" },
           ].map((action) => (
             <button
-              key={action.path}
+              key={action.label}
               onClick={() => navigate(action.path)}
               className="group flex items-center gap-3 rounded-xl border border-border bg-card p-5 text-left transition-all hover:bg-secondary hover:vh-glow-blue"
             >

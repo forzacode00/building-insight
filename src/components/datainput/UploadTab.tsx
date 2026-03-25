@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { Upload, CheckCircle2, AlertTriangle, Loader2, FileText } from "lucide-react";
 
 const parseResults = [

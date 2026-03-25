@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2 } from "lucide-react";
+import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play } from "lucide-react";
 import { PIDDiagram } from "@/components/simulering/PIDDiagram";
 import { SimControls } from "@/components/simulering/SimControls";
 import { ResultsEnergi } from "@/components/simulering/ResultsEnergi";
@@ -10,6 +10,7 @@ import { ResultsAvvik } from "@/components/simulering/ResultsAvvik";
 import { ResultsOkonomi } from "@/components/simulering/ResultsOkonomi";
 import { SimTimeline } from "@/components/simulering/SimTimeline";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLocation } from "react-router-dom";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -57,12 +58,17 @@ function BuildingHealthScore() {
 }
 
 export default function Simulering() {
+  const location = useLocation();
+  const startBuild = (location.state as any)?.startBuild === true;
+
   const [buildPhase, setBuildPhase] = useState<BuildPhase>("building");
   const [buildStep, setBuildStep] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("energi");
+  const [demoMode, setDemoMode] = useState(false);
+  const [simHighlights, setSimHighlights] = useState({ sfp: false, overtemp: false, simultaneous: false });
   const avvikRef = useRef<HTMLDivElement>(null);
 
   // Build-up auto-advance
@@ -80,6 +86,18 @@ export default function Simulering() {
     }, 200);
     return () => clearInterval(interval);
   }, [buildPhase]);
+
+  // Demo mode auto-play
+  useEffect(() => {
+    if (!demoMode) return;
+    // Build-up takes ~8s (40 steps * 200ms), then wait 2s, then start sim
+    const readyTimer = setTimeout(() => {
+      // buildPhase should be "ready" by now, start sim
+      setIsRunning(true);
+      setBuildPhase("running");
+    }, 10000);
+    return () => clearTimeout(readyTimer);
+  }, [demoMode]);
 
   // Simulation progress
   useEffect(() => {
@@ -101,6 +119,19 @@ export default function Simulering() {
     return () => clearInterval(interval);
   }, [isRunning]);
 
+  // Simulation highlights based on progress
+  useEffect(() => {
+    if (progress >= 15 && !simHighlights.sfp) {
+      setSimHighlights(h => ({ ...h, sfp: true }));
+    }
+    if (progress >= 47 && !simHighlights.overtemp) {
+      setSimHighlights(h => ({ ...h, overtemp: true }));
+    }
+    if (progress >= 48 && !simHighlights.simultaneous) {
+      setSimHighlights(h => ({ ...h, simultaneous: true }));
+    }
+  }, [progress, simHighlights]);
+
   const currentHour = Math.round((progress / 100) * 8760);
 
   const handleAvvikClick = (nr: number) => {
@@ -115,6 +146,15 @@ export default function Simulering() {
     setBuildPhase("running");
   };
 
+  const handleDemoPlay = () => {
+    setDemoMode(true);
+    setBuildPhase("building");
+    setBuildStep(0);
+    setProgress(0);
+    setShowResults(false);
+    setSimHighlights({ sfp: false, overtemp: false, simultaneous: false });
+  };
+
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6 flex items-center justify-between">
@@ -122,7 +162,7 @@ export default function Simulering() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Simulering — Parkveien Kontorbygg</h1>
           <p className="text-sm text-muted-foreground">Helårssimulering med 8 760 timer</p>
         </div>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           <div className="flex gap-2">
             {["Varme", "Kjøling", "Luft", "Elkraft"].map((f) => (
               <span key={f} className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
@@ -131,6 +171,14 @@ export default function Simulering() {
             ))}
           </div>
           {buildPhase !== "building" && <BuildingHealthScore />}
+          <button
+            onClick={handleDemoPlay}
+            disabled={demoMode && buildPhase !== "done"}
+            className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+          >
+            <Play className="h-4 w-4" />
+            Spill av demo
+          </button>
         </div>
       </motion.div>
 
@@ -155,7 +203,7 @@ export default function Simulering() {
             </motion.div>
           )}
           {buildStep >= 5 && (
-            <PIDDiagram buildStep={buildStep} />
+            <PIDDiagram buildStep={buildStep} highlights={simHighlights} />
           )}
           {buildStep >= 40 && (
             <motion.div
@@ -176,7 +224,7 @@ export default function Simulering() {
       {buildPhase !== "building" && (
         <motion.div variants={item} className="mb-6 grid gap-6 xl:grid-cols-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <div className="xl:col-span-3">
-            <PIDDiagram buildStep={999} />
+            <PIDDiagram buildStep={999} highlights={simHighlights} />
           </div>
           <div className="xl:col-span-2">
             {buildPhase === "ready" && !isRunning && progress === 0 ? (
