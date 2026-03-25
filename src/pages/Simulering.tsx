@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, Thermometer, AlertTriangle, DollarSign } from "lucide-react";
+import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2 } from "lucide-react";
 import { PIDDiagram } from "@/components/simulering/PIDDiagram";
 import { SimControls } from "@/components/simulering/SimControls";
 import { ResultsEnergi } from "@/components/simulering/ResultsEnergi";
@@ -14,12 +14,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
 
+type BuildPhase = "building" | "ready" | "running" | "done";
+
 function BuildingHealthScore() {
   const score = 72;
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
-  const color = score >= 85 ? "hsl(var(--vh-green))" : score >= 60 ? "hsl(var(--vh-yellow))" : "hsl(var(--vh-red))";
   const strokeColor = score >= 85 ? "#22C55E" : score >= 60 ? "#EAB308" : "#EF4444";
 
   return (
@@ -56,12 +57,31 @@ function BuildingHealthScore() {
 }
 
 export default function Simulering() {
+  const [buildPhase, setBuildPhase] = useState<BuildPhase>("building");
+  const [buildStep, setBuildStep] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [showResults, setShowResults] = useState(true);
+  const [showResults, setShowResults] = useState(false);
   const [activeTab, setActiveTab] = useState("energi");
   const avvikRef = useRef<HTMLDivElement>(null);
 
+  // Build-up auto-advance
+  useEffect(() => {
+    if (buildPhase !== "building") return;
+    const interval = setInterval(() => {
+      setBuildStep((s) => {
+        if (s >= 40) {
+          clearInterval(interval);
+          setBuildPhase("ready");
+          return 40;
+        }
+        return s + 1;
+      });
+    }, 200);
+    return () => clearInterval(interval);
+  }, [buildPhase]);
+
+  // Simulation progress
   useEffect(() => {
     if (!isRunning) return;
     setShowResults(false);
@@ -72,6 +92,7 @@ export default function Simulering() {
           clearInterval(interval);
           setIsRunning(false);
           setShowResults(true);
+          setBuildPhase("done");
           return 100;
         }
         return p + 2;
@@ -89,6 +110,11 @@ export default function Simulering() {
     }, 100);
   };
 
+  const handleStart = () => {
+    setIsRunning(true);
+    setBuildPhase("running");
+  };
+
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6 flex items-center justify-between">
@@ -104,29 +130,97 @@ export default function Simulering() {
               </span>
             ))}
           </div>
-          <BuildingHealthScore />
+          {buildPhase !== "building" && <BuildingHealthScore />}
         </div>
       </motion.div>
 
-      {/* P&ID + Controls */}
-      <motion.div variants={item} className="mb-6 grid gap-6 xl:grid-cols-5">
-        <div className="xl:col-span-3">
-          <PIDDiagram />
-        </div>
-        <div className="xl:col-span-2">
-          <SimControls
-            isRunning={isRunning}
-            progress={progress}
-            currentHour={currentHour}
-            onStart={() => setIsRunning(true)}
-          />
-        </div>
-      </motion.div>
+      {/* Building phase — full width P&ID */}
+      {buildPhase === "building" && (
+        <motion.div variants={item} className="mb-6">
+          {buildStep < 5 && (
+            <motion.div
+              className="flex items-center justify-center rounded-xl border border-border bg-card p-12"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <div className="text-center">
+                <motion.div
+                  className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-primary border-t-transparent"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+                <p className="text-sm font-medium text-foreground">Bygger systemmodell fra funksjonsbeskrivelse...</p>
+                <p className="mt-1 text-xs text-muted-foreground">Leser dokumentstruktur og identifiserer tekniske systemer</p>
+              </div>
+            </motion.div>
+          )}
+          {buildStep >= 5 && (
+            <PIDDiagram buildStep={buildStep} />
+          )}
+          {buildStep >= 40 && (
+            <motion.div
+              className="mt-4 flex items-center gap-2 rounded-lg border border-vh-green/30 bg-vh-green/10 px-4 py-3"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <CheckCircle2 className="h-4 w-4 text-vh-green" />
+              <span className="text-sm font-medium text-vh-green">
+                Systemmodell komplett — 7 systemer, 42 komponenter, 156 datapunkter
+              </span>
+            </motion.div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Ready / Running / Done — grid layout with controls */}
+      {buildPhase !== "building" && (
+        <motion.div variants={item} className="mb-6 grid gap-6 xl:grid-cols-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="xl:col-span-3">
+            <PIDDiagram buildStep={999} />
+          </div>
+          <div className="xl:col-span-2">
+            {buildPhase === "ready" && !isRunning && progress === 0 ? (
+              <div className="rounded-xl border border-border bg-card p-5">
+                <h3 className="mb-4 text-sm font-semibold text-foreground">Simuleringsoppsett</h3>
+                <div className="mb-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-secondary/50 px-3 py-2">
+                    <p className="text-xs text-muted-foreground">Scenario</p>
+                    <select className="mt-1 w-full rounded border border-border bg-card px-2 py-1 text-sm text-foreground">
+                      <option>Normal drift</option>
+                      <option>DUT vinter (-21.8°C)</option>
+                      <option>Dim. sommer (28°C)</option>
+                      <option>Feil: Gjenvinner ute av drift</option>
+                    </select>
+                  </div>
+                  <div className="rounded-lg bg-secondary/50 px-3 py-2">
+                    <p className="text-xs text-muted-foreground">Klima</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">Oslo</p>
+                  </div>
+                </div>
+                <motion.button
+                  onClick={handleStart}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  animate={{ boxShadow: ["0 0 0 0 hsl(var(--primary) / 0)", "0 0 0 8px hsl(var(--primary) / 0.15)", "0 0 0 0 hsl(var(--primary) / 0)"] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  ▶ Kjør simulering (8 760 timer)
+                </motion.button>
+              </div>
+            ) : (
+              <SimControls
+                isRunning={isRunning}
+                progress={progress}
+                currentHour={currentHour}
+                onStart={handleStart}
+              />
+            )}
+          </div>
+        </motion.div>
+      )}
 
       {/* Results */}
       {showResults && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          {/* Timeline */}
           <div className="mb-6">
             <SimTimeline onAvvikClick={handleAvvikClick} />
           </div>
