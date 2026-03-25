@@ -192,6 +192,9 @@ export default function Driftsmorgen() {
         </div>
       </motion.section>
 
+      {/* Inneklima-status */}
+      <InneklimaSection />
+
       {/* Tid spart */}
       <motion.section variants={item} className="mb-8">
         <div className="rounded-xl border border-border bg-card p-5">
