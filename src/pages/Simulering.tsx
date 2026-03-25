@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play, TrendingUp } from "lucide-react";
+import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play, TrendingUp, ScrollText } from "lucide-react";
 import { PIDDiagram } from "@/components/simulering/PIDDiagram";
 import { SimControls } from "@/components/simulering/SimControls";
 import { ResultsEnergi } from "@/components/simulering/ResultsEnergi";
@@ -10,6 +10,7 @@ import { ResultsAvvik } from "@/components/simulering/ResultsAvvik";
 import { ResultsOkonomi } from "@/components/simulering/ResultsOkonomi";
 import { SimTimeline } from "@/components/simulering/SimTimeline";
 import { ParameterStudy } from "@/components/simulering/ParameterStudy";
+import { ResultsTEK17 } from "@/components/simulering/ResultsTEK17";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocation } from "react-router-dom";
 import { useSimResult } from "@/lib/SimContext";
@@ -254,12 +255,16 @@ export default function Simulering() {
               <TabsTrigger value="parameterstudie" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                 <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Parameterstudie
               </TabsTrigger>
+              <TabsTrigger value="tek17" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
+                <ScrollText className="mr-1.5 h-3.5 w-3.5" /> TEK17-samsvar
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="energi"><ResultsEnergi /></TabsContent>
             <TabsContent value="komfort"><ResultsKomfort /></TabsContent>
             <TabsContent value="avvik"><div ref={avvikRef}><ResultsAvvik /></div></TabsContent>
             <TabsContent value="okonomi"><ResultsOkonomi /></TabsContent>
             <TabsContent value="parameterstudie"><ParameterStudy /></TabsContent>
+            <TabsContent value="tek17"><ResultsTEK17 /></TabsContent>
           </Tabs>
         </motion.div>
       )}
