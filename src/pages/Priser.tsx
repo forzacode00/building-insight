@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Building2, FileText } from "lucide-react";
+import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
 
 const plans = [
   {
