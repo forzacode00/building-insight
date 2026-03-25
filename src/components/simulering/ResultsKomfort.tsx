@@ -1,13 +1,38 @@
 import { CheckCircle2, AlertTriangle } from "lucide-react";
-
-const metrics = [
-  { label: "Timer >26°C sommer", value: "87 timer", status: "warning" as const, detail: "Overskrider kategori II (NS-EN 16798-1) for sørvendte soner" },
-  { label: "Timer <19°C vinter", value: "12 timer", status: "ok" as const, detail: "Innenfor akseptabelt nivå" },
-  { label: "CO₂ gjennomsnitt", value: "720 ppm", status: "ok" as const, detail: "Under settpunkt 800 ppm" },
-  { label: "RF vinter", value: "18%", status: "warning" as const, detail: "Under anbefalt 20%" },
-];
+import { useSimResult } from "@/lib/SimContext";
 
 export function ResultsKomfort() {
+  const r = useSimResult();
+
+  const metrics = [
+    {
+      label: "Timer >26°C sommer",
+      value: `${r.hoursAbove26} timer`,
+      status: r.hoursAbove26 > 50 ? "warning" as const : "ok" as const,
+      detail: r.hoursAbove26 > 50
+        ? "Overskrider kategori II (NS-EN 16798-1) for sørvendte soner"
+        : "Innenfor akseptabelt nivå",
+    },
+    {
+      label: "Timer <19°C vinter",
+      value: `${r.hoursBelow19} timer`,
+      status: r.hoursBelow19 > 50 ? "warning" as const : "ok" as const,
+      detail: r.hoursBelow19 > 50 ? "For mange timer under komfortgrense" : "Innenfor akseptabelt nivå",
+    },
+    {
+      label: "CO₂ gjennomsnitt",
+      value: `${r.avgCO2ppm} ppm`,
+      status: r.avgCO2ppm > 800 ? "warning" as const : "ok" as const,
+      detail: r.avgCO2ppm <= 800 ? "Under settpunkt 800 ppm" : "Over settpunkt 800 ppm",
+    },
+    {
+      label: "RF vinter",
+      value: `${r.avgRHwinter}%`,
+      status: r.avgRHwinter < 20 ? "warning" as const : "ok" as const,
+      detail: r.avgRHwinter < 20 ? "Under anbefalt 20%" : "Innenfor anbefalt nivå",
+    },
+  ];
+
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {metrics.map((m) => (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Zap, Thermometer, AlertTriangle, DollarSign, CheckCircle2, Play } from "lucide-react";
 import { PIDDiagram } from "@/components/simulering/PIDDiagram";
@@ -11,6 +11,7 @@ import { ResultsOkonomi } from "@/components/simulering/ResultsOkonomi";
 import { SimTimeline } from "@/components/simulering/SimTimeline";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useLocation } from "react-router-dom";
+import { useSimResult } from "@/lib/SimContext";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -18,7 +19,8 @@ const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
 type BuildPhase = "building" | "ready" | "running" | "done";
 
 function BuildingHealthScore() {
-  const score = 72;
+  const r = useSimResult();
+  const score = r.healthScore;
   const radius = 48;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
@@ -71,7 +73,6 @@ export default function Simulering() {
   const [simHighlights, setSimHighlights] = useState({ sfp: false, overtemp: false, simultaneous: false });
   const avvikRef = useRef<HTMLDivElement>(null);
 
-  // Build-up auto-advance
   useEffect(() => {
     if (buildPhase !== "building") return;
     const interval = setInterval(() => {
@@ -87,19 +88,15 @@ export default function Simulering() {
     return () => clearInterval(interval);
   }, [buildPhase]);
 
-  // Demo mode auto-play
   useEffect(() => {
     if (!demoMode) return;
-    // Build-up takes ~8s (40 steps * 200ms), then wait 2s, then start sim
     const readyTimer = setTimeout(() => {
-      // buildPhase should be "ready" by now, start sim
       setIsRunning(true);
       setBuildPhase("running");
     }, 10000);
     return () => clearTimeout(readyTimer);
   }, [demoMode]);
 
-  // Simulation progress
   useEffect(() => {
     if (!isRunning) return;
     setShowResults(false);
@@ -119,17 +116,10 @@ export default function Simulering() {
     return () => clearInterval(interval);
   }, [isRunning]);
 
-  // Simulation highlights based on progress
   useEffect(() => {
-    if (progress >= 15 && !simHighlights.sfp) {
-      setSimHighlights(h => ({ ...h, sfp: true }));
-    }
-    if (progress >= 47 && !simHighlights.overtemp) {
-      setSimHighlights(h => ({ ...h, overtemp: true }));
-    }
-    if (progress >= 48 && !simHighlights.simultaneous) {
-      setSimHighlights(h => ({ ...h, simultaneous: true }));
-    }
+    if (progress >= 15 && !simHighlights.sfp) setSimHighlights((h) => ({ ...h, sfp: true }));
+    if (progress >= 47 && !simHighlights.overtemp) setSimHighlights((h) => ({ ...h, overtemp: true }));
+    if (progress >= 48 && !simHighlights.simultaneous) setSimHighlights((h) => ({ ...h, simultaneous: true }));
   }, [progress, simHighlights]);
 
   const currentHour = Math.round((progress / 100) * 8760);
@@ -165,9 +155,7 @@ export default function Simulering() {
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
             {["Varme", "Kjøling", "Luft", "Elkraft"].map((f) => (
-              <span key={f} className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">
-                {f}
-              </span>
+              <span key={f} className="rounded-full border border-border bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">{f}</span>
             ))}
           </div>
           {buildPhase !== "building" && <BuildingHealthScore />}
@@ -182,45 +170,27 @@ export default function Simulering() {
         </div>
       </motion.div>
 
-      {/* Building phase — full width P&ID */}
       {buildPhase === "building" && (
         <motion.div variants={item} className="mb-6">
           {buildStep < 5 && (
-            <motion.div
-              className="flex items-center justify-center rounded-xl border border-border bg-card p-12"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
+            <motion.div className="flex items-center justify-center rounded-xl border border-border bg-card p-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="text-center">
-                <motion.div
-                  className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-primary border-t-transparent"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
+                <motion.div className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-primary border-t-transparent" animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }} />
                 <p className="text-sm font-medium text-foreground">Bygger systemmodell fra funksjonsbeskrivelse...</p>
                 <p className="mt-1 text-xs text-muted-foreground">Leser dokumentstruktur og identifiserer tekniske systemer</p>
               </div>
             </motion.div>
           )}
-          {buildStep >= 5 && (
-            <PIDDiagram buildStep={buildStep} highlights={simHighlights} />
-          )}
+          {buildStep >= 5 && <PIDDiagram buildStep={buildStep} highlights={simHighlights} />}
           {buildStep >= 40 && (
-            <motion.div
-              className="mt-4 flex items-center gap-2 rounded-lg border border-vh-green/30 bg-vh-green/10 px-4 py-3"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div className="mt-4 flex items-center gap-2 rounded-lg border border-vh-green/30 bg-vh-green/10 px-4 py-3" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
               <CheckCircle2 className="h-4 w-4 text-vh-green" />
-              <span className="text-sm font-medium text-vh-green">
-                Systemmodell komplett — 7 systemer, 42 komponenter, 156 datapunkter
-              </span>
+              <span className="text-sm font-medium text-vh-green">Systemmodell komplett — 7 systemer, 42 komponenter, 156 datapunkter</span>
             </motion.div>
           )}
         </motion.div>
       )}
 
-      {/* Ready / Running / Done — grid layout with controls */}
       {buildPhase !== "building" && (
         <motion.div variants={item} className="mb-6 grid gap-6 xl:grid-cols-5" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <div className="xl:col-span-3">
@@ -255,24 +225,17 @@ export default function Simulering() {
                 </motion.button>
               </div>
             ) : (
-              <SimControls
-                isRunning={isRunning}
-                progress={progress}
-                currentHour={currentHour}
-                onStart={handleStart}
-              />
+              <SimControls isRunning={isRunning} progress={progress} currentHour={currentHour} onStart={handleStart} />
             )}
           </div>
         </motion.div>
       )}
 
-      {/* Results */}
       {showResults && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <div className="mb-6">
             <SimTimeline onAvvikClick={handleAvvikClick} />
           </div>
-
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-4 bg-secondary">
               <TabsTrigger value="energi" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
