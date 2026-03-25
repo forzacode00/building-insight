@@ -164,6 +164,231 @@ export default function Prosjekt() {
           </div>
         </motion.div>
       </div>
+
+      {/* Klimaskall-kalkulator */}
+      <KlimaskallKalkulator />
+    </motion.div>
+  );
+}
+
+/* ─── Klimaskall-kalkulator ─── */
+
+type Retning = "Sør" | "Vest" | "Nord" | "Øst" | "Hjørne (Sør+Vest)";
+type Solavskjerming = "Ingen" | "Utvendig (lamellavskjerming)" | "Innvendig persienner" | "Kombinert";
+type Isolasjon = "TEK17 minimum (U=0.22)" | "Passivhus (U=0.15)" | "Lavenergi (U=0.18)";
+
+const RETNINGER: Retning[] = ["Sør", "Vest", "Nord", "Øst", "Hjørne (Sør+Vest)"];
+const SOLAVSKJERMING: Solavskjerming[] = ["Ingen", "Utvendig (lamellavskjerming)", "Innvendig persienner", "Kombinert"];
+const ISOLASJON: { label: Isolasjon; u: number }[] = [
+  { label: "TEK17 minimum (U=0.22)", u: 0.22 },
+  { label: "Passivhus (U=0.15)", u: 0.15 },
+  { label: "Lavenergi (U=0.18)", u: 0.18 },
+];
+
+const fasadeMultiplikator: Record<Retning, number> = {
+  "Sør": 1.3, "Vest": 1.15, "Nord": 0.7, "Øst": 1.0, "Hjørne (Sør+Vest)": 1.45,
+};
+const solavskjermingFaktor: Record<Solavskjerming, number> = {
+  "Ingen": 1.0, "Utvendig (lamellavskjerming)": 0.45, "Innvendig persienner": 0.7, "Kombinert": 0.35,
+};
+const isolasjonFaktor: Record<string, number> = { "0.22": 1.0, "0.15": 0.72, "0.18": 0.85 };
+
+const RETNING_ANGLES: Record<Retning, number> = {
+  "Nord": 0, "Øst": 90, "Sør": 180, "Vest": 270, "Hjørne (Sør+Vest)": 225,
+};
+
+function KlimaskallKalkulator() {
+  const [retning, setRetning] = useState<Retning>("Sør");
+  const [vindusandel, setVindusandel] = useState(40);
+  const [solavskjerming, setSolavskjerming] = useState<Solavskjerming>("Ingen");
+  const [isolasjon, setIsolasjon] = useState<Isolasjon>("TEK17 minimum (U=0.22)");
+
+  const uValue = ISOLASJON.find((i) => i.label === isolasjon)!.u;
+
+  const calc = useMemo(() => {
+    const base = 100;
+    const kjole = Math.round(base * (vindusandel / 40) * fasadeMultiplikator[retning] * solavskjermingFaktor[solavskjerming] * 10) / 10;
+    const varme = Math.round(45 * isolasjonFaktor[String(uValue)] * (1 + (vindusandel - 40) * 0.005) * 10) / 10;
+    const vifter = 28;
+    const total = Math.round((kjole + varme + vifter + 18 + 20 + 5) * 10) / 10;
+    const timer26 = Math.max(0, Math.round((kjole - 60) * 2.5));
+    const tek17Ok = total <= 115;
+    return { kjole, varme, vifter, total, timer26, tek17Ok };
+  }, [retning, vindusandel, solavskjerming, uValue]);
+
+  const barData = [
+    { name: "Varme", value: calc.varme },
+    { name: "Kjøling", value: calc.kjole },
+    { name: "Vifter", value: calc.vifter },
+  ];
+  const barColors = ["#EF4444", "#3B82F6", "#22C55E"];
+
+  const compassAngle = RETNING_ANGLES[retning];
+
+  return (
+    <motion.div variants={item} className="mt-6">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-lg">🏗️</span>
+        <h2 className="text-lg font-bold text-foreground">Klimaskall — tidligfase energiestimering</h2>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="max-w-xs text-xs">Forenklede beregninger for skissefase. Detaljert simulering gjøres i Simulering-skjermen.</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">Juster fasadeparametere og se umiddelbar effekt på energiramme</p>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Venstre — Inputs */}
+        <div className="rounded-xl border border-border bg-card p-5 space-y-5">
+          {/* Fasaderetning */}
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fasaderetning</label>
+            <div className="flex items-center gap-5">
+              <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="hsl(var(--border))" strokeWidth="2" />
+                {/* Cardinal labels */}
+                <text x="40" y="12" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9" fontWeight="600">N</text>
+                <text x="40" y="76" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9" fontWeight="600">S</text>
+                <text x="8" y="44" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9" fontWeight="600">V</text>
+                <text x="72" y="44" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9" fontWeight="600">Ø</text>
+                {/* Needle */}
+                <line
+                  x1="40" y1="40"
+                  x2={40 + 24 * Math.sin((compassAngle * Math.PI) / 180)}
+                  y2={40 - 24 * Math.cos((compassAngle * Math.PI) / 180)}
+                  stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round"
+                />
+                <circle cx="40" cy="40" r="3" fill="hsl(var(--primary))" />
+              </svg>
+              <div className="flex flex-wrap gap-2">
+                {RETNINGER.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRetning(r)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      retning === r
+                        ? "bg-primary text-primary-foreground"
+                        : "border border-border bg-secondary text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Vindusandel */}
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Vindusandel fasade
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                type="range" min={20} max={80} value={vindusandel}
+                onChange={(e) => setVindusandel(Number(e.target.value))}
+                className="flex-1 accent-primary"
+              />
+              <span className="w-28 text-sm font-semibold text-foreground font-mono tabular-nums">
+                {vindusandel}% glassfasade
+              </span>
+            </div>
+          </div>
+
+          {/* Solavskjerming */}
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Solavskjerming</label>
+            <div className="space-y-1.5">
+              {SOLAVSKJERMING.map((s) => (
+                <label key={s} className="flex items-center gap-2 cursor-pointer rounded-lg px-3 py-2 transition-colors hover:bg-secondary/50">
+                  <input
+                    type="radio" name="solavskjerming" checked={solavskjerming === s}
+                    onChange={() => setSolavskjerming(s)}
+                    className="accent-primary"
+                  />
+                  <span className={`text-sm ${solavskjerming === s ? "text-foreground font-medium" : "text-muted-foreground"}`}>{s}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          {/* Isolasjon */}
+          <div>
+            <label className="mb-2 block text-xs font-semibold text-muted-foreground uppercase tracking-wider">Isolasjonsstandard</label>
+            <div className="space-y-1.5">
+              {ISOLASJON.map((iso) => (
+                <label key={iso.label} className="flex items-center gap-2 cursor-pointer rounded-lg px-3 py-2 transition-colors hover:bg-secondary/50">
+                  <input
+                    type="radio" name="isolasjon" checked={isolasjon === iso.label}
+                    onChange={() => setIsolasjon(iso.label)}
+                    className="accent-primary"
+                  />
+                  <span className={`text-sm ${isolasjon === iso.label ? "text-foreground font-medium" : "text-muted-foreground"}`}>{iso.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Høyre — Resultater */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Kjølebehov sør-soner</p>
+              <p className="mt-1 text-2xl font-bold font-mono tabular-nums text-foreground">
+                {calc.kjole} <span className="text-sm font-normal text-muted-foreground">kWh/m²</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Komfortoverskridelse</p>
+              <p className={`mt-1 text-2xl font-bold font-mono tabular-nums ${calc.timer26 > 50 ? "text-destructive" : "text-foreground"}`}>
+                {calc.timer26} <span className="text-sm font-normal text-muted-foreground">timer &gt;26°C</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Netto energibehov</p>
+              <p className={`mt-1 text-2xl font-bold font-mono tabular-nums ${calc.tek17Ok ? "text-foreground" : "text-destructive"}`}>
+                {calc.total} <span className="text-sm font-normal text-muted-foreground">kWh/m²·år</span>
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">TEK17-ramme</p>
+              <p className="mt-1 text-2xl font-bold">
+                {calc.tek17Ok ? (
+                  <span className="text-emerald-400">✅ Oppfyller</span>
+                ) : (
+                  <span className="text-destructive">❌ Overskrider</span>
+                )}
+              </p>
+              <p className="text-[10px] text-muted-foreground">Krav: 115 kWh/m²·år</p>
+            </div>
+          </div>
+
+          {/* Bar chart */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="mb-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Energifordeling (estimat)</h3>
+            <div className="h-[180px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={barData} layout="vertical" margin={{ left: 10, right: 20 }}>
+                  <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} unit=" kWh/m²" />
+                  <YAxis type="category" dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} width={55} />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={400}>
+                    {barData.map((_, i) => (
+                      <Cell key={i} fill={barColors[i]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 }
