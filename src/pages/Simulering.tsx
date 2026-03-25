@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Play, Pause } from "lucide-react";
@@ -8,6 +8,7 @@ import { ResultsEnergi } from "@/components/simulering/ResultsEnergi";
 import { ResultsKomfort } from "@/components/simulering/ResultsKomfort";
 import { ResultsAvvik } from "@/components/simulering/ResultsAvvik";
 import { ResultsOkonomi } from "@/components/simulering/ResultsOkonomi";
+import { SimTimeline } from "@/components/simulering/SimTimeline";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -16,6 +17,8 @@ export default function Simulering() {
   const [isRunning, setIsRunning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showResults, setShowResults] = useState(true);
+  const [activeTab, setActiveTab] = useState("energi");
+  const avvikRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -36,6 +39,13 @@ export default function Simulering() {
   }, [isRunning]);
 
   const currentHour = Math.round((progress / 100) * 8760);
+
+  const handleAvvikClick = (nr: number) => {
+    setActiveTab("avvik");
+    setTimeout(() => {
+      avvikRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
@@ -71,7 +81,12 @@ export default function Simulering() {
       {/* Results */}
       {showResults && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Tabs defaultValue="energi" className="w-full">
+          {/* Timeline */}
+          <div className="mb-6">
+            <SimTimeline onAvvikClick={handleAvvikClick} />
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="mb-4 bg-secondary">
               <TabsTrigger value="energi" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">⚡ Energi</TabsTrigger>
               <TabsTrigger value="komfort" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">🌡️ Komfort</TabsTrigger>
@@ -80,7 +95,7 @@ export default function Simulering() {
             </TabsList>
             <TabsContent value="energi"><ResultsEnergi /></TabsContent>
             <TabsContent value="komfort"><ResultsKomfort /></TabsContent>
-            <TabsContent value="avvik"><ResultsAvvik /></TabsContent>
+            <TabsContent value="avvik"><div ref={avvikRef}><ResultsAvvik /></div></TabsContent>
             <TabsContent value="okonomi"><ResultsOkonomi /></TabsContent>
           </Tabs>
         </motion.div>
