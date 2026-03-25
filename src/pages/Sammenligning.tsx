@@ -1,6 +1,6 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { ArrowDown, ArrowUp, Building2, ChevronDown } from "lucide-react";
 import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
@@ -17,6 +17,7 @@ export default function Sammenligning() {
   const opt = useOptimizedResult();
 
   const savings = r.annualCostNOK - opt.annualCostNOK;
+  const energyReductionPct = Math.round(((r.totalEnergyKwhM2 - opt.totalEnergyKwhM2) / r.totalEnergyKwhM2) * 100);
 
   const rows = [
     {
@@ -167,6 +168,162 @@ export default function Sammenligning() {
           </p>
         </div>
       </motion.div>
+
+      {/* Enova-støttevurdering */}
+      <EnovaSection energyReduction={energyReductionPct} savings={savings} />
+    </motion.div>
+  );
+}
+
+/* ─── Enova-støttevurdering ─── */
+
+function EnovaSection({ energyReduction, savings }: { energyReduction: number; savings: number }) {
+  const [showDocs, setShowDocs] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  const deadline = new Date("2026-05-29T12:00:00+02:00");
+
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      const diff = Math.max(0, deadline.getTime() - now.getTime());
+      setTimeLeft({
+        days: Math.floor(diff / 86400000),
+        hours: Math.floor((diff % 86400000) / 3600000),
+        minutes: Math.floor((diff % 3600000) / 60000),
+        seconds: Math.floor((diff % 60000) / 1000),
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const qualifies = energyReduction >= 20;
+  const estimatedCost = 890_000;
+  const supportRate = 0.25;
+  const supportAmount = Math.round(estimatedCost * supportRate);
+
+  const documents = [
+    { label: "Energiberegning NS 3031 (simulert)", available: true },
+    { label: "Tiltaksliste med besparelsesestimater", available: true },
+    { label: "Ekstern energirevisor-rapport (kreves — ikke tilgjengelig i VirtualHouse)", available: false },
+    { label: "Kostnadsoverslag fra leverandør (kreves)", available: false },
+    { label: "Energiattest etter tiltak (kreves)", available: false },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="mt-8"
+    >
+      <div className="mb-4 flex items-center gap-2">
+        <Building2 className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold text-foreground">Enova-støttevurdering</h2>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Basert på simulerte besparelser og gjeldende støtteordning (næringsbygg 2026).
+      </p>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {/* Kort 1 — Energiforbedring */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Energiforbedring</h3>
+          <p className="text-sm text-muted-foreground">
+            Beregnet reduksjon levert energi:{" "}
+            <span className="font-semibold text-foreground">−{energyReduction}%</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Enova-krav: ≥20%{" "}
+            <span className={qualifies ? "text-emerald-400" : "text-destructive"}>{qualifies ? "✅" : "❌"}</span>
+          </p>
+          <div className="mt-3">
+            <span
+              className={`inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+                qualifies
+                  ? "bg-emerald-500/15 text-emerald-400"
+                  : "bg-destructive/15 text-destructive"
+              }`}
+            >
+              {qualifies ? "Kvalifiserer for støtte" : "Kvalifiserer ikke"}
+            </span>
+          </div>
+          <p className="mt-3 text-[11px] text-muted-foreground/70">NS 3031 beregningsgrunnlag</p>
+        </div>
+
+        {/* Kort 2 — Estimert støttebeløp */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Estimert støttebeløp</h3>
+          <p className="text-sm text-muted-foreground">
+            Godkjente kostnader (sim.):{" "}
+            <span className="font-medium text-foreground">NOK {estimatedCost.toLocaleString("nb-NO")}</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Støttesats: inntil <span className="font-medium text-foreground">25%</span>
+          </p>
+          <p className="mt-3 text-3xl font-bold font-mono tabular-nums text-primary">
+            NOK {supportAmount.toLocaleString("nb-NO")}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Maks ramme: NOK 10 000 000
+          </p>
+          <p className="mt-3 text-[11px] text-muted-foreground/70">Indikativt — søk bekreftes av Enova</p>
+        </div>
+
+        {/* Kort 3 — Neste søknadsfrist */}
+        <div className="rounded-xl border border-border bg-card p-5">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Neste søknadsfrist</h3>
+          <p className="text-sm text-muted-foreground mb-2">29. mai 2026, kl. 12:00</p>
+          <div className="flex gap-3">
+            {[
+              { val: timeLeft.days, label: "dager" },
+              { val: timeLeft.hours, label: "timer" },
+              { val: timeLeft.minutes, label: "min" },
+              { val: timeLeft.seconds, label: "sek" },
+            ].map((t) => (
+              <div key={t.label} className="text-center">
+                <span className="block text-2xl font-bold font-mono tabular-nums text-foreground">{t.val}</span>
+                <span className="text-[10px] text-muted-foreground">{t.label}</span>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setShowDocs((p) => !p)}
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            📋 Forbered søknadsgrunnlag
+            <ChevronDown className={`h-4 w-4 transition-transform ${showDocs ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+      </div>
+
+      {/* Dokumentliste */}
+      {showDocs && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mt-4 rounded-xl border border-border bg-card p-5"
+        >
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Nødvendige dokumenter for Enova-søknad</h3>
+          <ul className="space-y-2">
+            {documents.map((doc) => (
+              <li key={doc.label} className="flex items-start gap-2 text-sm">
+                <span className={doc.available ? "text-emerald-400" : "text-yellow-400"}>
+                  {doc.available ? "✅" : "⚠️"}
+                </span>
+                <span className={doc.available ? "text-foreground" : "text-muted-foreground"}>
+                  {doc.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-[11px] text-muted-foreground/70">
+            Grønn = tilgjengelig fra VirtualHouse-simulering · Gul = kreves eksternt
+          </p>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
