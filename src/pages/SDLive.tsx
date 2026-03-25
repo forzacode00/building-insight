@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Wifi, Play, X, Undo2, Radio } from "lucide-react";
+import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck } from "lucide-react";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation, type SimResult, type SimInput } from "@/lib/simulationEngine";
 
@@ -483,6 +483,9 @@ export default function SDLive() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Overleveringssjekkliste */}
+      <OverleveringSjekkliste />
     </motion.div>
   );
 }
@@ -511,5 +514,180 @@ function ConfirmCheck({ text }: { text: string }) {
       <CheckCircle2 className="h-3.5 w-3.5" />
       <span>{text}</span>
     </div>
+  );
+}
+
+/* ─── Overleveringssjekkliste ─── */
+
+interface ChecklistRow {
+  nr: number;
+  system: string;
+  parameter: string;
+  design: string;
+  measured: string;
+  deviation: string;
+  status: "ok" | "warning" | "critical";
+  statusText: string;
+  checked: boolean;
+}
+
+const INITIAL_CHECKLIST: ChecklistRow[] = [
+  { nr: 1, system: "Varme (32)", parameter: "Turtemp radiator", design: "55°C", measured: "48.2°C", deviation: "−6.8°C", status: "ok", statusText: "Værkompensert", checked: true },
+  { nr: 2, system: "Varme (32)", parameter: "Returtemp radiator", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
+  { nr: 3, system: "Luft (36)", parameter: "Tillufttemp AHU-1", design: "19°C", measured: "19.2°C", deviation: "+0.2°C", status: "ok", statusText: "Innenfor", checked: true },
+  { nr: 4, system: "Luft (36)", parameter: "SFP AHU-1", design: "1.5", measured: "1.78", deviation: "+0.28", status: "critical", statusText: "Over TEK17", checked: false },
+  { nr: 5, system: "Komfort", parameter: "Romtemp 4.etg sør", design: "21°C", measured: "23.4°C", deviation: "+2.4°C", status: "warning", statusText: "Over settpunkt", checked: false },
+  { nr: 6, system: "Kjøling (37)", parameter: "Isvannstemperatur", design: "6°C", measured: "6.8°C", deviation: "+0.8°C", status: "ok", statusText: "OK", checked: true },
+  { nr: 7, system: "Luft (36)", parameter: "CO₂ kontor 4.etg", design: "800 ppm", measured: "680 ppm", deviation: "−120", status: "ok", statusText: "Under grense", checked: true },
+  { nr: 8, system: "Kjøling (35)", parameter: "COP kjølemaskin", design: "4.5", measured: "4.2", deviation: "−0.3", status: "ok", statusText: "Normalt", checked: true },
+  { nr: 9, system: "Varme (32)", parameter: "Fjernvarme retur", design: "40°C", measured: "35.1°C", deviation: "−4.9°C", status: "ok", statusText: "OK", checked: true },
+  { nr: 10, system: "Luft (36)", parameter: "VAV 4.etg sør", design: "Behovsstyrt", measured: "72%", deviation: "—", status: "warning", statusText: "Høy last", checked: false },
+];
+
+function OverleveringSjekkliste() {
+  const [rows, setRows] = useState<ChecklistRow[]>(INITIAL_CHECKLIST);
+
+  const toggleCheck = (nr: number) => {
+    setRows((prev) => prev.map((r) => (r.nr === nr ? { ...r, checked: !r.checked } : r)));
+  };
+
+  const approved = rows.filter((r) => r.checked).length;
+  const warnings = rows.filter((r) => r.status === "warning" && !r.checked).length;
+  const critical = rows.filter((r) => r.status === "critical" && !r.checked).length;
+  const pct = Math.round((approved / rows.length) * 100);
+
+  const handlePrint = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`<!DOCTYPE html><html><head><title>Overleveringsdokument — Parkveien Kontorbygg</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 40px; color: #1a1a2e; font-size: 13px; }
+  h1 { font-size: 20px; margin-bottom: 2px; }
+  .sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; }
+  th { background: #f5f5f5; font-size: 11px; text-transform: uppercase; }
+  .critical { background: #fef2f2; }
+  .warning { background: #fefce8; }
+  .footer { margin-top: 24px; border-top: 1px solid #ddd; padding-top: 10px; font-size: 10px; color: #888; }
+</style></head><body>
+  <h1>✅ Overleveringsdokument</h1>
+  <p class="sub">Parkveien Kontorbygg — NS 6450:2016 innreguleringskontroll<br/>Generert: ${new Date().toLocaleDateString("nb-NO")} kl. ${new Date().toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" })}</p>
+  <p><strong>${approved} av ${rows.length}</strong> punkter godkjent (${pct}%)</p>
+  <table>
+    <tr><th>#</th><th>System</th><th>Parameter</th><th>Design</th><th>Målt</th><th>Avvik</th><th>Status</th><th>Kvittert</th></tr>
+    ${rows.map((r) => `<tr class="${r.status === "critical" ? "critical" : r.status === "warning" && !r.checked ? "warning" : ""}">
+      <td>${r.nr}</td><td>${r.system}</td><td>${r.parameter}</td><td>${r.design}</td><td>${r.measured}</td><td>${r.deviation}</td><td>${r.statusText}</td><td>${r.checked ? "☑" : "☐"}</td>
+    </tr>`).join("")}
+  </table>
+  <div class="footer">VirtualHouse™ Investor Demo v1.0 — NS 6450:2016 innreguleringskontroll</div>
+</body></html>`);
+    win.document.close();
+    win.print();
+  };
+
+  const rowBg = (r: ChecklistRow) => {
+    if (r.status === "critical" && !r.checked) return "bg-red-950/30";
+    if (r.status === "warning" && !r.checked) return "bg-yellow-950/20";
+    return "";
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="mb-6"
+    >
+      <div className="mb-2 flex items-center gap-2">
+        <ClipboardCheck className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-bold text-foreground">Overleveringsstatus — Parkveien Kontorbygg</h2>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">NS 6450:2016 innreguleringskontroll</p>
+
+      {/* Progress */}
+      <div className="mb-4 rounded-xl border border-border bg-card p-5">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">
+            {approved} av {rows.length} punkter godkjent
+          </span>
+          <span className="text-sm font-mono tabular-nums text-muted-foreground">{pct}%</span>
+        </div>
+        <div className="mb-3 h-3 w-full overflow-hidden rounded-full bg-secondary">
+          <motion.div
+            className="h-full rounded-full bg-emerald-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        <div className="flex gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-green-800/50 bg-green-950/50 px-2.5 py-1 text-xs font-semibold text-green-400">
+            ✅ {approved} Godkjent
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-yellow-800/50 bg-yellow-950/50 px-2.5 py-1 text-xs font-semibold text-yellow-400">
+            ⚠️ {warnings} Avvik
+          </span>
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-red-800/50 bg-red-950/50 px-2.5 py-1 text-xs font-semibold text-red-400">
+            ❌ {critical} Kritisk
+          </span>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border bg-secondary/50">
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">#</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">System</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Parameter</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Design</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Målt</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Avvik</th>
+              <th className="px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground">Status</th>
+              <th className="px-3 py-2.5 text-center text-xs font-semibold text-muted-foreground">Kvittert</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.nr} className={`border-b border-border/50 transition-colors ${rowBg(r)}`}>
+                <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{r.nr}</td>
+                <td className="px-3 py-2 text-foreground">{r.system}</td>
+                <td className="px-3 py-2 font-medium text-foreground">{r.parameter}</td>
+                <td className="px-3 py-2 font-mono tabular-nums text-muted-foreground">{r.design}</td>
+                <td className="px-3 py-2 font-mono tabular-nums text-foreground">{r.measured}</td>
+                <td className="px-3 py-2 font-mono tabular-nums text-foreground">{r.deviation}</td>
+                <td className="px-3 py-2">
+                  {r.status === "critical" ? (
+                    <span className="text-xs font-semibold text-red-400">❌ {r.statusText}</span>
+                  ) : r.status === "warning" ? (
+                    <span className="text-xs font-semibold text-yellow-400">⚠️ {r.statusText}</span>
+                  ) : (
+                    <span className="text-xs font-semibold text-green-400">✅ {r.statusText}</span>
+                  )}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={r.checked}
+                    onChange={() => toggleCheck(r.nr)}
+                    className="h-4 w-4 rounded border-border accent-emerald-500 cursor-pointer"
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        onClick={handlePrint}
+        className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
+      >
+        <FileText className="h-4 w-4" />
+        Generer overleveringsdokument
+      </button>
+    </motion.div>
   );
 }
