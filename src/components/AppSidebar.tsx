@@ -17,15 +17,15 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { icon: Sun, label: "Driftsmorgen", path: "/", badge: null },
-  { icon: Building2, label: "Prosjekt", path: "/prosjekt", badge: null },
-  { icon: ClipboardList, label: "Datainput", path: "/datainput", badge: null },
-  { icon: Zap, label: "Simulering", path: "/simulering", badge: null },
-  { icon: BarChart3, label: "Sammenligning", path: "/sammenligning", badge: null },
-  { icon: Network, label: "Nettverkskart", path: "/nettverkskart", badge: "NY" },
-  { icon: SlidersHorizontal, label: "SD Live & What-If", path: "/sd-live", badge: "NY" },
-  { icon: DollarSign, label: "Priser", path: "/priser", badge: null },
-  { icon: PieChart, label: "Portefølje", path: "/portefolje", badge: "locked" },
+  { icon: Sun, label: "Driftsmorgen", path: "/simulator", badge: null },
+  { icon: Building2, label: "Prosjekt", path: "/simulator/prosjekt", badge: null },
+  { icon: ClipboardList, label: "Datainput", path: "/simulator/datainput", badge: null },
+  { icon: Zap, label: "Simulering", path: "/simulator/simulering", badge: null },
+  { icon: BarChart3, label: "Sammenligning", path: "/simulator/sammenligning", badge: null },
+  { icon: Network, label: "Nettverkskart", path: "/simulator/nettverkskart", badge: "NY" },
+  { icon: SlidersHorizontal, label: "SD Live & What-If", path: "/simulator/sd-live", badge: "NY" },
+  { icon: DollarSign, label: "Priser", path: "/simulator/priser", badge: null },
+  { icon: PieChart, label: "Portefølje", path: "/simulator/portefolje", badge: "locked" },
 ];
 
 export function AppSidebar() {
