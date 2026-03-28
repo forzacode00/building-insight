@@ -196,7 +196,7 @@ export default function Prosjekt() {
                 <span className="font-semibold text-foreground font-mono tabular-nums">{checkedCount}</span> systemer valgt
               </span>
               <button
-                onClick={() => navigate("/datainput")}
+                onClick={() => navigate("/simulator/datainput")}
                 className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Konfigurer valgte systemer

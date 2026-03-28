@@ -104,14 +104,14 @@ export default function Driftsmorgen() {
           </p>
           <div className="flex gap-3">
             <button
-              onClick={() => navigate("/datainput")}
+              onClick={() => navigate("/simulator/datainput")}
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <Upload className="h-4 w-4" />
               Last opp funksjonsbeskrivelse
             </button>
             <button
-              onClick={() => navigate("/simulering", { state: { startBuild: true } })}
+              onClick={() => navigate("/simulator/simulering", { state: { startBuild: true } })}
               className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary/20"
             >
               <Play className="h-4 w-4" />
@@ -135,7 +135,7 @@ export default function Driftsmorgen() {
               Maks 26.4°C kl. 03:12. Settpunkt natt: 19°C. Sannsynlig årsak: soloppvarming fra sørfasade + kjøling av etter kl. 22:00.
             </p>
             <button
-              onClick={() => navigate("/simulering", { state: { activeTab: "avvik" } })}
+              onClick={() => navigate("/simulator/simulering", { state: { activeTab: "avvik" } })}
               className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
             >
               Undersøk <ChevronRight className="h-4 w-4" />
@@ -152,7 +152,7 @@ export default function Driftsmorgen() {
               Målt SFP 1.82 kW/(m³/s), krav ≤ 1.5. Mulig årsak: tilsmusset filter eller feil på frekvensomformer.
             </p>
             <button
-              onClick={() => navigate("/simulering", { state: { activeTab: "avvik" } })}
+              onClick={() => navigate("/simulator/simulering", { state: { activeTab: "avvik" } })}
               className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
             >
               Undersøk <ChevronRight className="h-4 w-4" />

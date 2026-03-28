@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SimProvider } from "@/lib/SimContext";
 import { AppLayout } from "./components/AppLayout";
+import Story from "./pages/Story";
 import Driftsmorgen from "./pages/Driftsmorgen";
 import Datainput from "./pages/Datainput";
 import Simulering from "./pages/Simulering";
@@ -25,15 +26,16 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Driftsmorgen />} />
-              <Route path="/prosjekt" element={<Prosjekt />} />
-              <Route path="/datainput" element={<Datainput />} />
-              <Route path="/simulering" element={<Simulering />} />
-              <Route path="/sammenligning" element={<Sammenligning />} />
-              <Route path="/nettverkskart" element={<Nettverkskart />} />
-              <Route path="/sd-live" element={<SDLive />} />
-              <Route path="/priser" element={<Priser />} />
+            <Route path="/" element={<Story />} />
+            <Route path="/simulator" element={<AppLayout />}>
+              <Route index element={<Driftsmorgen />} />
+              <Route path="prosjekt" element={<Prosjekt />} />
+              <Route path="datainput" element={<Datainput />} />
+              <Route path="simulering" element={<Simulering />} />
+              <Route path="sammenligning" element={<Sammenligning />} />
+              <Route path="nettverkskart" element={<Nettverkskart />} />
+              <Route path="sd-live" element={<SDLive />} />
+              <Route path="priser" element={<Priser />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
