@@ -55,7 +55,7 @@ export default function IsometricBuilding({
   const tempT = Math.max(0, Math.min(1, (heatingTemp - 40) / 30));
   const heatingColor = lerpColor("#93c5fd", "#dc2626", tempT);
   const recoveryColor = lerpColor("#3b82f6", "#22c55e", Math.max(0, Math.min(1, (recoveryEff - 0.5) / 0.45)));
-  const coolingOpacity = 0.1 + 0.5 * Math.max(0, Math.min(1, (coolingKw - 100) / 500));
+  const coolingOpacity = 0.15 + 0.55 * Math.max(0, Math.min(1, (coolingKw - 100) / 500));
   const ventDuration = 3 - 1.8 * Math.max(0, Math.min(1, (sfpValue - 0.8) / 1.7));
   const ventParticles = Math.min(Math.round(sfpValue), 2); // capped for mobile perf
 
@@ -87,11 +87,11 @@ export default function IsometricBuilding({
         <g clipPath={clipActive ? `url(#revealClip-${uid})` : undefined}>
           {/* === BUILDING SHELL === */}
           {/* Left wall */}
-          <path d={ISO_LEFT_WALL} fill="hsl(var(--primary))" fillOpacity="0.08" stroke="hsl(var(--border))" strokeWidth="1.5" />
+          <path d={ISO_LEFT_WALL} fill="hsl(var(--primary))" fillOpacity="0.18" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeOpacity="0.5" />
           {/* Roof */}
-          <path d={ISO_ROOF} fill="hsl(var(--primary))" fillOpacity="0.06" stroke="hsl(var(--border))" strokeWidth="1.5" />
+          <path d={ISO_ROOF} fill="hsl(var(--primary))" fillOpacity="0.14" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeOpacity="0.5" />
           {/* Right wall outline (cutaway — dashed) */}
-          <path d={ISO_RIGHT_WALL} fill="none" stroke="hsl(var(--border))" strokeWidth="1" strokeDasharray="4 4" />
+          <path d={ISO_RIGHT_WALL} fill="hsl(var(--primary))" fillOpacity="0.06" stroke="hsl(var(--primary))" strokeWidth="1.2" strokeOpacity="0.4" strokeDasharray="4 4" />
 
           {/* Floor lines inside cutaway */}
           {FLOORS.map((f, i) => (
@@ -103,20 +103,20 @@ export default function IsometricBuilding({
           ))}
 
           {/* Basement (darker) */}
-          <polygon points="250,340 250,380 430,300 430,260" fill="hsl(var(--primary))" fillOpacity="0.04" stroke="hsl(var(--border))" strokeWidth="0.8" />
-          <line x1="250" y1="340" x2="430" y2="260" stroke="hsl(var(--border))" strokeWidth="1" />
+          <polygon points="250,340 250,380 430,300 430,260" fill="hsl(var(--primary))" fillOpacity="0.10" stroke="hsl(var(--primary))" strokeWidth="0.8" strokeOpacity="0.4" />
+          <line x1="250" y1="340" x2="430" y2="260" stroke="hsl(var(--primary))" strokeWidth="1" strokeOpacity="0.5" />
 
           {/* === HEATING SYSTEM === */}
           {/* Main vertical pipe */}
-          <path d={HEATING_MAIN_PATH} stroke={heatingColor} strokeWidth="3" fill="none" filter={`url(#glowHeat-${uid})`} strokeLinecap="round" />
+          <path d={HEATING_MAIN_PATH} stroke={heatingColor} strokeWidth="4" fill="none" filter={`url(#glowHeat-${uid})`} strokeLinecap="round" />
           {/* Horizontal branches + radiators per floor */}
           {FLOORS.map((f, i) => {
             const pipeY = f.y + 50;
             return (
               <g key={`heat-${i}`}>
-                <line x1="140" y1={pipeY} x2="230" y2={pipeY} stroke={heatingColor} strokeWidth="2" filter={`url(#glowHeat-${uid})`} />
+                <line x1="140" y1={pipeY} x2="230" y2={pipeY} stroke={heatingColor} strokeWidth="2.5" filter={`url(#glowHeat-${uid})`} />
                 {/* Radiator */}
-                <rect x="215" y={pipeY - 8} width="16" height="16" rx="2" fill={heatingColor} fillOpacity="0.7" stroke={heatingColor} strokeWidth="0.5" />
+                <rect x="215" y={pipeY - 8} width="16" height="16" rx="2" fill={heatingColor} fillOpacity="0.85" stroke={heatingColor} strokeWidth="0.8" />
               </g>
             );
           })}
@@ -140,9 +140,9 @@ export default function IsometricBuilding({
           {FLOORS.map((f, i) => (
             <g key={`vent-${i}`}>
               {/* Supply duct */}
-              <path d={ventDuctSupply(f.y)} stroke="#3b82f6" strokeWidth="2" strokeDasharray="6 3" fill="none" filter={`url(#glowVent-${uid})`} />
+              <path d={ventDuctSupply(f.y)} stroke="#3b82f6" strokeWidth="2.5" strokeDasharray="6 3" fill="none" filter={`url(#glowVent-${uid})`} />
               {/* Exhaust duct */}
-              <path d={ventDuctExhaust(f.y)} stroke="#64748b" strokeWidth="1.5" strokeDasharray="6 3" fill="none" />
+              <path d={ventDuctExhaust(f.y)} stroke="#94a3b8" strokeWidth="2" strokeDasharray="6 3" fill="none" />
               {/* Vent particles */}
               {Array.from({ length: Math.min(ventParticles, 5) }).map((_, pi) => (
                 <motion.circle
@@ -162,7 +162,7 @@ export default function IsometricBuilding({
           ))}
 
           {/* Heat recovery unit in basement */}
-          <rect x="270" y="305" width="40" height="30" rx="3" fill={recoveryColor} fillOpacity="0.3" stroke={recoveryColor} strokeWidth="1.5" />
+          <rect x="270" y="305" width="40" height="30" rx="3" fill={recoveryColor} fillOpacity="0.45" stroke={recoveryColor} strokeWidth="2" />
           {/* Cross pattern inside */}
           <line x1="270" y1="305" x2="310" y2="335" stroke={recoveryColor} strokeWidth="1" strokeOpacity="0.6" />
           <line x1="310" y1="305" x2="270" y2="335" stroke={recoveryColor} strokeWidth="1" strokeOpacity="0.6" />
