@@ -30,7 +30,7 @@ import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`relative min-h-screen flex flex-col items-center justify-center px-6 py-24 ${className}`}>{children}</section>;
+  return <section className={`relative flex flex-col items-center justify-center px-6 ${className}`}>{children}</section>;
 }
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -63,8 +63,8 @@ export default function Story() {
     <TooltipProvider>
       <div className="w-full bg-background text-foreground overflow-x-hidden">
         <HeroSection />
-        <ProblemSection />
-        <SolutionSection />
+        <PainBandSection />
+        <TheFlipSection />
         <SimulatorSection />
         <AdvancedSection />
         <CTASection />
@@ -173,7 +173,7 @@ function BuildingScanPreview() {
 /* ═══════ SECTION 1 — Hero ═══════ */
 function HeroSection() {
   return (
-    <Section className="relative overflow-hidden">
+    <Section className="min-h-screen py-24 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.08),transparent)]" />
 
       <FadeIn className="z-10 max-w-3xl text-center">
@@ -228,91 +228,62 @@ function HeroSection() {
   );
 }
 
-/* ═══════ SECTION 2 — Problem (dramatic) ═══════ */
-function ProblemSection() {
+/* ═══════ SECTION 2 — Pain Band (compact) ═══════ */
+function PainBandSection() {
   return (
-    <Section>
-      <FadeIn className="mb-16 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Slik gjøres det i dag</h2>
-        <p className="mt-3 text-muted-foreground">Den tradisjonelle prosessen er risikabel og dyr.</p>
+    <section className="relative w-full px-6 py-16 flex flex-col items-center">
+      {/* 3 smertestats i rad */}
+      <FadeIn className="mx-auto mb-12 grid w-full max-w-3xl grid-cols-3 gap-6 text-center">
+        <div>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">30%</p>
+          <p className="mt-2 text-sm text-muted-foreground">av VVS-anlegg fungerer ikke som planlagt</p>
+        </div>
+        <div>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">15–25%</p>
+          <p className="mt-2 text-sm text-muted-foreground">gjennomsnittlig merkostnad ved feil</p>
+        </div>
+        <div>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–12 mnd</p>
+          <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
+        </div>
       </FadeIn>
 
-      <div className="mx-auto grid w-full max-w-5xl gap-12 md:grid-cols-2">
-        {/* left — timeline boxes */}
-        <div className="flex flex-col items-center gap-4">
-          {/* Prosjektering — small */}
-          <FadeIn delay={0} className="w-full">
-            <div className="rounded-xl border p-5 border-border bg-card">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-vh-green">Prosjektering</h3>
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 måneder</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">Ingeniører designer VVS-systemet. Tegninger, beregninger, funksjonsbeskrivelser.</p>
-            </div>
-            <div className="mx-auto my-1 h-6 w-px bg-border" />
-          </FadeIn>
-
-          {/* Bygging — DRAMATIC 2x size, red glow */}
-          <FadeIn delay={0.2} className="w-full">
-            <motion.div
-              className="rounded-xl border-2 border-destructive/40 bg-secondary/90 p-8 relative overflow-hidden"
-              animate={{
-                boxShadow: [
-                  "0 0 20px -5px hsl(0, 84%, 60%, 0.2)",
-                  "0 0 40px -5px hsl(0, 84%, 60%, 0.4)",
-                  "0 0 20px -5px hsl(0, 84%, 60%, 0.2)",
-                ],
-              }}
-              transition={{ duration: 3, repeat: Infinity }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-foreground">Bygging</h3>
-                <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">12–18 måneder</span>
-              </div>
-              <p className="text-5xl font-bold font-mono tabular-nums text-destructive leading-tight">
-                20–80 MNOK
-              </p>
-              <p className="mt-3 text-base text-muted-foreground">
-                ...og du vet fortsatt ikke om det fungerer
-              </p>
-            </motion.div>
-            <div className="mx-auto my-1 h-6 w-px bg-border" />
-          </FadeIn>
-
-          {/* Testing — small with red accent */}
-          <FadeIn delay={0.4} className="w-full">
-            <div className="rounded-xl border p-5 border-destructive/40 bg-destructive/5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-destructive">Testing</h3>
-                <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">???</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">Fungerer det? Først NÅ kan vi teste.</p>
-            </div>
-          </FadeIn>
+      {/* Kompakt timeline — vertikal, én kolonne */}
+      <FadeIn delay={0.2} className="mx-auto flex w-full max-w-lg flex-col items-center gap-0">
+        <div className="w-full rounded-xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-vh-green">Prosjektering</h3>
+            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 mnd</span>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">Ingeniører designer VVS-systemet.</p>
         </div>
-
-        {/* right — stats, HUGE */}
-        <div className="flex flex-col justify-center gap-10">
-          <FadeIn delay={0.3}>
-            <p className="text-6xl font-extrabold font-mono tabular-nums text-destructive leading-none md:text-7xl">30%</p>
-            <p className="mt-2 text-base text-muted-foreground">av VVS-anlegg fungerer ikke som planlagt</p>
-          </FadeIn>
-          <FadeIn delay={0.45}>
-            <p className="text-4xl font-extrabold font-mono tabular-nums text-destructive">15–25%</p>
-            <p className="mt-2 text-sm text-muted-foreground">gjennomsnittlig merkostnad ved feil</p>
-          </FadeIn>
-          <FadeIn delay={0.6}>
-            <p className="text-4xl font-extrabold font-mono tabular-nums text-destructive">6–12 mnd</p>
-            <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
-          </FadeIn>
+        <div className="mx-auto my-1 h-6 w-px bg-border" />
+        <motion.div
+          className="w-full rounded-xl border-2 border-destructive/40 bg-secondary/90 p-6 relative overflow-hidden"
+          animate={{ boxShadow: ["0 0 20px -5px hsl(0, 84%, 60%, 0.2)", "0 0 40px -5px hsl(0, 84%, 60%, 0.4)", "0 0 20px -5px hsl(0, 84%, 60%, 0.2)"] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-bold text-foreground">Bygging</h3>
+            <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">12–18 mnd · 20–80 MNOK</span>
+          </div>
+          <p className="text-sm text-muted-foreground">...og du vet fortsatt ikke om det fungerer.</p>
+        </motion.div>
+        <div className="mx-auto my-1 h-6 w-px bg-border" />
+        <div className="w-full rounded-xl border border-destructive/40 bg-destructive/5 p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-destructive">Testing</h3>
+            <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">???</span>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">Fungerer det? Først NÅ kan vi teste.</p>
         </div>
-      </div>
-    </Section>
+      </FadeIn>
+    </section>
   );
 }
 
-/* ═══════ SECTION 3 — Solution (animated transformation) ═══════ */
-function SolutionSection() {
+/* ═══════ SECTION 3 — The Flip (animated transformation + WowDemo) ═══════ */
+function TheFlipSection() {
   const transformRef = useRef<HTMLDivElement>(null);
   const inView = useInView(transformRef, { once: true, margin: "-100px" });
   const [timeText, setTimeText] = useState("12–18 mnd");
@@ -325,13 +296,13 @@ function SolutionSection() {
   }, [inView]);
 
   return (
-    <Section>
+    <Section className="min-h-screen py-24">
       <FadeIn className="mb-16 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne hoppe over?</h2>
         <p className="mt-3 text-muted-foreground">VirtualHouse erstatter den dyre byggefasen med en digital simulering.</p>
       </FadeIn>
 
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
         <FadeIn delay={0} className="w-full">
           <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
             <div className="flex items-center justify-between">
@@ -382,6 +353,12 @@ function SolutionSection() {
           </div>
         </FadeIn>
       </div>
+
+      {/* WowDemo moved here */}
+      <FadeIn delay={0.9} className="w-full">
+        <p className="mb-6 text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest">Slik ser det ut i praksis</p>
+        <WowDemo />
+      </FadeIn>
     </Section>
   );
 }
@@ -591,17 +568,10 @@ function SimulatorSection() {
   const handleRevealDone = useCallback(() => setSimState("done"), []);
 
   return (
-    <Section>
+    <Section className="min-h-screen py-24">
       <FadeIn className="mb-8 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Prøv selv</h2>
-        <p className="mt-3 text-muted-foreground">Se hva VirtualHouse finner i ditt bygg.</p>
-      </FadeIn>
-
-      {/* WOW demo before building selector */}
-      <WowDemo />
-
-      <FadeIn className="mb-2 text-center">
-        <p className="text-lg font-semibold text-foreground">Nå er det din tur:</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Nå er det din tur</h2>
+        <p className="mt-3 text-muted-foreground">Du har sett hva vi finner. Test ditt eget bygg — på 3 minutter.</p>
       </FadeIn>
 
       {/* building type cards */}
@@ -813,10 +783,10 @@ function AdvancedSection() {
   const monthlyData = result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v) }));
 
   return (
-    <Section>
+    <Section className="py-20">
       <FadeIn className="mb-10 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Det virkelige blir interessant...</h2>
-        <p className="mt-3 text-muted-foreground">Men hva skjer når vi legger til virkeligheten?</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Men bygget ditt lever ikke i et laboratorium</h2>
+        <p className="mt-3 text-muted-foreground">Den simuleringen du akkurat kjørte er et ideelt utgangspunkt. Nå — hva skjer i virkeligheten?</p>
       </FadeIn>
 
       <FadeIn className="mx-auto mb-8 flex flex-wrap justify-center gap-3">
@@ -892,10 +862,30 @@ function AdvancedSection() {
 /* ═══════ SECTION 6 — CTA (urgent, specific) ═══════ */
 function CTASection() {
   const navigate = useNavigate();
+  const result = useSimResult();
+  const { input } = useSimInput();
   const segments = ["Totalentreprenører", "Rådgivende ingeniører", "Eiendomsforvaltere", "Byggherrer", "FM-selskaper"];
+  const hasResult = result.totalEnergyKwhM2 > 0;
+  const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
 
   return (
-    <Section>
+    <Section className="py-24">
+      {/* Personalized summary — only if simulation has been run */}
+      {hasResult && (
+        <FadeIn className="mx-auto mb-10 w-full max-w-lg rounded-xl border border-primary/30 bg-primary/5 px-6 py-5 text-center">
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">Din simulering</p>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-bold text-foreground">{buildingLabel}</span> · {input.bra.toLocaleString("nb-NO")} m² ·{" "}
+            Energibehov <span className="font-bold text-foreground">{Math.round(result.totalEnergyKwhM2)} kWh/m²·år</span>
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Estimert årlig energikostnad:{" "}
+            <span className="font-bold text-destructive">NOK {Math.round(result.annualCostNOK).toLocaleString("nb-NO")}</span>
+            {result.exceedsTEK17 ? " — Over TEK17-grense ⚠" : " — Under TEK17 ✅"}
+          </p>
+        </FadeIn>
+      )}
+
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
           Hvert bygg du leverer uten simulering er et sjansespill
@@ -903,20 +893,15 @@ function CTASection() {
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
           VirtualHouse har allerede funnet feil verdt <span className="font-bold text-foreground">NOK 12.4 millioner</span> i norske næringsbygg. Hva skjuler seg i ditt?
         </p>
-
         <div className="mt-10">
-          <Button
-            size="lg"
-            onClick={() => navigate("/simulator")}
-            className="w-full sm:w-auto gap-3 px-10 py-6 text-lg font-bold"
-          >
+          <Button size="lg" onClick={() => navigate("/simulator")} className="w-full sm:w-auto gap-3 px-10 py-6 text-lg font-bold">
             Test ditt prosjekt gratis
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
       </FadeIn>
 
-      <FadeIn delay={0.3} className="mt-20">
+      <FadeIn delay={0.3} className="mt-16">
         <p className="mb-6 text-center text-sm text-muted-foreground">Bygget for ingeniørteam i:</p>
         <div className="flex flex-wrap justify-center gap-4">
           {segments.map((name) => (
@@ -926,10 +911,7 @@ function CTASection() {
           ))}
         </div>
       </FadeIn>
-
-      <div className="mt-16 text-center text-xs text-muted-foreground/50">
-        VirtualHouse™ Investor Demo — v1.0
-      </div>
+      <div className="mt-12 text-center text-xs text-muted-foreground/50">VirtualHouse™ Investor Demo — v1.0</div>
     </Section>
   );
 }
