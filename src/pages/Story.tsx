@@ -27,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
+import IsometricBuilding from "@/components/IsometricBuilding";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -73,99 +74,53 @@ export default function Story() {
   );
 }
 
-/* ═══════ Building Scan Preview (Hero) ═══════ */
-function BuildingScanPreview() {
-  const [phase, setPhase] = useState(0);
+/* ═══════ Hero Building (isometric scan reveal) ═══════ */
+function HeroBuilding() {
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const CYCLE = 5000;
-    let timers: ReturnType<typeof setTimeout>[] = [];
-    const start = () => {
-      setPhase(0);
-      timers = [
-        setTimeout(() => setPhase(1), 400),
-        setTimeout(() => setPhase(2), 1600),
-        setTimeout(() => setPhase(3), 2400),
-        setTimeout(() => setPhase(4), 3200),
-      ];
+    const CYCLE = 6000;
+    let raf: number;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = (now - start) % CYCLE;
+      setProgress(Math.min(elapsed / 2400, 1));
+      raf = requestAnimationFrame(tick);
     };
-    start();
-    const loop = setInterval(start, CYCLE);
-    return () => { timers.forEach(clearTimeout); clearInterval(loop); };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
-  const results = [
-    { label: "5 avvik funnet", color: "hsl(0, 84%, 60%)", icon: "⚠" },
-    { label: "42 000 kr/år i energitap", color: "hsl(38, 92%, 55%)", icon: "⚡" },
-    { label: "SFP over TEK17-grense", color: "hsl(0, 84%, 60%)", icon: "✗" },
-  ];
-
   return (
-    <div className="relative w-full max-w-[600px] h-[280px] rounded-xl border border-border bg-card overflow-hidden">
-      {/* Subtle dot grid */}
-      <div className="absolute inset-0 opacity-5" style={{
-        backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)",
-        backgroundSize: "20px 20px",
-      }} />
-
-      <svg viewBox="0 0 600 280" className="absolute inset-0 w-full h-full">
-        {/* Building silhouette */}
-        <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <rect x="180" y="80" width="240" height="160" rx="4" fill="hsl(var(--primary))" fillOpacity="0.08" stroke="hsl(var(--primary))" strokeWidth="1.5" />
-          <polygon points="170,80 300,30 430,80" fill="hsl(var(--primary))" fillOpacity="0.10" stroke="hsl(var(--primary))" strokeWidth="1.5" />
-          {[0,1,2].map(col => [0,1,2].map(row => (
-            <rect key={`${col}-${row}`}
-              x={205 + col * 70} y={100 + row * 45}
-              width="40" height="30" rx="3"
-              fill="hsl(var(--primary))" fillOpacity="0.12"
-              stroke="hsl(var(--primary))" strokeWidth="1"
-            />
-          )))}
-          <rect x="270" y="190" width="60" height="50" rx="3" fill="hsl(var(--primary))" fillOpacity="0.15" stroke="hsl(var(--primary))" strokeWidth="1" />
-        </motion.g>
-
-        {/* Scan line sweeping down */}
-        {phase >= 1 && (
-          <motion.rect
-            x="160" width="280" height="3" rx="1.5"
-            fill="hsl(var(--primary))"
-            style={{ filter: "drop-shadow(0 0 8px hsl(var(--primary)))" }}
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 240, opacity: [0, 1, 1, 0] }}
-            transition={{ duration: 1.4, ease: "linear" }}
-          />
+    <div className="relative w-full max-w-[520px]">
+      <IsometricBuilding
+        heatingTemp={65}
+        sfpValue={1.8}
+        recoveryEff={0.78}
+        coolingKw={300}
+        revealProgress={progress}
+        className="w-full"
+      />
+      <AnimatePresence>
+        {progress >= 1 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute top-4 right-2 flex flex-col gap-1.5"
+          >
+            <div className="rounded-lg border border-destructive/40 bg-card/90 px-2.5 py-1 text-xs font-semibold text-destructive">
+              ⚠ SFP 1.8 — Over TEK17
+            </div>
+            <div className="rounded-lg border border-border bg-card/90 px-2.5 py-1 text-xs font-semibold text-vh-yellow">
+              ⚡ 42 000 kr/år energitap
+            </div>
+            <div className="rounded-lg border border-border bg-card/90 px-2.5 py-1 text-xs font-semibold text-foreground">
+              📄 5 avvik funnet
+            </div>
+          </motion.div>
         )}
-      </svg>
-
-      {/* Result cards */}
-      <div className="absolute right-4 top-6 flex flex-col gap-2">
-        {results.map((r, i) => (
-          <AnimatePresence key={i}>
-            {phase >= i + 2 && (
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.35 }}
-                className="flex items-center gap-2 rounded-lg border border-border bg-card/90 px-3 py-1.5"
-              >
-                <span style={{ color: r.color }} className="text-sm font-bold">{r.icon}</span>
-                <span className="text-xs font-semibold text-foreground">{r.label}</span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        ))}
-      </div>
-
-      {/* Label bottom-left */}
-      <motion.div
-        className="absolute bottom-3 left-4 text-xs text-muted-foreground"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: phase >= 1 ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        Simulerer bygget…
-      </motion.div>
+      </AnimatePresence>
     </div>
   );
 }
@@ -213,7 +168,7 @@ function HeroSection() {
 
       {/* Animated product preview */}
       <FadeIn delay={0.5} className="z-10 mt-12">
-        <BuildingScanPreview />
+        <HeroBuilding />
       </FadeIn>
 
       <motion.div
@@ -593,22 +548,36 @@ function SimulatorSection() {
         ))}
       </FadeIn>
 
-      {/* sliders */}
+      {/* sliders + live building */}
       {selectedType && (
-        <FadeIn className="mx-auto w-full max-w-2xl">
-          <div className="rounded-xl border border-border bg-card p-6">
-            <div className="grid gap-6 sm:grid-cols-2">
-              <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Turtemperatur varme" value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
-              <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
-              <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Gjenvinner virkningsgrad" value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
-              <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Installert kjøleeffekt" value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
+        <FadeIn className="mx-auto w-full max-w-4xl">
+          <div className="grid gap-8 md:grid-cols-2">
+            {/* Left: sliders */}
+            <div className="rounded-xl border border-border bg-card p-6">
+              <div className="grid gap-6 sm:grid-cols-2">
+                <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Turtemperatur varme" value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
+                <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
+                <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Gjenvinner virkningsgrad" value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
+                <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Installert kjøleeffekt" value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
+              </div>
+              <div className="mt-8 flex justify-center">
+                <Button size="lg" onClick={handleSimulate} className="gap-2 px-8 text-base" disabled={simState === "simulating"}>
+                  <Zap className="h-5 w-5" />
+                  Simuler 2 år
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="mt-8 flex justify-center">
-              <Button size="lg" onClick={handleSimulate} className="gap-2 px-8 text-base" disabled={simState === "simulating"}>
-                <Zap className="h-5 w-5" />
-                Simuler 2 år
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+
+            {/* Right: live-reactive building */}
+            <div className="flex items-center justify-center order-first md:order-last">
+              <IsometricBuilding
+                heatingTemp={input.heatingTurRetur[0]}
+                sfpValue={input.sfpDesign}
+                recoveryEff={input.heatRecoveryEff}
+                coolingKw={input.installedCooling}
+                className="w-full max-w-[400px]"
+              />
             </div>
           </div>
         </FadeIn>
