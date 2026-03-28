@@ -30,6 +30,7 @@ import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 import IsometricBuilding from "@/components/IsometricBuilding";
 import LiveSystemDiagram from "@/components/LiveSystemDiagram";
+import TimelinePlayer from "@/components/TimelinePlayer";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -638,6 +639,68 @@ function HealthScoreGauge({ score }: { score: number }) {
   );
 }
 
+/* ═══════ Timeline Player Section (interactive time-travel) ═══════ */
+function TimelinePlayerSection({ result, year2Result, input }: {
+  result: ReturnType<typeof useSimResult>;
+  year2Result: ReturnType<typeof useSimResult>;
+  input: ReturnType<typeof useSimInput>["input"];
+}) {
+  const [timeMonth, setTimeMonth] = useState(0);
+
+  // Interpolate building parameters based on timeline position
+  const degradationT = Math.max(0, Math.min(1, (timeMonth - 12) / 12)); // 0 in year 1, 0→1 in year 2
+  const liveTemp = input.heatingTurRetur[0] + degradationT * 5; // temp drifts up
+  const liveSfp = input.sfpDesign * (1 + degradationT * 0.15);
+  const liveRecovery = input.heatRecoveryEff * (1 - degradationT * 0.06);
+  const liveCooling = input.installedCooling;
+
+  // Generate events from simulation
+  const events: Array<{ month: number; type: "critical" | "warning" | "info"; label: string }> = [];
+  if (result.exceedsTEK17) events.push({ month: 0, type: "critical", label: "Over TEK17-ramme" });
+  if (result.sfpActual > 1.5) events.push({ month: 1, type: "critical", label: `SFP ${result.sfpActual.toFixed(1)}` });
+  if (result.hoursAbove26 > 30) {
+    [5, 6, 7].forEach(m => events.push({ month: m, type: "warning", label: "Overtemperatur" }));
+  }
+  events.push({ month: 12, type: "info", label: "Gjenvinner -6%" });
+  events.push({ month: 14, type: "warning", label: "SFP +15%" });
+  if (year2Result.exceedsTEK17 && !result.exceedsTEK17) {
+    events.push({ month: 18, type: "critical", label: "År 2: Over TEK17" });
+  }
+
+  return (
+    <div className="space-y-4">
+      <TimelinePlayer
+        events={events}
+        totalMonths={24}
+        onMonthChange={setTimeMonth}
+      />
+      {/* Live building state at current timeline position */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">Bygningsstatus måned {Math.round(timeMonth)}</p>
+          <IsometricBuilding
+            heatingTemp={liveTemp}
+            sfpValue={liveSfp}
+            recoveryEff={liveRecovery}
+            coolingKw={liveCooling}
+            className="w-full max-w-[280px] mx-auto"
+          />
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">Systemstatus måned {Math.round(timeMonth)}</p>
+          <LiveSystemDiagram
+            heatingTemp={liveTemp}
+            sfpValue={liveSfp}
+            recoveryEff={liveRecovery}
+            coolingKw={liveCooling}
+            className="w-full max-w-[320px] mx-auto"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ═══════ Simulation Timeline (DXC-inspired) ═══════ */
 function SimTimeline({ result, year2Result }: { result: ReturnType<typeof useSimResult>; year2Result: ReturnType<typeof useSimResult> }) {
   // Generate timeline events from simulation data
@@ -1165,9 +1228,9 @@ function SimulatorSection() {
             <HealthScoreGauge score={result.healthScore} />
           </motion.div>
 
-          {/* Simulation Timeline */}
+          {/* Interactive Timeline Player */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.05 }}>
-            <SimTimeline result={result} year2Result={year2Result} />
+            <TimelinePlayerSection result={result} year2Result={year2Result} input={input} />
           </motion.div>
 
           {/* TEK17 Report Card */}
