@@ -85,6 +85,15 @@ export default function Story() {
         <SiteNav />
         <HeroSection />
         <PainBandSection />
+        {/* Trust bar */}
+        <section className="w-full border-y border-border bg-card/50 py-6 px-6">
+          <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-4">Bygget for norsk byggbransje</p>
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 opacity-50">
+            {["Totalentreprenører", "Rådgivende ingeniører", "Byggherrer", "Eiendomsforvaltere", "Kommuner"].map(s => (
+              <span key={s} className="text-xs font-medium text-muted-foreground">{s}</span>
+            ))}
+          </div>
+        </section>
         <TheFlipSection />
         <SimulatorSection />
         <AdvancedSection />
@@ -1020,7 +1029,7 @@ function AdvancedSection() {
   const monthlyData = result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v) }));
 
   return (
-    <Section className="py-20">
+    <Section className="py-20" id="avvik">
       <FadeIn className="mb-10 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Men bygget ditt lever ikke i et laboratorium</h2>
         <p className="mt-3 text-muted-foreground">Den simuleringen du akkurat kjørte er et ideelt utgangspunkt. Nå — hva skjer i virkeligheten?</p>
@@ -1071,7 +1080,7 @@ function AdvancedSection() {
                 <p className="text-sm font-semibold text-destructive">Samtidig varme og kjøling</p>
                 <p className="text-xs text-muted-foreground">
                   Systemet varmer og kjøler samtidig i mellomsesongen. Estimert sløsing:{" "}
-                  <span className="font-bold text-destructive">NOK 42 000/år</span>.
+                  <span className="font-bold text-destructive">NOK {Math.round(Math.min(result.coolingKwhM2, result.heatingKwhM2) * input.bra * 1.33 * 0.15).toLocaleString("nb-NO")}/år</span>.
                 </p>
               </div>
             </div>
