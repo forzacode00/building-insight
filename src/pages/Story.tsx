@@ -1096,8 +1096,18 @@ function SimulatorSection() {
             </div>
           </motion.div>
 
+          {/* Health Score + TEK17 side by side */}
+          <div className="grid gap-6 md:grid-cols-2">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.85 }}>
+              <HealthScoreGauge score={result.healthScore} />
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.9 }}>
+              <TEK17ReportCard result={result} />
+            </motion.div>
+          </div>
+
           {/* Indoor Climate Card */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.9 }}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.95 }}>
             <div className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Inneklima (NS-EN 16798)</p>
               <div className="grid grid-cols-3 gap-4 text-center">
@@ -1146,19 +1156,9 @@ function SimulatorSection() {
             </div>
           </motion.div>
 
-          {/* Building Health Score */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.0 }}>
-            <HealthScoreGauge score={result.healthScore} />
-          </motion.div>
-
           {/* Interactive Timeline Player */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.05 }}>
             <TimelinePlayerSection result={result} year2Result={year2Result} input={input} />
-          </motion.div>
-
-          {/* TEK17 Report Card */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.1 }}>
-            <TEK17ReportCard result={result} />
           </motion.div>
 
           {/* Avvik preview */}
