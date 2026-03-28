@@ -899,7 +899,7 @@ function SimulatorSection() {
                 </div>
                 <div>
                   <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.hoursAbove26 > 50 ? "text-destructive" : "text-vh-green"}`}>{result.hoursAbove26}</p>
-                  <p className="text-[10px] text-muted-foreground">timer >26°C</p>
+                  <p className="text-[10px] text-muted-foreground">timer over 26°C</p>
                   <p className="text-[9px] text-muted-foreground mt-0.5">{result.hoursAbove26 <= 50 ? "Innenfor krav" : "Overtemperatur"}</p>
                 </div>
                 <div>
