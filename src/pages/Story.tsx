@@ -1053,6 +1053,28 @@ function SimulatorSection() {
             </div>
           </motion.div>
 
+          {/* System Vitals Bar (DXC-inspired) */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+            <div className="rounded-xl border border-border bg-card p-3">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                {[
+                  { label: "SFP", value: result.sfpActual.toFixed(1), unit: "kW/(m³/s)", warn: result.sfpActual > 1.5 },
+                  { label: "GGV", value: `${Math.round(result.heatRecoveryActual * 100)}`, unit: "%", warn: result.heatRecoveryActual < 0.76 },
+                  { label: "CO₂", value: `${result.avgCO2ppm}`, unit: "ppm", warn: result.avgCO2ppm > 800 },
+                  { label: "RF", value: `${result.avgRHwinter}`, unit: "%", warn: result.avgRHwinter < 20 },
+                  { label: ">26°C", value: `${result.hoursAbove26}`, unit: "timer", warn: result.hoursAbove26 > 50 },
+                  { label: "CO₂e", value: `${result.co2Tonnes}`, unit: "tonn/år", warn: false },
+                ].map((v, i) => (
+                  <div key={i} className="text-center">
+                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{v.label}</p>
+                    <p className={`text-lg font-extrabold font-mono tabular-nums ${v.warn ? "text-destructive" : "text-foreground"}`}>{v.value}</p>
+                    <p className="text-[8px] text-muted-foreground">{v.unit}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
           <div className="grid gap-6 md:grid-cols-2">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0 }}>
               <h3 className="mb-3 text-center text-sm font-bold text-vh-green">År 1</h3>
