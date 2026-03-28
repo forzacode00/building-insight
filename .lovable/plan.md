@@ -1,80 +1,44 @@
 
 
-# Restructure: Multi-page Dashboard to Storytelling Scroll Experience
+# Fix 5 Issues on Story Page
 
-## Overview
+## Changes — all in `src/pages/Story.tsx`
 
-Transform the app from a sidebar-navigated multi-page dashboard into a single-page storytelling experience at `/`, with the full simulator preserved at `/simulator`.
+### 1. Animated transformation in SolutionSection
+Replace the static middle box with a `motion.div` that uses `useInView` to animate from dark/grey styling to blue/primary. Add a time badge that morphs from "12–18 mnd" to "3 min" using a state toggle triggered by `useInView`.
 
-## Architecture Changes
+### 2. Year 1 vs Year 2 results in SimulatorSection
+- Import `runSimulation` from `simulationEngine.ts` and `useMemo` from React
+- When `showResults` is true, compute `year2Result` using degraded inputs (heatRecoveryEff × 0.94, sfpDesign × 1.15, cop × 0.95)
+- Render two labeled rows: "År 1" with current result, "År 2" with year2Result
+- Show delta arrows between key metrics
 
-### 1. Update App.tsx routing
+### 3. Functional "Årstidsvariasjoner" toggle
+- Import `ResponsiveContainer`, `BarChart`, `Bar`, `XAxis` from `recharts`
+- When `toggles.seasons` is active, render a 12-bar monthly energy chart using `result.monthlyKwh`
+- Month labels: Jan–Des, styled consistently
 
-- Remove all individual page routes and AppLayout wrapper from `/`
-- Two routes only:
-  - `/` renders `<Story />` (no sidebar, no AppLayout)
-  - `/simulator` renders `<AppLayout>` wrapping all existing pages (Simulering, Datainput, etc.) with sidebar navigation intact
-- Keep SimProvider wrapping everything so the story page can use the simulation engine
+### 4. Energy breakdown card in SimResults
+- Add a 4th card with stacked horizontal mini-bars showing heating, fans, cooling, and "other" (lighting + equipment + DHW)
+- Create a `MiniBar` helper component with label, proportional bar width, and value
 
-### 2. Create `src/pages/Story.tsx` (new, ~500 lines)
+### 5. Update SimResults grid
+- Change grid from `sm:grid-cols-3` to `sm:grid-cols-2 lg:grid-cols-4`
 
-Single scrollable page with 6 full-viewport sections, using framer-motion `whileInView` for scroll-triggered animations.
+### Technical Details
 
-**Section 1 — Hero**
-- `min-h-screen` dark navy bg, centered content
-- Headline: "Test bygget ditt — for du bygger det"
-- Subtitle explaining VirtualHouse
-- Animated icon flow: Document -> VirtualHouse -> Checkmark (CSS/framer keyframes)
-- Scroll indicator with bouncing arrow
+**File**: `src/pages/Story.tsx`
 
-**Section 2 — "Slik gjores det i dag" (Problem)**
-- Two-column layout: left has 3 connected boxes (Prosjektering/Bygging/Testing), right has stats
-- Boxes fade in sequentially via `whileInView` with stagger
-- "Bygging" box styled as dark/scary, "Testing" box with red accent
-- Stats appear with counter animation
+**New imports**:
+- `useMemo` from React
+- `runSimulation, SimInput` from `@/lib/simulationEngine`
+- `ResponsiveContainer, BarChart, Bar, XAxis` from `recharts`
 
-**Section 3 — "Hva om du kunne hoppe over?" (Solution)**
-- Same 3-box layout but middle box transforms to blue VirtualHouse branded
-- Timeline compression animation: "18 maneder" shrinks to "3 minutter"
-- Green checkmark on final box
+**SolutionSection** rewrite: Break out the middle box from the `.map()` loop. Use a `useRef`/`useInView` pair. The box starts with `initial={{ borderColor, backgroundColor }}` matching the Problem section's dark "Bygging" box, then animates to primary/blue. A separate state `timeText` flips from "12–18 mnd" to "3 minutter" after a 0.8s delay when in view.
 
-**Section 4 — "Prov selv" (Interactive Simulator)**
-- Building type selector: 3 large cards (Kontor/Skole/Sykehus) with icons
-- On selection, show simplified PID diagram area + 4 friendly sliders:
-  - Radiatortemperatur (40-70) -> updates `heatingTurRetur[0]`
-  - Ventilasjonskraft (0.8-2.5) -> updates `sfpDesign`
-  - Gjenvinning av varme (50-95%) -> updates `heatRecoveryEff`
-  - Kjolekapasitet (100-600) -> updates `installedCooling`
-- "Simuler 2 ar" button triggers result reveal
-- Results: reuse ResultsEnergi, ResultsKomfort patterns (simplified cards showing key metrics from useSimResult)
+**SimulatorSection**: Add `year2Input` derived from `input` with degraded values. Compute `year2Result = useMemo(() => runSimulation(year2Input), [...deps])`. Render `<SimResults>` twice with "År 1"/"År 2" labels and delta indicators.
 
-**Section 5 — "Det virkelige blir interessant..." (Advanced)**
-- Three toggle buttons that modify simulation inputs:
-  - "Arstidsvariasjoner" — no-op visual (data already seasonal)
-  - "Slitasje over 2 ar" — reduces heatRecoveryEff by 6%, increases sfpDesign by 15%
-  - "Samtidig varme/kjole" — shows warning card about NOK 42,000/ar waste
-- Results update live when toggles change
+**AdvancedSection**: Add the seasonal bar chart inside a `motion.div` when `toggles.seasons` is true.
 
-**Section 6 — CTA**
-- Headline + two buttons:
-  - "Last opp funksjonsbeskrivelse" -> navigates to `/simulator`
-  - "Kontakt oss" -> mailto or placeholder
-- Social proof logos row (placeholder company names as text badges)
-
-### 3. Update AppLayout for `/simulator`
-
-- Keep existing `AppLayout` with sidebar, but update the default route inside it
-- The sidebar's "/" link changes to point to `/simulator` as the dashboard landing
-- All existing pages (Driftsmorgen, Prosjekt, Datainput, Simulering, etc.) remain accessible under `/simulator/*` sub-routes
-
-### 4. Files modified
-
-| File | Change |
-|------|--------|
-| `src/App.tsx` | Replace routing: `/` = Story, `/simulator/*` = AppLayout with all existing routes |
-| `src/pages/Story.tsx` | **New** — the full storytelling page |
-| `src/components/AppSidebar.tsx` | Update nav paths to be prefixed with `/simulator` |
-| `src/components/AppLayout.tsx` | Keep as-is (used by `/simulator` route) |
-
-No existing simulation components are deleted. All are reused at `/simulator/*`.
+**SimResults**: Add `MiniBar` component. Update grid class. Add 4th energy breakdown card.
 
