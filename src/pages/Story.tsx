@@ -1434,6 +1434,10 @@ function FAQSection() {
       q: "Trenger jeg teknisk kompetanse for å bruke det?",
       a: "Grunnleggende VVS-forståelse er en fordel, men ikke et krav. Simulatoren veileder deg gjennom parametrene, og resultatene presenteres med klare anbefalt/ikke-anbefalt-indikatorer.",
     },
+    {
+      q: "Hvilke standarder og referanser brukes?",
+      a: "Beregningsmetode: ISO 13790 forenklet timesmetode. Klimadata: met.no 1991–2020 normaler. Energiramme: TEK17 §14-2. SFP-krav: TEK17 §14-2. Inneklima: NS-EN 16798-1:2019. Systemklassifisering: NS 3451:2022. CO₂-faktor: NVE 2024 (norsk nett). Alle beregninger med 8 760 timers oppløsning.",
+    },
   ];
 
   return (
