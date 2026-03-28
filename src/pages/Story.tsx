@@ -567,37 +567,122 @@ function AnimatedNumber({ value, duration = 800 }: { value: number; duration?: n
   return <>{display}</>;
 }
 
-/* ═══════ Health Score Gauge ═══════ */
+/* ═══════ Health Score Gauge (DXC-inspired) ═══════ */
 function HealthScoreGauge({ score }: { score: number }) {
-  const color = score >= 80 ? "text-vh-green" : score >= 60 ? "text-vh-yellow" : "text-destructive";
-  const bgColor = score >= 80 ? "bg-vh-green/15" : score >= 60 ? "bg-vh-yellow/15" : "bg-destructive/15";
+  const color = score >= 80 ? "#22c55e" : score >= 60 ? "#eab308" : "#ef4444";
+  const textColor = score >= 80 ? "text-vh-green" : score >= 60 ? "text-vh-yellow" : "text-destructive";
   const label = score >= 80 ? "Godt dimensjonert" : score >= 60 ? "Forbedringspotensial" : "Kritiske avvik";
-  const circumference = 2 * Math.PI * 40;
+  const circumference = 2 * Math.PI * 54;
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-6 flex items-center gap-6">
-      <div className="relative shrink-0">
-        <svg width="96" height="96" viewBox="0 0 96 96">
-          <circle cx="48" cy="48" r="40" fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
-          <circle
-            cx="48" cy="48" r="40" fill="none"
-            stroke="currentColor"
-            strokeWidth="6" strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className={color}
-            transform="rotate(-90 48 48)"
-          />
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className={`text-2xl font-extrabold font-mono tabular-nums ${color}`}>{score}</span>
+    <div className="rounded-xl border border-border bg-card p-8">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center mb-6">Building Health Score</p>
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            {/* Background track */}
+            <circle cx="70" cy="70" r="54" fill="none" stroke="hsl(var(--border))" strokeWidth="8" />
+            {/* Colored arc */}
+            <circle
+              cx="70" cy="70" r="54" fill="none"
+              stroke={color}
+              strokeWidth="8" strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              transform="rotate(-90 70 70)"
+              style={{ filter: `drop-shadow(0 0 8px ${color}80)`, transition: 'stroke-dashoffset 0.8s ease-out' }}
+            />
+            {/* Inner glow circle */}
+            <circle cx="70" cy="70" r="44" fill={`${color}08`} />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className={`text-4xl font-extrabold font-mono tabular-nums ${textColor}`}>{score}</span>
+            <span className="text-[10px] text-muted-foreground">/100</span>
+          </div>
+        </div>
+        <p className={`mt-4 text-base font-bold ${textColor}`}>{label}</p>
+        <p className="mt-1 text-xs text-muted-foreground text-center max-w-[240px]">Basert på energi, komfort, TEK17 og systemvirkningsgrader</p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ Simulation Timeline (DXC-inspired) ═══════ */
+function SimTimeline({ result, year2Result }: { result: ReturnType<typeof useSimResult>; year2Result: ReturnType<typeof useSimResult> }) {
+  // Generate timeline events from simulation data
+  const events: Array<{ month: number; type: "critical" | "warning" | "info"; label: string }> = [];
+
+  // Find months where overheating occurs (summer)
+  result.monthlyKwh.forEach((_, i) => {
+    if (i >= 5 && i <= 8 && result.hoursAbove26 > 30) {
+      events.push({ month: i, type: "warning", label: "Overtemperatur" });
+    }
+  });
+
+  // TEK17 exceedance
+  if (result.exceedsTEK17) {
+    events.push({ month: 0, type: "critical", label: "Over TEK17-ramme" });
+  }
+  // SFP exceedance
+  if (result.sfpActual > 1.5) {
+    events.push({ month: 1, type: "critical", label: `SFP ${result.sfpActual.toFixed(1)}` });
+  }
+  // Year 2 degradation
+  events.push({ month: 12, type: "info", label: "Gjenvinner -6%" });
+  events.push({ month: 14, type: "warning", label: `SFP +15%` });
+  if (year2Result.exceedsTEK17 && !result.exceedsTEK17) {
+    events.push({ month: 18, type: "critical", label: "År 2: Over TEK17" });
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-5">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Simuleringstidslinje — 24 måneder</p>
+
+      {/* Timeline bar */}
+      <div className="relative">
+        {/* Track */}
+        <div className="h-2 rounded-full bg-secondary w-full" />
+        {/* Year 1 progress */}
+        <div className="absolute top-0 left-0 h-2 rounded-l-full bg-primary/40 w-1/2" />
+        {/* Year 2 progress (degraded) */}
+        <div className="absolute top-0 left-1/2 h-2 rounded-r-full bg-vh-yellow/30 w-1/2" />
+
+        {/* Event markers */}
+        {events.map((e, i) => (
+          <div
+            key={i}
+            className="absolute -top-1"
+            style={{ left: `${(e.month / 24) * 100}%` }}
+          >
+            <div className={`h-4 w-4 rounded-full border-2 border-card ${
+              e.type === "critical" ? "bg-destructive" : e.type === "warning" ? "bg-vh-yellow" : "bg-primary"
+            }`} style={{ filter: e.type === "critical" ? "drop-shadow(0 0 4px hsl(0, 84%, 60%))" : undefined }} />
+          </div>
+        ))}
+
+        {/* Year labels */}
+        <div className="flex justify-between mt-2">
+          <span className="text-[10px] text-muted-foreground">År 1</span>
+          <span className="text-[10px] text-muted-foreground">|År 2</span>
+          <span className="text-[10px] text-muted-foreground">24 mnd</span>
         </div>
       </div>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Building Health Score</p>
-        <p className={`mt-1 text-lg font-bold ${color}`}>{label}</p>
-        <p className="mt-1 text-xs text-muted-foreground">Basert på energi, komfort, TEK17 og systemvirkningsgrader</p>
+
+      {/* Event list */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {events.map((e, i) => (
+          <span key={i} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium ${
+            e.type === "critical" ? "bg-destructive/10 text-destructive" :
+            e.type === "warning" ? "bg-vh-yellow/10 text-vh-yellow" :
+            "bg-primary/10 text-primary"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${
+              e.type === "critical" ? "bg-destructive" : e.type === "warning" ? "bg-vh-yellow" : "bg-primary"
+            }`} />
+            mnd {e.month + 1}: {e.label}
+          </span>
+        ))}
       </div>
     </div>
   );
@@ -935,6 +1020,11 @@ function SimulatorSection() {
           {/* Building Health Score */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.0 }}>
             <HealthScoreGauge score={result.healthScore} />
+          </motion.div>
+
+          {/* Simulation Timeline */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.05 }}>
+            <SimTimeline result={result} year2Result={year2Result} />
           </motion.div>
 
           {/* TEK17 Report Card */}
