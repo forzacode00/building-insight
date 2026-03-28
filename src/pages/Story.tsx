@@ -223,8 +223,12 @@ function PainBandSection() {
           <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
         </div>
       </FadeIn>
-      <FadeIn delay={0.1} className="mx-auto mb-12 text-center">
-        <p className="text-sm text-primary font-semibold">VirtualHouse forutser disse problemene — før de koster deg millioner.</p>
+      {/* Visual: system conflict illustration */}
+      <FadeIn delay={0.1} className="mx-auto mb-6 w-full max-w-2xl">
+        <div className="rounded-xl overflow-hidden border border-border">
+          <img src="/vh_conflict.png" alt="Systemkonflikt: varme og kjøling kolliderer" className="w-full h-auto" loading="lazy" />
+        </div>
+        <p className="mt-3 text-center text-sm text-primary font-semibold">VirtualHouse oppdager systemkonflikter før de koster millioner</p>
       </FadeIn>
 
       {/* Kompakt timeline — vertikal, én kolonne */}
