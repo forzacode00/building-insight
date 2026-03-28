@@ -57,11 +57,12 @@ export default function IsometricBuilding({
   const recoveryColor = lerpColor("#3b82f6", "#22c55e", Math.max(0, Math.min(1, (recoveryEff - 0.5) / 0.45)));
   const coolingOpacity = 0.1 + 0.5 * Math.max(0, Math.min(1, (coolingKw - 100) / 500));
   const ventDuration = 3 - 1.8 * Math.max(0, Math.min(1, (sfpValue - 0.8) / 1.7));
-  const ventParticles = Math.round(sfpValue * 2);
+  const ventParticles = Math.min(Math.round(sfpValue), 2); // capped for mobile perf
 
   const uid = useId().replace(/:/g, "");
   const clipActive = revealProgress !== undefined && revealProgress < 1;
-  const clipH = revealProgress !== undefined ? revealProgress * 380 : 380;
+  // Bottom-up reveal: clip starts from basement, grows upward
+  const clipY = revealProgress !== undefined ? 380 * (1 - revealProgress) : 0;
 
   return (
     <div className={`w-full max-w-[500px] ${className}`}>
@@ -69,7 +70,7 @@ export default function IsometricBuilding({
         <defs>
           {clipActive && (
             <clipPath id={`revealClip-${uid}`}>
-              <rect x="0" y="0" width="500" height={clipH} />
+              <rect x="0" y={clipY} width="500" height="380" />
             </clipPath>
           )}
           <filter id={`glowHeat-${uid}`}>
@@ -120,7 +121,7 @@ export default function IsometricBuilding({
             );
           })}
           {/* Heating particles */}
-          {[0, 1, 2, 3].map((i) => (
+          {[0, 1].map((i) => (
             <motion.circle
               key={`hp-${i}`}
               r={3}

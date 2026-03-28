@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   FileText,
-  CheckCircle2,
   ChevronDown,
   Building2,
   GraduationCap,
@@ -40,9 +39,9 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: "easeOut" }}
+      transition={{ duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
@@ -59,10 +58,29 @@ const buildingTypes = [
 ] as const;
 
 /* ───────── STORY PAGE ───────── */
+/* ═══════ STICKY NAV ═══════ */
+function SiteNav() {
+  const navigate = useNavigate();
+  return (
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+        <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
+        <div className="flex items-center gap-6">
+          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Simulator</a>
+          <Button size="sm" variant="default" className="gap-1.5 text-xs" onClick={() => navigate("/simulator")}>
+            Prøv gratis <ArrowRight className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 export default function Story() {
   return (
     <TooltipProvider>
       <div className="w-full bg-background text-foreground overflow-x-hidden">
+        <SiteNav />
         <HeroSection />
         <PainBandSection />
         <TheFlipSection />
@@ -145,7 +163,7 @@ function HeroSection() {
 
         {/* Category label */}
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-          Simuleringsverktøy for bygninger
+          Kvalitetssikring av tekniske anlegg — før byggstart
         </p>
 
         {/* Main headline */}
@@ -157,13 +175,26 @@ function HeroSection() {
 
         {/* Outcome-focused subtitle */}
         <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          Last opp en funksjonsbeskrivelse. Få energianalyse, TEK17-sjekk og avviksrapport — på 3 minutter. Ingen byggekostnad.
+          Last opp prosjektets funksjonsbeskrivelse. På 3 minutter vet du om anlegget bryter TEK17, kaster penger på energi, eller skjuler feil som koster millioner å rette etter overlevering.
         </p>
 
         {/* Aha-moment line */}
         <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground italic">
-          Tenk på det som en MR for bygget ditt — men mye raskere og mye billigere.
+          En full-scale driftstest av bygget — gjennomført på kontoret, ikke på byggeplass.
         </p>
+
+        {/* Hero CTA */}
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button size="lg" onClick={() => {
+            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
+          }} className="gap-2 px-8 py-5 text-base font-bold">
+            Test ditt bygg gratis
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+          <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+            Book en demo →
+          </a>
+        </div>
       </FadeIn>
 
       {/* Animated product preview */}
@@ -172,7 +203,7 @@ function HeroSection() {
       </FadeIn>
 
       <motion.div
-        className="absolute bottom-10 flex flex-col items-center gap-2 text-muted-foreground"
+        className="absolute bottom-4 sm:bottom-10 z-10 flex flex-col items-center gap-2 text-muted-foreground"
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
@@ -359,14 +390,14 @@ function WowDemo() {
             <span className="text-xs text-muted-foreground font-medium">Funksjonsbeskrivelse.pdf</span>
           </motion.div>
 
-          {/* Arrow */}
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={step >= 2 ? { opacity: 1, scaleX: 1 } : {}}
-            className="hidden md:flex items-center"
-          >
+          {/* Arrow desktop */}
+          <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={step >= 2 ? { opacity: 1, scaleX: 1 } : {}} className="hidden md:flex items-center">
             <div className="h-px w-16 bg-primary/50" />
             <ArrowRight className="h-5 w-5 text-primary -ml-1" />
+          </motion.div>
+          {/* Arrow mobile */}
+          <motion.div initial={{ opacity: 0 }} animate={step >= 2 ? { opacity: 1 } : {}} className="md:hidden flex justify-center">
+            <ChevronDown className="h-4 w-4 text-primary/60" />
           </motion.div>
 
           {/* Center: VirtualHouse box */}
@@ -378,14 +409,14 @@ function WowDemo() {
             <span className="text-sm font-bold text-primary">VirtualHouse</span>
           </motion.div>
 
-          {/* Arrow */}
-          <motion.div
-            initial={{ opacity: 0, scaleX: 0 }}
-            animate={step >= 3 ? { opacity: 1, scaleX: 1 } : {}}
-            className="hidden md:flex items-center"
-          >
+          {/* Arrow desktop */}
+          <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={step >= 3 ? { opacity: 1, scaleX: 1 } : {}} className="hidden md:flex items-center">
             <div className="h-px w-16 bg-primary/50" />
             <ArrowRight className="h-5 w-5 text-primary -ml-1" />
+          </motion.div>
+          {/* Arrow mobile */}
+          <motion.div initial={{ opacity: 0 }} animate={step >= 3 ? { opacity: 1 } : {}} className="md:hidden flex justify-center">
+            <ChevronDown className="h-4 w-4 text-primary/60" />
           </motion.div>
 
           {/* Right: Results */}
@@ -523,14 +554,14 @@ function SimulatorSection() {
   const handleRevealDone = useCallback(() => setSimState("done"), []);
 
   return (
-    <Section className="min-h-screen py-24">
+    <Section className="min-h-screen py-24" id="simulator">
       <FadeIn className="mb-8 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Nå er det din tur</h2>
-        <p className="mt-3 text-muted-foreground">Du har sett hva vi finner. Test ditt eget bygg — på 3 minutter.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Kjør en simulering på ditt eget bygg</h2>
+        <p className="mt-3 text-muted-foreground">Velg bygningstype, juster parametere, og se hva VirtualHouse avdekker — på 3 minutter.</p>
       </FadeIn>
 
       {/* building type cards */}
-      <FadeIn className="mx-auto mb-10 grid w-full max-w-2xl grid-cols-3 gap-4">
+      <FadeIn className="mx-auto mb-10 grid w-full max-w-2xl grid-cols-1 sm:grid-cols-3 gap-4">
         {buildingTypes.map((bt) => (
           <button
             key={bt.id}
@@ -857,7 +888,7 @@ function CTASection() {
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          Hvert bygg du leverer uten simulering er et sjansespill
+          Hvert bygg er en sjanse til å finne feilene — eller la dem finne deg etter overlevering
         </h2>
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
           VirtualHouse har allerede funnet feil verdt <span className="font-bold text-foreground">NOK 12.4 millioner</span> i norske næringsbygg. Hva skjuler seg i ditt?
@@ -868,6 +899,12 @@ function CTASection() {
             <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Enterprise eller storvolum?{" "}
+          <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
+            Kontakt oss for skreddersydd onboarding
+          </a>
+        </p>
       </FadeIn>
 
       <FadeIn delay={0.3} className="mt-16">
