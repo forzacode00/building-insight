@@ -175,7 +175,7 @@ function HeroSection() {
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
       <FadeIn className="z-10 max-w-2xl text-center">
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
-          Kvalitetssikring av tekniske anlegg
+          Prediktiv kvalitetssikring av tekniske anlegg
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
@@ -208,7 +208,7 @@ function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ delay: 2.0, duration: 0.5 }}
         >
-          Feilretting: 18 måneder. Merkostnad: 12 MNOK. Alt kunne vært fanget på 3 minutter.
+          Feilretting: 18 måneder. Merkostnad: 12 MNOK. Alt kunne vært forutsett på 3 minutter.
         </motion.p>
       </FadeIn>
 
@@ -222,7 +222,7 @@ function HeroSection() {
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <p className="mb-6 text-sm font-semibold text-primary uppercase tracking-widest">VirtualHouse hadde funnet alt dette — før byggstart</p>
+              <p className="mb-6 text-sm font-semibold text-primary uppercase tracking-widest">VirtualHouse forutser disse avvikene — før en eneste bolt er strammet</p>
 
               <HeroBuilding />
 
@@ -324,8 +324,8 @@ function TheFlipSection() {
   return (
     <Section className="min-h-screen py-24">
       <FadeIn className="mb-16 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne hoppe over?</h2>
-        <p className="mt-3 text-muted-foreground">VirtualHouse erstatter den dyre byggefasen med en digital simulering.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne se fremtiden?</h2>
+        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer de neste 2 årene av byggets drift — og viser deg avvikene før de oppstår.</p>
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
@@ -492,7 +492,7 @@ function WowDemo() {
           transition={{ delay: 0.3 }}
           className="mt-6 text-center text-sm text-muted-foreground"
         >
-          VirtualHouse leste <span className="font-bold text-foreground">22 sider</span> og fant <span className="font-bold text-destructive">5 avvik</span> på <span className="font-bold text-primary">3 minutter</span>
+          VirtualHouse leste <span className="font-bold text-foreground">22 sider</span> og forutsa <span className="font-bold text-destructive">5 fremtidige avvik</span> på <span className="font-bold text-primary">3 minutter</span>
         </motion.p>
       </div>
     </div>
@@ -637,7 +637,7 @@ function SimTimeline({ result, year2Result }: { result: ReturnType<typeof useSim
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
-      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Simuleringstidslinje — 24 måneder</p>
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Prediktiv tidslinje — 24 måneders fremtidssimulering</p>
 
       {/* Timeline bar */}
       <div className="relative">
@@ -756,7 +756,7 @@ function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; se
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Avviksrapport</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Prediktiv avviksrapport</p>
         <span className="rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive">
           {avvik.length} avvik funnet
         </span>
@@ -785,7 +785,7 @@ function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; se
           onClick={() => navigate("/simulator/simulering")}
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
         >
-          Se alle {avvik.length} avvik i full rapport
+          Se alle {avvik.length} forutsette avvik i full rapport
           <ArrowRight className="h-4 w-4" />
         </button>
       )}
@@ -862,7 +862,7 @@ function SimulatorSection() {
     <Section className="min-h-screen py-24" id="simulator">
       <FadeIn className="mb-8 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Kjør en simulering på ditt eget bygg</h2>
-        <p className="mt-3 text-muted-foreground">3 steg. 3 minutter. Full innsikt.</p>
+        <p className="mt-3 text-muted-foreground">3 steg. 3 minutter. Se fremtidige avvik før de oppstår.</p>
       </FadeIn>
 
       {/* Progress stepper */}
@@ -1185,7 +1185,7 @@ function AdvancedSection() {
     <Section className="py-20" id="avvik">
       <FadeIn className="mb-10 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Men bygget ditt lever ikke i et laboratorium</h2>
-        <p className="mt-3 text-muted-foreground">Den simuleringen du akkurat kjørte er et ideelt utgangspunkt. Nå — hva skjer i virkeligheten?</p>
+        <p className="mt-3 text-muted-foreground">Simuleringen viser ideelle forhold. Virkeligheten bringer slitasje, årstider og uforutsette belastninger — se hva som skjer når vi simulerer det også.</p>
       </FadeIn>
 
       <FadeIn className="mx-auto mb-8 flex flex-wrap justify-center gap-3">
@@ -1364,7 +1364,7 @@ function CTASection() {
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          Hvert bygg er en sjanse til å finne feilene — eller la dem finne deg etter overlevering
+          Hvert bygg har fremtidige avvik. Spørsmålet er om du finner dem nå — eller etter overlevering
         </h2>
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
           VirtualHouse har allerede funnet feil verdt <span className="font-bold text-foreground">NOK 12.4 millioner</span> i norske næringsbygg. Hva skjuler seg i ditt?
