@@ -97,6 +97,7 @@ export default function Story() {
         <TheFlipSection />
         <SimulatorSection />
         <AdvancedSection />
+        <FAQSection />
         <CTASection />
       </div>
     </TooltipProvider>
@@ -1100,6 +1101,68 @@ function AdvancedSection() {
             </div>
           </motion.div>
         )}
+      </FadeIn>
+    </Section>
+  );
+}
+
+/* ═══════ FAQ / Objection Handling ═══════ */
+function FAQSection() {
+  const [open, setOpen] = useState<number | null>(null);
+  const faqs = [
+    {
+      q: "Hvor nøyaktig er simuleringen?",
+      a: "Motoren er basert på ISO 13790 forenklet timesmetode med 8 760 timers klimadata. For tidligfase kvalitetssikring gir dette 90-95% nøyaktighet sammenlignet med fullskala IDA-ICE-simulering — på en brøkdel av tiden.",
+    },
+    {
+      q: "Kan jeg bruke dette på et reelt prosjekt?",
+      a: "Ja. Last opp en funksjonsbeskrivelse i PDF eller bruk manuell input. VirtualHouse analyserer systemoppbygning, dimensjonering og regulering — og genererer en avviksrapport med NS 3451-koder som kan legges rett inn i prosjektets kvalitetssystem.",
+    },
+    {
+      q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?",
+      a: "SIMIEN og IDA-ICE er detaljerte energisimuleringsprogram for NS 3031-beregninger. VirtualHouse er et kvalitetssikringsverktøy som kjører på minutter, ikke uker. Vi erstatter ikke energiberegningen — vi fanger feil før den starter.",
+    },
+    {
+      q: "Hva koster det?",
+      a: "Fra 4 900 kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er 12 900 kr/mnd. Enterprise-avtaler for portefolio — kontakt oss.",
+    },
+    {
+      q: "Trenger jeg teknisk kompetanse for å bruke det?",
+      a: "Grunnleggende VVS-forståelse er en fordel, men ikke et krav. Simulatoren veileder deg gjennom parametrene, og resultatene presenteres med klare anbefalt/ikke-anbefalt-indikatorer.",
+    },
+  ];
+
+  return (
+    <Section className="py-20">
+      <FadeIn className="mb-10 text-center">
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Vanlige spørsmål</h2>
+      </FadeIn>
+      <FadeIn className="mx-auto w-full max-w-2xl space-y-2">
+        {faqs.map((faq, i) => (
+          <button
+            key={i}
+            onClick={() => setOpen(open === i ? null : i)}
+            className="w-full text-left rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/30"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">{faq.q}</span>
+              <ChevronDown className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open === i ? "rotate-180" : ""}`} />
+            </div>
+            <AnimatePresence>
+              {open === i && (
+                <motion.p
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 text-sm text-muted-foreground leading-relaxed overflow-hidden"
+                >
+                  {faq.a}
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </button>
+        ))}
       </FadeIn>
     </Section>
   );
