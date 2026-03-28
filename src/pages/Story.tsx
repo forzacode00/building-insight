@@ -887,6 +887,51 @@ function SimulatorSection() {
             </div>
           </motion.div>
 
+          {/* Indoor Climate Card */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.9 }}>
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Inneklima (NS-EN 16798)</p>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.avgCO2ppm > 800 ? "text-vh-yellow" : "text-vh-green"}`}>{result.avgCO2ppm}</p>
+                  <p className="text-[10px] text-muted-foreground">CO₂ ppm snitt</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.avgCO2ppm <= 800 ? "Kategori II ✔" : "Over anbefalt"}</p>
+                </div>
+                <div>
+                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.hoursAbove26 > 50 ? "text-destructive" : "text-vh-green"}`}>{result.hoursAbove26}</p>
+                  <p className="text-[10px] text-muted-foreground">timer >26°C</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.hoursAbove26 <= 50 ? "Innenfor krav" : "Overtemperatur"}</p>
+                </div>
+                <div>
+                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.avgRHwinter < 20 ? "text-vh-yellow" : "text-vh-green"}`}>{result.avgRHwinter}%</p>
+                  <p className="text-[10px] text-muted-foreground">RF vinter</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.avgRHwinter >= 20 ? "Akseptabelt" : "Tørr luft"}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* 24-month energy curve */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.95 }}>
+            <div className="rounded-xl border border-border bg-card p-5">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">24-måneders energiprognose (år 1 + år 2 med slitasje)</p>
+              <div className="h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    ...result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v), type: "År 1" })),
+                    ...year2Result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i] + "'", kwh: Math.round(v), type: "År 2" })),
+                  ]}>
+                    <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 8 }} axisLine={false} tickLine={false} interval={1} />
+                    <Bar dataKey="kwh" fill="hsl(213, 52%, 63%)" radius={[2, 2, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="mt-2 text-[10px] text-muted-foreground text-center">
+                År 2 viser {Math.round(((year2Result.totalEnergyKwhM2 - result.totalEnergyKwhM2) / result.totalEnergyKwhM2) * 100)}% økning grunnet slitasje på gjenvinner (-6%) og ventilasjon (+15% SFP)
+              </p>
+            </div>
+          </motion.div>
+
           {/* Building Health Score */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.0 }}>
             <HealthScoreGauge score={result.healthScore} />
