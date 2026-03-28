@@ -73,121 +73,99 @@ export default function Story() {
   );
 }
 
-/* ═══════ Animated P&ID Preview (Hero) ═══════ */
-function AnimatedPIDPreview() {
+/* ═══════ Building Scan Preview (Hero) ═══════ */
+function BuildingScanPreview() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const CYCLE = 6000;
-    const timers = [
-      setTimeout(() => setPhase(1), 400),
-      setTimeout(() => setPhase(2), 1200),
-      setTimeout(() => setPhase(3), 2000),
-      setTimeout(() => setPhase(4), 2800),
-      setTimeout(() => setPhase(5), 3600),
-    ];
-    const loop = setInterval(() => {
+    const CYCLE = 5000;
+    let timers: ReturnType<typeof setTimeout>[] = [];
+    const start = () => {
       setPhase(0);
-      timers.forEach(clearTimeout);
-      timers.length = 0;
-      timers.push(
+      timers = [
         setTimeout(() => setPhase(1), 400),
-        setTimeout(() => setPhase(2), 1200),
-        setTimeout(() => setPhase(3), 2000),
-        setTimeout(() => setPhase(4), 2800),
-        setTimeout(() => setPhase(5), 3600),
-      );
-    }, CYCLE);
+        setTimeout(() => setPhase(2), 1600),
+        setTimeout(() => setPhase(3), 2400),
+        setTimeout(() => setPhase(4), 3200),
+      ];
+    };
+    start();
+    const loop = setInterval(start, CYCLE);
     return () => { timers.forEach(clearTimeout); clearInterval(loop); };
   }, []);
 
+  const results = [
+    { label: "5 avvik funnet", color: "hsl(0, 84%, 60%)", icon: "⚠" },
+    { label: "42 000 kr/år i energitap", color: "hsl(38, 92%, 55%)", icon: "⚡" },
+    { label: "SFP over TEK17-grense", color: "hsl(0, 84%, 60%)", icon: "✗" },
+  ];
+
   return (
     <div className="relative w-full max-w-[600px] h-[280px] rounded-xl border border-border bg-card overflow-hidden">
-      {/* Grid background */}
+      {/* Subtle dot grid */}
       <div className="absolute inset-0 opacity-5" style={{
         backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)",
         backgroundSize: "20px 20px",
       }} />
 
       <svg viewBox="0 0 600 280" className="absolute inset-0 w-full h-full">
-        {/* Phase 1: Fjernvarme source */}
-        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }} transition={{ duration: 0.5 }}>
-          <rect x="30" y="100" width="90" height="50" rx="8" fill="hsl(0, 84%, 60%)" fillOpacity="0.15" stroke="hsl(0, 84%, 60%)" strokeWidth="1.5" />
-          <text x="75" y="130" textAnchor="middle" fill="hsl(0, 84%, 60%)" fontSize="11" fontWeight="600">Fjernvarme</text>
+        {/* Building silhouette */}
+        <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+          <rect x="180" y="80" width="240" height="160" rx="4" fill="hsl(var(--primary))" fillOpacity="0.08" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+          <polygon points="170,80 300,30 430,80" fill="hsl(var(--primary))" fillOpacity="0.10" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+          {[0,1,2].map(col => [0,1,2].map(row => (
+            <rect key={`${col}-${row}`}
+              x={205 + col * 70} y={100 + row * 45}
+              width="40" height="30" rx="3"
+              fill="hsl(var(--primary))" fillOpacity="0.12"
+              stroke="hsl(var(--primary))" strokeWidth="1"
+            />
+          )))}
+          <rect x="270" y="190" width="60" height="50" rx="3" fill="hsl(var(--primary))" fillOpacity="0.15" stroke="hsl(var(--primary))" strokeWidth="1" />
         </motion.g>
 
-        {/* Phase 2: Pipe to Samlestokk */}
-        <motion.line x1="120" y1="125" x2="220" y2="125"
-          stroke="hsl(0, 84%, 60%)" strokeWidth="2.5" strokeLinecap="round"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: phase >= 2 ? 1 : 0, opacity: phase >= 2 ? 1 : 0 }}
-          transition={{ duration: 0.6 }}
-        />
-        {/* Animated flow dots */}
-        {phase >= 2 && (
-          <motion.circle r="3" fill="hsl(0, 84%, 60%)"
-            animate={{ cx: [120, 220], cy: [125, 125] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+        {/* Scan line sweeping down */}
+        {phase >= 1 && (
+          <motion.rect
+            x="160" width="280" height="3" rx="1.5"
+            fill="hsl(var(--primary))"
+            style={{ filter: "drop-shadow(0 0 8px hsl(var(--primary)))" }}
+            initial={{ y: 30, opacity: 0 }}
+            animate={{ y: 240, opacity: [0, 1, 1, 0] }}
+            transition={{ duration: 1.4, ease: "linear" }}
           />
         )}
-
-        {/* Phase 2: Samlestokk */}
-        <motion.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: phase >= 2 ? 1 : 0, scale: phase >= 2 ? 1 : 0.8 }} transition={{ duration: 0.5 }}>
-          <rect x="220" y="60" width="30" height="130" rx="6" fill="hsl(var(--primary))" fillOpacity="0.12" stroke="hsl(var(--primary))" strokeWidth="1.5" />
-          <text x="235" y="50" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9">Samlestokk</text>
-        </motion.g>
-
-        {/* Phase 3: Branches */}
-        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 3 ? 1 : 0 }} transition={{ duration: 0.5 }}>
-          {/* Branch 1 - Radiator */}
-          <line x1="250" y1="90" x2="380" y2="90" stroke="hsl(0, 84%, 60%)" strokeWidth="2" strokeDasharray="4 3" />
-          <rect x="380" y="70" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
-          <text x="420" y="94" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Radiatorer</text>
-
-          {/* Branch 2 - Ventilasjon */}
-          <line x1="250" y1="125" x2="380" y2="125" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 3" />
-          <rect x="380" y="105" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
-          <text x="420" y="129" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Ventilasjon</text>
-
-          {/* Branch 3 - Kjølebafler */}
-          <line x1="250" y1="160" x2="380" y2="160" stroke="hsl(217, 91%, 60%)" strokeWidth="2" strokeDasharray="4 3" />
-          <rect x="380" y="140" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
-          <text x="420" y="164" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Kjølebafler</text>
-        </motion.g>
-
-        {/* Phase 4: Temperature labels */}
-        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 4 ? 1 : 0 }} transition={{ duration: 0.4 }}>
-          <rect x="480" y="74" width="48" height="20" rx="4" fill="hsl(0, 84%, 60%)" fillOpacity="0.2" />
-          <text x="504" y="88" textAnchor="middle" fill="hsl(0, 84%, 60%)" fontSize="11" fontWeight="700" fontFamily="monospace">55°C</text>
-
-          <rect x="480" y="109" width="48" height="20" rx="4" fill="hsl(142, 71%, 45%)" fillOpacity="0.2" />
-          <text x="504" y="123" textAnchor="middle" fill="hsl(142, 71%, 45%)" fontSize="11" fontWeight="700" fontFamily="monospace">19°C</text>
-
-          <rect x="480" y="144" width="48" height="20" rx="4" fill="hsl(217, 91%, 60%)" fillOpacity="0.2" />
-          <text x="504" y="158" textAnchor="middle" fill="hsl(217, 91%, 60%)" fontSize="11" fontWeight="700" fontFamily="monospace">6°C</text>
-        </motion.g>
-
-        {/* Phase 5: Checkmark */}
-        <motion.g initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: phase >= 5 ? 1 : 0, scale: phase >= 5 ? 1 : 0.5 }} transition={{ duration: 0.4, type: "spring" }}>
-          <circle cx="540" y="235" r="22" fill="hsl(142, 71%, 45%)" fillOpacity="0.15" stroke="hsl(142, 71%, 45%)" strokeWidth="2" cy="235" />
-          <text x="540" y="240" textAnchor="middle" fill="hsl(142, 71%, 45%)" fontSize="16">✓</text>
-        </motion.g>
       </svg>
 
-      {/* Phase 5 overlay text */}
-      <AnimatePresence>
-        {phase >= 5 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute bottom-3 left-4 flex items-center gap-2 rounded-lg bg-card/90 border border-border px-3 py-1.5"
-          >
-            <CheckCircle2 className="h-4 w-4 text-vh-green" />
-            <span className="text-xs font-semibold text-vh-green">Verifisert — 0 kritiske avvik</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Result cards */}
+      <div className="absolute right-4 top-6 flex flex-col gap-2">
+        {results.map((r, i) => (
+          <AnimatePresence key={i}>
+            {phase >= i + 2 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex items-center gap-2 rounded-lg border border-border bg-card/90 px-3 py-1.5"
+              >
+                <span style={{ color: r.color }} className="text-sm font-bold">{r.icon}</span>
+                <span className="text-xs font-semibold text-foreground">{r.label}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        ))}
+      </div>
+
+      {/* Label bottom-left */}
+      <motion.div
+        className="absolute bottom-3 left-4 text-xs text-muted-foreground"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: phase >= 1 ? 1 : 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        Simulerer bygget…
+      </motion.div>
     </div>
   );
 }
@@ -199,19 +177,43 @@ function HeroSection() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.08),transparent)]" />
 
       <FadeIn className="z-10 max-w-3xl text-center">
+        {/* Social proof chip */}
+        <motion.div
+          className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs text-muted-foreground"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-vh-green animate-pulse" />
+          Har allerede funnet avvik verdt 12,4 MNOK i norske næringsbygg
+        </motion.div>
+
+        {/* Category label */}
+        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+          Simuleringsverktøy for bygninger
+        </p>
+
+        {/* Main headline */}
         <h1 className="text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-          Test bygget ditt
+          Crash test bygget ditt
           <br />
-          <span className="text-primary">— før du bygger det</span>
+          <span className="text-primary">— før det er bygget</span>
         </h1>
+
+        {/* Outcome-focused subtitle */}
         <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          Vi simulerer VVS-systemet ditt med ekte fysikkberegninger — og viser deg hva som fungerer og hva som feiler. På 3 minutter.
+          Last opp en funksjonsbeskrivelse. Få energianalyse, TEK17-sjekk og avviksrapport — på 3 minutter. Ingen byggekostnad.
+        </p>
+
+        {/* Aha-moment line */}
+        <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground italic">
+          Tenk på det som en MR for bygget ditt — men mye raskere og mye billigere.
         </p>
       </FadeIn>
 
       {/* Animated product preview */}
       <FadeIn delay={0.5} className="z-10 mt-12">
-        <AnimatedPIDPreview />
+        <BuildingScanPreview />
       </FadeIn>
 
       <motion.div
