@@ -437,12 +437,81 @@ function TheFlipSection() {
         </FadeIn>
       </div>
 
-      {/* WowDemo moved here */}
+      {/* How it works — 3-step visual */}
       <FadeIn delay={0.9} className="w-full">
-        <p className="mb-6 text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest">Slik ser det ut i praksis</p>
-        <WowDemo />
+        <p className="mb-6 text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest">Slik fungerer det</p>
+        <HowItWorks />
       </FadeIn>
     </Section>
+  );
+}
+
+/* ═══════ How It Works — 3-step visual process (DXC Input→Model→Output) ═══════ */
+function HowItWorks() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-50px" });
+
+  const steps = [
+    {
+      num: "01",
+      title: "Last opp",
+      desc: "Funksjonsbeskrivelse, systemskjema, eller manuell input",
+      icon: <FileText className="h-6 w-6" />,
+      color: "text-primary",
+      items: ["PDF-dokument", "VVS-parametre", "Bygningsdata"],
+    },
+    {
+      num: "02",
+      title: "Simuler",
+      desc: "ISO 13790-basert motor kjører 17 520 timer på sekunder",
+      icon: <Zap className="h-6 w-6" />,
+      color: "text-primary",
+      items: ["Tverrfaglig analyse", "Systemsamspill", "24-mnd prognose"],
+    },
+    {
+      num: "03",
+      title: "Forutse",
+      desc: "Fremtidige avvik, TEK17-sjekk, og konkrete tiltak",
+      icon: <AlertTriangle className="h-6 w-6" />,
+      color: "text-destructive",
+      items: ["Avviksrapport", "Health Score", "Systemkonflikter"],
+    },
+  ];
+
+  return (
+    <div ref={ref} className="mx-auto max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {steps.map((s, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: i * 0.2, duration: 0.4 }}
+            className="rounded-xl border border-border bg-card p-5 relative"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">{s.num}</span>
+              <h3 className="text-base font-bold text-foreground">{s.title}</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mb-3">{s.desc}</p>
+            <div className="space-y-1.5">
+              {s.items.map((item, j) => (
+                <div key={j} className="flex items-center gap-2 text-[10px]">
+                  <span className={`h-1 w-1 rounded-full ${i === 2 ? "bg-destructive" : "bg-primary"}`} />
+                  <span className="text-muted-foreground">{item}</span>
+                </div>
+              ))}
+            </div>
+            {/* Arrow to next step */}
+            {i < 2 && (
+              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+                <ArrowRight className="h-5 w-5 text-primary/40" />
+              </div>
+            )}
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 }
 
