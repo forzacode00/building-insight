@@ -71,7 +71,13 @@ const GRID_CO2 = 0.018;       // kg CO₂/kWh Norwegian grid direct (NVE 2024, p
 const LIGHTING_KWH_M2 = 18;
 const EQUIPMENT_KWH_M2 = 20;
 const DHW_KWH_M2 = 5;
-const TEK17_OFFICE = 115;     // kWh/m²·yr
+// TEK17 §14-2 energirammer per bygningskategori (kWh/m²·år)
+const TEK17_LIMITS: Record<number, number> = {
+  6000: 115,   // Kontorbygg
+  8000: 120,   // Skolebygg
+  12000: 225,  // Sykehus/helsebygning
+};
+const TEK17_DEFAULT = 115;
 
 /**
  * Generate 8760 hourly outdoor temperatures from monthly averages
@@ -177,7 +183,8 @@ export function runSimulation(input: SimInput): SimResult {
   // --- Totals ---
   // TEK17: netto energibehov (termisk kjøling, ikke el)
   const totalEnergyKwhM2 = heatingKwhM2 + coolingKwhM2 + fansKwhM2 + lightingKwhM2 + equipmentKwhM2 + dhwKwhM2;
-  const exceedsTEK17 = totalEnergyKwhM2 > TEK17_OFFICE;
+  const tek17Limit = TEK17_LIMITS[bra] ?? TEK17_DEFAULT;
+  const exceedsTEK17 = totalEnergyKwhM2 > tek17Limit;
   // Kostnad/CO₂: bruker faktisk elektrisitetsforbruk (kjøling ÷ COP)
   const coolingElKwhM2 = coolingElKwh / bra;
   const totalElKwhM2 = heatingKwhM2 + coolingElKwhM2 + fansKwhM2 + lightingKwhM2 + equipmentKwhM2 + dhwKwhM2;
@@ -246,14 +253,14 @@ export function runSimulation(input: SimInput): SimResult {
   }
 
   if (exceedsTEK17) {
-    const pctOver = Math.round(((totalEnergyKwhM2 - TEK17_OFFICE) / TEK17_OFFICE) * 100);
+    const pctOver = Math.round(((totalEnergyKwhM2 - tek17Limit) / tek17Limit) * 100);
     avvik.push({
       nr: avvikNr++,
       system: "32/36 Energi",
       severity: "critical",
       title: "Energiramme overskredet",
-      description: `Totalt netto energibehov ${Math.round(totalEnergyKwhM2)} kWh/m²·år overskrider TEK17-ramme ${TEK17_OFFICE} kWh/m²·år med ${pctOver}%.`,
-      tiltak: `Øk gjenvinner-virkningsgrad til 85%, reduser SFP, installer behovsstyrt belysning. Estimert reduksjon: ${Math.round(totalEnergyKwhM2 - TEK17_OFFICE + 5)} kWh/m²·år.`,
+      description: `Totalt netto energibehov ${Math.round(totalEnergyKwhM2)} kWh/m²·år overskrider TEK17-ramme ${tek17Limit} kWh/m²·år med ${pctOver}%.`,
+      tiltak: `Øk gjenvinner-virkningsgrad til 85%, reduser SFP, installer behovsstyrt belysning. Estimert reduksjon: ${Math.round(totalEnergyKwhM2 - tek17Limit + 5)} kWh/m²·år.`,
     });
   }
 
@@ -322,7 +329,7 @@ export function runSimulation(input: SimInput): SimResult {
     heatRecoveryActual: Math.round(heatRecoveryActual * 100) / 100,
     healthScore,
     monthlyKwh,
-    tek17Limit: TEK17_OFFICE,
+    tek17Limit,
     exceedsTEK17,
     avvik,
   };

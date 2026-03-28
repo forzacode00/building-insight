@@ -94,7 +94,7 @@ export default function Story() {
         {/* Trust bar */}
         <section className="w-full border-y border-border bg-card/50 py-6 px-6">
           <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-4">Bygget for norsk byggbransje</p>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 opacity-50">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 opacity-[0.65]">
             {["Totalentreprenører", "Rådgivende ingeniører", "Byggherrer", "Eiendomsforvaltere", "Kommuner"].map(s => (
               <span key={s} className="text-xs font-medium text-muted-foreground">{s}</span>
             ))}
@@ -499,7 +499,7 @@ function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult
       pass: r.heatRecoveryActual >= 0.80,
     },
     {
-      label: "Overtemperatur",
+      label: "Termisk komfort §13-4",
       value: `${r.hoursAbove26} timer >26°C`,
       limit: "≤ 50 t",
       pass: r.hoursAbove26 <= 50,
@@ -510,14 +510,8 @@ function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult
     {
       label: "CO₂ (snitt)",
       value: `${r.avgCO2ppm} ppm`,
-      limit: "≤ 800",
-      pass: r.avgCO2ppm <= 800,
-    },
-    {
-      label: "Timer >26°C",
-      value: `${r.hoursAbove26}`,
-      limit: "≤ 50",
-      pass: r.hoursAbove26 <= 50,
+      limit: "≤ 1000",
+      pass: r.avgCO2ppm <= 1000,
     },
     {
       label: "RF vinter",
@@ -1004,6 +998,17 @@ function SimulatorSection() {
 
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
               <SystemConflicts result={result} />
+            </motion.div>
+
+            {/* Inline CTA — aha → handling */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }} className="pt-4">
+              <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 text-center">
+                <p className="text-sm text-muted-foreground mb-3">Disse avvikene finnes sannsynligvis i ditt bygg også.</p>
+                <Button size="lg" onClick={() => navigate("/simulator")} className="gap-2 px-8 py-5 text-base font-bold">
+                  Test ditt prosjekt gratis
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </motion.div>
           </div>
 
