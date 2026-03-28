@@ -157,8 +157,11 @@ export function runSimulation(input: SimInput): SimResult {
   }
 
   const avgLoadFactor = 0.55;
-  const coolingKwh = (coolingHours * installedCooling * avgLoadFactor) / cop;
-  const coolingKwhM2 = coolingKwh / bra;
+  // Netto kjølebehov (termisk energi fjernet fra bygget) — brukes i TEK17-ramme
+  const coolingNettoKwh = coolingHours * installedCooling * avgLoadFactor;
+  const coolingKwhM2 = coolingNettoKwh / bra;
+  // Elektrisitetsforbruk kjølemaskin — brukes i kostnad/CO2
+  const coolingElKwh = coolingNettoKwh / cop;
 
   // --- Fans (SFP) ---
   const airflowM3s = airflowSupply / 3600;
@@ -172,10 +175,14 @@ export function runSimulation(input: SimInput): SimResult {
   const dhwKwhM2 = DHW_KWH_M2;
 
   // --- Totals ---
+  // TEK17: netto energibehov (termisk kjøling, ikke el)
   const totalEnergyKwhM2 = heatingKwhM2 + coolingKwhM2 + fansKwhM2 + lightingKwhM2 + equipmentKwhM2 + dhwKwhM2;
   const exceedsTEK17 = totalEnergyKwhM2 > TEK17_OFFICE;
-  const annualCostNOK = Math.round(totalEnergyKwhM2 * bra * ENERGY_PRICE);
-  const co2Tonnes = Math.round((totalEnergyKwhM2 * bra * GRID_CO2) / 1000 * 10) / 10;
+  // Kostnad/CO₂: bruker faktisk elektrisitetsforbruk (kjøling ÷ COP)
+  const coolingElKwhM2 = coolingElKwh / bra;
+  const totalElKwhM2 = heatingKwhM2 + coolingElKwhM2 + fansKwhM2 + lightingKwhM2 + equipmentKwhM2 + dhwKwhM2;
+  const annualCostNOK = Math.round(totalElKwhM2 * bra * ENERGY_PRICE);
+  const co2Tonnes = Math.round((totalElKwhM2 * bra * GRID_CO2) / 1000 * 10) / 10;
 
   // --- Comfort ---
   let hoursBelow19 = 0;
