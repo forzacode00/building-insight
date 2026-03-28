@@ -29,6 +29,7 @@ import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 import IsometricBuilding from "@/components/IsometricBuilding";
+import LiveSystemDiagram from "@/components/LiveSystemDiagram";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -185,7 +186,7 @@ function HeroSection() {
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
       <FadeIn className="z-10 max-w-2xl text-center">
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
-          Prediktiv kvalitetssikring av tekniske anlegg
+          Tverrfaglig systemsimulering — prediktiv kvalitetssikring
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
@@ -288,7 +289,7 @@ function PainBandSection() {
       <FadeIn className="mx-auto mb-4 grid w-full max-w-3xl grid-cols-1 sm:grid-cols-3 gap-6 text-center">
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive"><AnimatedNumber value={30} />%</p>
-          <p className="mt-2 text-sm text-muted-foreground">av VVS-anlegg fungerer ikke som planlagt</p>
+          <p className="mt-2 text-sm text-muted-foreground">av tekniske anlegg har konflikter mellom systemer</p>
         </div>
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">15–25%</p>
@@ -310,7 +311,7 @@ function PainBandSection() {
             <h3 className="text-base font-bold text-vh-green">Prosjektering</h3>
             <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 mnd</span>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Ingeniører designer VVS-systemet.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Varme, ventilasjon, kjøling og automasjon prosjekteres — ofte av ulike rådgivere.</p>
         </div>
         <div className="mx-auto my-1 h-6 w-px bg-border" />
         <motion.div
@@ -354,7 +355,7 @@ function TheFlipSection() {
     <Section className="min-h-screen py-24">
       <FadeIn className="mb-16 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne se fremtiden?</h2>
-        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer de neste 2 årene av byggets drift — og viser deg avvikene før de oppstår.</p>
+        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer samspillet mellom varme, ventilasjon, kjøling og automasjon — og forutser konflikter før de oppstår.</p>
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
@@ -385,7 +386,7 @@ function TheFlipSection() {
                 {timeText}
               </motion.span>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">3 minutter. 0 kroner i byggekostnad. Full digital test.</p>
+            <p className="mt-2 text-sm text-muted-foreground">3 minutter. Alle systemer simulert sammen — slik de faktisk opererer.</p>
           </motion.div>
           <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
         </FadeIn>
@@ -822,6 +823,78 @@ function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; se
   );
 }
 
+/* ═══════ System Conflicts (cross-disciplinary) ═══════ */
+function SystemConflicts({ result }: { result: ReturnType<typeof useSimResult> }) {
+  const conflicts: Array<{ systems: [string, string]; issue: string; impact: string; severity: "critical" | "warning" }> = [];
+
+  // Simultaneous heating + cooling
+  if (result.coolingKwhM2 > 5 && result.heatingKwhM2 > 20) {
+    conflicts.push({
+      systems: ["32 Varme", "37 Kjøling"],
+      issue: "Samtidig oppvarming og kjøling i mellomsesongen",
+      impact: `Estimert energitap: ${Math.round(Math.min(result.coolingKwhM2, result.heatingKwhM2) * 0.3)} kWh/m²·år`,
+      severity: "critical",
+    });
+  }
+  // SFP + heat recovery conflict
+  if (result.sfpActual > 1.5 && result.heatRecoveryActual < 0.80) {
+    conflicts.push({
+      systems: ["36 Ventilasjon", "36 Gjenvinner"],
+      issue: "Høy vifteeffekt kompenserer for lav varmegjenvinning",
+      impact: `SFP ${result.sfpActual.toFixed(1)} + gjenvinner ${Math.round(result.heatRecoveryActual * 100)}% = dobbel energilekkasje`,
+      severity: "critical",
+    });
+  }
+  // Overheating + underdimensioned cooling
+  if (result.hoursAbove26 > 50) {
+    conflicts.push({
+      systems: ["37 Kjøling", "32 Internlast"],
+      issue: "Kjølekapasitet dekker ikke intern- og solbelastning",
+      impact: `${result.hoursAbove26} timer overtemperatur — redusert produktivitet og klager`,
+      severity: "warning",
+    });
+  }
+  // Low recovery + cold climate
+  if (result.heatRecoveryActual < 0.75) {
+    conflicts.push({
+      systems: ["36 Gjenvinner", "32 Varme"],
+      issue: "Lav gjenvinning tvinger varmesystemet til å kompensere",
+      impact: `${Math.round((0.82 - result.heatRecoveryActual) * 100)}% tap i gjenvinner = ${Math.round(result.heatingKwhM2 * 0.15)} kWh/m² ekstra oppvarming`,
+      severity: "warning",
+    });
+  }
+
+  if (conflicts.length === 0) return null;
+
+  return (
+    <div className="rounded-xl border border-primary/30 bg-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Systemkonflikter oppdaget</p>
+        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+          {conflicts.length} kryssvirkninger
+        </span>
+      </div>
+      <div className="space-y-3">
+        {conflicts.map((c, i) => (
+          <div key={i} className="rounded-lg border border-border bg-secondary/20 p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`h-2 w-2 rounded-full ${c.severity === "critical" ? "bg-destructive" : "bg-vh-yellow"}`} />
+              <span className="text-[10px] font-mono text-primary">{c.systems[0]}</span>
+              <span className="text-[10px] text-muted-foreground">×</span>
+              <span className="text-[10px] font-mono text-primary">{c.systems[1]}</span>
+            </div>
+            <p className="text-sm font-semibold text-foreground">{c.issue}</p>
+            <p className="text-xs text-muted-foreground mt-1">{c.impact}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 text-[10px] text-muted-foreground text-center">
+        Konflikter mellom systemer er den vanligste årsaken til at bygg ikke fungerer som planlagt. VirtualHouse simulerer samspillet — ikke bare de individuelle systemene.
+      </p>
+    </div>
+  );
+}
+
 /* ═══════ Share Results ═══════ */
 function ShareResults({ result, input }: { result: ReturnType<typeof useSimResult>; input: ReturnType<typeof useSimInput>["input"] }) {
   const [copied, setCopied] = useState(false);
@@ -972,14 +1045,21 @@ function SimulatorSection() {
               </div>
             </div>
 
-            {/* Right: live-reactive building */}
-            <div className="flex items-center justify-center order-first md:order-last">
+            {/* Right: live-reactive visualizations */}
+            <div className="flex flex-col items-center justify-center gap-4 order-first md:order-last">
               <IsometricBuilding
                 heatingTemp={input.heatingTurRetur[0]}
                 sfpValue={input.sfpDesign}
                 recoveryEff={input.heatRecoveryEff}
                 coolingKw={input.installedCooling}
-                className="w-full max-w-[400px]"
+                className="w-full max-w-[360px]"
+              />
+              <LiveSystemDiagram
+                heatingTemp={input.heatingTurRetur[0]}
+                sfpValue={input.sfpDesign}
+                recoveryEff={input.heatRecoveryEff}
+                coolingKw={input.installedCooling}
+                className="max-w-[400px]"
               />
             </div>
           </div>
@@ -1101,6 +1181,11 @@ function SimulatorSection() {
               <AvvikPreview avvik={result.avvik} />
             </motion.div>
           )}
+
+          {/* System Conflicts */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.35 }}>
+            <SystemConflicts result={result} />
+          </motion.div>
 
           {/* Share results */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.4 }}>
