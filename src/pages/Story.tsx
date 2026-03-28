@@ -143,64 +143,92 @@ function HeroBuilding() {
   );
 }
 
-/* ═══════ SECTION 1 — Hero ═══════ */
+/* ═══════ SECTION 1 — Hero (Story Hook) ═══════ */
 function HeroSection() {
+  const storyRef = useRef<HTMLDivElement>(null);
+  const storyInView = useInView(storyRef, { once: true, margin: "-20%" });
+  const [showProduct, setShowProduct] = useState(false);
+
+  useEffect(() => {
+    if (storyInView) {
+      const t = setTimeout(() => setShowProduct(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [storyInView]);
+
   return (
-    <Section className="min-h-screen py-24 relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.08),transparent)]" />
+    <Section className="min-h-screen py-20 relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.06),transparent)]" />
 
-      <FadeIn className="z-10 max-w-3xl text-center">
-        {/* Social proof chip */}
-        <motion.div
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-xs text-muted-foreground"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-vh-green animate-pulse" />
-          Har allerede funnet avvik verdt 12,4 MNOK i norske næringsbygg
-        </motion.div>
-
-        {/* Category label */}
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-          Kvalitetssikring av tekniske anlegg — før byggstart
+      {/* === THE HOOK: A story everyone in the industry recognizes === */}
+      <FadeIn className="z-10 max-w-2xl text-center">
+        <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
+          Kvalitetssikring av tekniske anlegg
         </p>
 
-        {/* Main headline */}
-        <h1 className="text-5xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
-          Crash test bygget ditt
+        <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
+          Et nybygg til 200 MNOK.
           <br />
-          <span className="text-primary">— før det er bygget</span>
+          <span className="text-muted-foreground">Dag én etter overlevering:</span>
+          <br />
+          <motion.span
+            className="text-destructive"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          >
+            det er 26°C i januar.
+          </motion.span>
         </h1>
 
-        {/* Outcome-focused subtitle */}
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          Last opp prosjektets funksjonsbeskrivelse. På 3 minutter vet du om anlegget bryter TEK17, kaster penger på energi, eller skjuler feil som koster millioner å rette etter overlevering.
-        </p>
+        <motion.p
+          className="mx-auto mt-6 max-w-lg text-base text-muted-foreground"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.3, duration: 0.5 }}
+        >
+          Ventilasjonsaggregatets gjenvinner er underdimensjonert. Radiatorer og kjølebafler kjører samtidig. Ingen oppdaget det — før leietaker ringte.
+        </motion.p>
 
-        {/* Aha-moment line */}
-        <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground italic">
-          En full-scale driftstest av bygget — gjennomført på kontoret, ikke på byggeplass.
-        </p>
-
-        {/* Hero CTA */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button size="lg" onClick={() => {
-            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
-          }} className="gap-2 px-8 py-5 text-base font-bold">
-            Test ditt bygg gratis
-            <ArrowRight className="h-5 w-5" />
-          </Button>
-          <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
-            Book en demo →
-          </a>
-        </div>
+        <motion.p
+          className="mx-auto mt-4 max-w-lg text-base text-foreground font-semibold"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.0, duration: 0.5 }}
+        >
+          Feilretting: 18 måneder. Merkostnad: 12 MNOK. Alt kunne vært fanget på 3 minutter.
+        </motion.p>
       </FadeIn>
 
-      {/* Animated product preview */}
-      <FadeIn delay={0.5} className="z-10 mt-12">
-        <HeroBuilding />
-      </FadeIn>
+      {/* === THE TURN: What if you could have seen it coming? === */}
+      <div ref={storyRef} className="z-10 mt-12 w-full max-w-2xl">
+        <AnimatePresence>
+          {showProduct && (
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <p className="mb-6 text-sm font-semibold text-primary uppercase tracking-widest">VirtualHouse hadde funnet alt dette — før byggstart</p>
+
+              <HeroBuilding />
+
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button size="lg" onClick={() => {
+                  document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
+                }} className="gap-2 px-8 py-5 text-base font-bold">
+                  Test ditt bygg nå
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+                <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+                  Book en demo →
+                </a>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <motion.div
         className="absolute bottom-4 sm:bottom-10 z-10 flex flex-col items-center gap-2 text-muted-foreground"
