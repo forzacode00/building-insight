@@ -387,11 +387,11 @@ function SolutionSection() {
 /* ═══════ Auto-playing WOW demo ═══════ */
 function WowDemo() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const inView = useInView(ref, { once: false, margin: "-100px" });
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView) { setStep(0); return; }
     const timers = [
       setTimeout(() => setStep(1), 300),
       setTimeout(() => setStep(2), 800),
@@ -401,6 +401,13 @@ function WowDemo() {
     ];
     return () => timers.forEach(clearTimeout);
   }, [inView]);
+
+  useEffect(() => {
+    if (step === 5) {
+      const reset = setTimeout(() => setStep(0), 3000);
+      return () => clearTimeout(reset);
+    }
+  }, [step]);
 
   return (
     <div ref={ref} className="mx-auto mb-12 w-full max-w-3xl">
@@ -492,6 +499,7 @@ function SimReveal({ onDone }: { onDone: () => void }) {
   const [progress, setProgress] = useState(0);
   const [currentHour, setCurrentHour] = useState(0);
   const totalHours = 17520;
+  const doneTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     const duration = 2000;
@@ -505,11 +513,11 @@ function SimReveal({ onDone }: { onDone: () => void }) {
       if (pct < 1) {
         raf = requestAnimationFrame(tick);
       } else {
-        setTimeout(onDone, 200);
+        doneTimer.current = setTimeout(onDone, 200);
       }
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => { cancelAnimationFrame(raf); clearTimeout(doneTimer.current); };
   }, [onDone]);
 
   return (
@@ -537,11 +545,9 @@ function SimReveal({ onDone }: { onDone: () => void }) {
 /* ═══════ Animated counter ═══════ */
 function AnimatedNumber({ value, duration = 800 }: { value: number; duration?: number }) {
   const [display, setDisplay] = useState(0);
-  const started = useRef(false);
 
   useEffect(() => {
-    if (started.current) return;
-    started.current = true;
+    setDisplay(0);
     const start = performance.now();
     let raf: number;
     const tick = (now: number) => {
@@ -734,7 +740,7 @@ function SimResults({ result: r, animate }: { result: ReturnType<typeof useSimRe
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {[
-        <div key="energy" className={`rounded-xl border bg-card p-5 text-center ${r.exceedsTEK17 && animate ? "animate-pulse border-destructive" : "border-border"}`}>
+        <div key="energy" className={`rounded-xl border bg-card p-5 text-center ${r.exceedsTEK17 ? "border-destructive" : "border-border"}`}>
           <p className="text-xs text-muted-foreground">Energibehov</p>
           <p className="mt-1 text-3xl font-bold font-mono tabular-nums">
             {animate ? <AnimatedNumber value={Math.round(r.totalEnergyKwhM2)} /> : Math.round(r.totalEnergyKwhM2)}
@@ -884,7 +890,7 @@ function AdvancedSection() {
 /* ═══════ SECTION 6 — CTA (urgent, specific) ═══════ */
 function CTASection() {
   const navigate = useNavigate();
-  const logos = ["Skanska", "Veidekke", "AF Gruppen", "Multiconsult", "Norconsult", "Sweco"];
+  const segments = ["Totalentreprenører", "Rådgivende ingeniører", "Eiendomsforvaltere", "Byggherrer", "FM-selskaper"];
 
   return (
     <Section>
@@ -909,10 +915,10 @@ function CTASection() {
       </FadeIn>
 
       <FadeIn delay={0.3} className="mt-20">
-        <p className="mb-6 text-center text-sm text-muted-foreground">Brukes av ingeniørteam hos:</p>
-        <div className="flex flex-wrap justify-center gap-6">
-          {logos.map((name) => (
-            <span key={name} className="text-lg font-bold text-foreground tracking-wide">
+        <p className="mb-6 text-center text-sm text-muted-foreground">Bygget for ingeniørteam i:</p>
+        <div className="flex flex-wrap justify-center gap-4">
+          {segments.map((name) => (
+            <span key={name} className="rounded-full border border-border bg-secondary/50 px-4 py-2 text-sm font-medium text-foreground">
               {name}
             </span>
           ))}
