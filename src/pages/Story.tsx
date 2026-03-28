@@ -985,15 +985,15 @@ function SimulatorSection() {
             {/* Left: sliders */}
             <div className="rounded-xl border border-border bg-card p-6">
               <div className="grid gap-6 sm:grid-cols-2">
-                <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Turtemperatur varme" value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
+                <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Vanntemperatur til radiatorer. Høyere = mer energi til oppvarming, men også høyere tap." value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
                 <div>
-                  <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
+                  <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="Spesifikk vifteeffekt — hvor mye strøm viftene bruker for å flytte luften. Lavere = bedre." value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
                   <p className={`mt-1 text-[10px] font-mono ${input.sfpDesign * 1.15 > 1.5 ? "text-destructive" : "text-vh-green"}`}>
                     Reell SFP: {(input.sfpDesign * 1.15).toFixed(1)} kW/(m³/s) {input.sfpDesign * 1.15 > 1.5 ? "— Over TEK17" : "✔"}
                   </p>
                 </div>
-                <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Gjenvinner virkningsgrad" value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
-                <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Installert kjøleeffekt" value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
+                <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Hvor mye varme som gjenvinnes fra avtrekksluften. Høyere = mindre oppvarmingsbehov. TEK17 krever ≥80%." value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
+                <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Total kjølekapasitet i bygget. Må dekke sol- og internbelastning for å unngå overtemperatur." value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
               </div>
               <div className="mt-8 flex justify-center">
                 <Button size="lg" onClick={handleSimulate} className="gap-2 px-8 text-base" disabled={simState === "simulating"}>
