@@ -911,6 +911,22 @@ function SimulatorSection() {
         })}
       </FadeIn>
 
+      {/* Location selector */}
+      <FadeIn className="mx-auto mb-4 flex items-center justify-center gap-2">
+        <span className="text-xs text-muted-foreground">Klimasone:</span>
+        {(["oslo", "bergen", "trondheim"] as const).map((loc) => (
+          <button
+            key={loc}
+            onClick={() => updateInput("location", loc)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              input.location === loc ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {loc.charAt(0).toUpperCase() + loc.slice(1)}
+          </button>
+        ))}
+      </FadeIn>
+
       {/* building type cards */}
       <FadeIn className="mx-auto mb-10 grid w-full max-w-2xl grid-cols-1 sm:grid-cols-3 gap-4">
         {buildingTypes.map((bt) => (
