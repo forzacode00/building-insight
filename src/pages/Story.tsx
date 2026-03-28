@@ -781,6 +781,7 @@ function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; se
 
 /* ═══════ System Conflicts (cross-disciplinary) ═══════ */
 function SystemConflicts({ result }: { result: ReturnType<typeof useSimResult> }) {
+  const { input } = useSimInput();
   const conflicts: Array<{ systems: [string, string]; issue: string; impact: string; severity: "critical" | "warning" }> = [];
 
   // Simultaneous heating + cooling
@@ -815,7 +816,7 @@ function SystemConflicts({ result }: { result: ReturnType<typeof useSimResult> }
     conflicts.push({
       systems: ["36 Gjenvinner", "32 Varme"],
       issue: "Lav gjenvinning tvinger varmesystemet til å kompensere",
-      impact: `${Math.round((0.82 - result.heatRecoveryActual) * 100)}% tap i gjenvinner = ${Math.round(result.heatingKwhM2 * 0.15)} kWh/m² ekstra oppvarming`,
+      impact: `${Math.round((input.heatRecoveryEff - result.heatRecoveryActual) * 100)}% tap i gjenvinner = ${Math.round(result.heatingKwhM2 * 0.15)} kWh/m² ekstra oppvarming`,
       severity: "warning",
     });
   }
@@ -901,9 +902,11 @@ function SimulatorSection() {
   const year2Result = useMemo(() => {
     return runSimulation({
       ...input,
-      heatRecoveryEff: input.heatRecoveryEff * 0.94,
-      sfpDesign: input.sfpDesign * 1.15,
-      cop: input.cop * 0.95,
+      // År 2: ytterligere slitasje på gjenvinner og COP.
+      // SFP beholdes uendret — motoren legger allerede til 15% degradering.
+      heatRecoveryEff: input.heatRecoveryEff * 0.94,  // 6% ekstra degradering fra år 1
+      sfpDesign: input.sfpDesign,                      // IKKE dobbeldegrader
+      cop: input.cop * 0.95,                           // 5% COP-tap fra slitasje
     });
   }, [input]);
 
@@ -1266,19 +1269,20 @@ function AdvancedSection() {
   const result = useSimResult();
   const [toggles, setToggles] = useState({ seasons: false, wear: false, simultaneous: false });
 
-  const baseEff = 0.82;
-  const baseSfp = 1.5;
+  // Lagre brukerens opprinnelige verdier (ikke hardkodet)
+  const baseEffRef = useRef(input.heatRecoveryEff);
+  const baseSfpRef = useRef(input.sfpDesign);
 
   const handleToggle = (key: keyof typeof toggles) => {
     const next = { ...toggles, [key]: !toggles[key] };
     setToggles(next);
     if (key === "wear") {
       if (!next.wear) {
-        updateInput("heatRecoveryEff", baseEff);
-        updateInput("sfpDesign", baseSfp);
+        updateInput("heatRecoveryEff", baseEffRef.current);
+        updateInput("sfpDesign", baseSfpRef.current);
       } else {
-        updateInput("heatRecoveryEff", baseEff * 0.94);
-        updateInput("sfpDesign", baseSfp * 1.15);
+        updateInput("heatRecoveryEff", baseEffRef.current * 0.94);
+        updateInput("sfpDesign", baseSfpRef.current * 1.15);
       }
     }
   };

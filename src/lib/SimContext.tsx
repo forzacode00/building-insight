@@ -3,16 +3,16 @@ import { runSimulation, type SimInput, type SimResult } from "./simulationEngine
 
 const defaultInput: SimInput = {
   bra: 6000,
-  installedHeating: 280,
-  installedCooling: 350,
+  installedHeating: 150,     // kW — tilpasset modellens varmetapstall H''=0.55
+  installedCooling: 200,      // kW — realistisk for 6000m² kontor
   heatingTurRetur: [55, 40],
   coolingTurRetur: [6, 12],
   sfpDesign: 1.5,
   airflowSupply: 42000,
   airflowExtract: 40500,
   heatRecoveryEff: 0.82,
-  numCoolingBaffles: 180,
-  baffleCapacity: 600,
+  numCoolingBaffles: 200,     // stk kjølebafler
+  baffleCapacity: 1000,       // W per bafel — gir 200 kW total, matcher installedCooling
   cop: 4.5,
   dut: -21.8,
   setpointHeating: 21,

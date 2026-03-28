@@ -53,21 +53,21 @@ export interface Avvik {
   tiltak: string;
 }
 
-// Monthly average outdoor temperatures (°C)
+// Monthly average outdoor temperatures (°C) — 1991–2020 normals (met.no/Wikipedia)
 const CLIMATE: Record<SimInput["location"], number[]> = {
-  oslo:       [-4.3, -4.0,  0.5, 5.5, 11.2, 15.0, 17.5, 16.3, 11.5,  6.0,  0.5, -3.0],
-  bergen:     [ 1.5,  1.4,  3.5, 6.5, 10.5, 13.5, 15.0, 15.0, 12.0,  8.5,  4.5,  2.5],
-  trondheim:  [-3.0, -2.5,  0.5, 4.5,  9.5, 13.0, 15.0, 14.0, 10.0,  5.5,  1.0, -1.5],
+  oslo:       [-2.3, -1.9,  1.3, 6.2, 11.4, 15.3, 17.6, 16.5, 12.1,  6.5,  2.1, -1.4],
+  bergen:     [ 2.6,  2.3,  3.8, 7.2, 10.7, 13.6, 15.6, 15.4, 12.6,  8.6,  5.3,  3.1],
+  trondheim:  [-1.0, -1.2,  0.7, 4.6,  8.5, 11.8, 14.8, 14.1, 10.6,  5.5,  2.1, -0.9],
 };
 
 const DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 const HOURS_IN_MONTH = DAYS_IN_MONTH.map((d) => d * 24);
 
-const U_AVG = 0.4;            // W/(m²·K) typical rehab office envelope
+const U_AVG = 0.55;           // W/(m²·K) normalized building heat loss per BRA (varmetapstall H'')
 const INTERNAL_LOAD = 35;     // W/m² people + equipment
-const OPERATING_HOURS = 3000; // 12h/day × 250 days
-const ENERGY_PRICE = 1.33;    // NOK/kWh average
-const GRID_CO2 = 0.05;        // kg CO₂/kWh Norwegian grid factor
+const OPERATING_HOURS = 3120; // 12h/day × 5 days × 52 weeks — NS 3031 normert
+const ENERGY_PRICE = 1.20;    // NOK/kWh all-in commercial estimate (SSB/NVE 2025)
+const GRID_CO2 = 0.018;       // kg CO₂/kWh Norwegian grid direct (NVE 2024, produksjonsmiks)
 const LIGHTING_KWH_M2 = 18;
 const EQUIPMENT_KWH_M2 = 20;
 const DHW_KWH_M2 = 5;
@@ -190,7 +190,8 @@ export function runSimulation(input: SimInput): SimResult {
 
   const airChangeRate = airflowSupply / bra; // m³/h per m²
   const avgCO2ppm = Math.max(400, Math.round(750 - (airChangeRate - 2) * 50));
-  const avgRHwinter = Math.round((15 + airChangeRate * 0.5) * 10) / 10;
+  // RF avtar med økt ventilasjon om vinteren (mer tørr uteluft inn)
+  const avgRHwinter = Math.max(10, Math.round((30 - airChangeRate * 1.5) * 10) / 10);
 
   // --- Monthly breakdown ---
   // Weight heating by degree-hours and cooling by warm hours per month
@@ -273,13 +274,25 @@ export function runSimulation(input: SimInput): SimResult {
     });
   }
 
-  if (heatRecoveryActual < 0.80) {
+  // TEK17 designkrav: varmegjenvinning ≥ 80 % (prosjektert)
+  if (heatRecoveryEff < 0.80) {
     avvik.push({
       nr: avvikNr++,
       system: "36 Luft",
-      severity: "ok",
-      title: "Gjenvinner underyter",
-      description: `Faktisk temperaturvirkningsgrad ${Math.round(heatRecoveryActual * 100)}% vs. prosjektert ${Math.round(heatRecoveryEff * 100)}%. Normal degradering, men bør overvåkes.`,
+      severity: "warning",
+      title: "Gjenvinner oppfyller ikke TEK17-krav",
+      description: `Prosjektert temperaturvirkningsgrad ${Math.round(heatRecoveryEff * 100)}% er under TEK17-krav ≥ 80%. Må økes for å oppnå samsvar.`,
+      tiltak: "Bytt til roterende varmeveksler med ≥80% temperaturvirkningsgrad. Vurder motstrøms plateveksler.",
+    });
+  }
+  // Driftsvarsel: faktisk gjenvinner under 76 % (unormal degradering)
+  if (heatRecoveryActual < 0.76 && heatRecoveryEff >= 0.80) {
+    avvik.push({
+      nr: avvikNr++,
+      system: "36 Luft",
+      severity: "warning",
+      title: "Gjenvinner degradert under driftsgrense",
+      description: `Faktisk temperaturvirkningsgrad ${Math.round(heatRecoveryActual * 100)}% vs. prosjektert ${Math.round(heatRecoveryEff * 100)}%. Degradering større enn forventet.`,
       tiltak: "Rengjør gjenvinnerrotor. Kontroller tettinger. Planlegg utskifting innen 2 år.",
     });
   }
