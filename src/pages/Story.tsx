@@ -280,9 +280,16 @@ function TheFlipSection() {
 
   return (
     <Section className="min-h-screen py-24">
-      <FadeIn className="mb-16 text-center">
+      <FadeIn className="mb-10 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne se fremtiden?</h2>
-        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer samspillet mellom varme, ventilasjon, kjøling og automasjon — og forutser konflikter før de oppstår.</p>
+        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer samspillet mellom alle tekniske systemer — og forutser konflikter før de oppstår.</p>
+      </FadeIn>
+
+      {/* Process flow visual */}
+      <FadeIn className="mx-auto mb-12 w-full max-w-3xl">
+        <div className="rounded-xl overflow-hidden border border-border">
+          <img src="/vh_process_flow.png" alt="Prosjektering → VirtualHouse → Verifisert" className="w-full h-auto" loading="lazy" />
+        </div>
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
