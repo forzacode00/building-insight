@@ -996,6 +996,24 @@ function SimulatorSection() {
       {/* results — Year 1 vs Year 2 with staggered reveal */}
       {simState === "done" && (
         <div className="mx-auto mt-8 w-full max-w-4xl space-y-6">
+          {/* Report header */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-primary/30 bg-primary/5 p-5">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary">Prediktiv simuleringsrapport</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : "Sykehus"} · {input.bra.toLocaleString("nb-NO")} m² · {input.location.charAt(0).toUpperCase() + input.location.slice(1)} · 17 520 timer simulert
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                  result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
+                }`}>Score: {result.healthScore}/100</span>
+                <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">{result.avvik.length} avvik</span>
+              </div>
+            </div>
+          </motion.div>
+
           <div className="grid gap-6 md:grid-cols-2">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0 }}>
               <h3 className="mb-3 text-center text-sm font-bold text-vh-green">År 1</h3>
