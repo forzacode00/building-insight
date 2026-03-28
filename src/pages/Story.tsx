@@ -1,9 +1,8 @@
-import { useState, useRef, useMemo, useEffect } from "react";
+import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   FileText,
-  Home,
   CheckCircle2,
   ChevronDown,
   Building2,
@@ -24,6 +23,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Progress } from "@/components/ui/progress";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
@@ -73,11 +73,129 @@ export default function Story() {
   );
 }
 
+/* ═══════ Animated P&ID Preview (Hero) ═══════ */
+function AnimatedPIDPreview() {
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    const CYCLE = 6000;
+    const timers = [
+      setTimeout(() => setPhase(1), 400),
+      setTimeout(() => setPhase(2), 1200),
+      setTimeout(() => setPhase(3), 2000),
+      setTimeout(() => setPhase(4), 2800),
+      setTimeout(() => setPhase(5), 3600),
+    ];
+    const loop = setInterval(() => {
+      setPhase(0);
+      timers.forEach(clearTimeout);
+      timers.length = 0;
+      timers.push(
+        setTimeout(() => setPhase(1), 400),
+        setTimeout(() => setPhase(2), 1200),
+        setTimeout(() => setPhase(3), 2000),
+        setTimeout(() => setPhase(4), 2800),
+        setTimeout(() => setPhase(5), 3600),
+      );
+    }, CYCLE);
+    return () => { timers.forEach(clearTimeout); clearInterval(loop); };
+  }, []);
+
+  return (
+    <div className="relative w-full max-w-[600px] h-[280px] rounded-xl border border-border bg-card overflow-hidden">
+      {/* Grid background */}
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)",
+        backgroundSize: "20px 20px",
+      }} />
+
+      <svg viewBox="0 0 600 280" className="absolute inset-0 w-full h-full">
+        {/* Phase 1: Fjernvarme source */}
+        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }} transition={{ duration: 0.5 }}>
+          <rect x="30" y="100" width="90" height="50" rx="8" fill="hsl(0, 84%, 60%)" fillOpacity="0.15" stroke="hsl(0, 84%, 60%)" strokeWidth="1.5" />
+          <text x="75" y="130" textAnchor="middle" fill="hsl(0, 84%, 60%)" fontSize="11" fontWeight="600">Fjernvarme</text>
+        </motion.g>
+
+        {/* Phase 2: Pipe to Samlestokk */}
+        <motion.line x1="120" y1="125" x2="220" y2="125"
+          stroke="hsl(0, 84%, 60%)" strokeWidth="2.5" strokeLinecap="round"
+          initial={{ pathLength: 0, opacity: 0 }}
+          animate={{ pathLength: phase >= 2 ? 1 : 0, opacity: phase >= 2 ? 1 : 0 }}
+          transition={{ duration: 0.6 }}
+        />
+        {/* Animated flow dots */}
+        {phase >= 2 && (
+          <motion.circle r="3" fill="hsl(0, 84%, 60%)"
+            animate={{ cx: [120, 220], cy: [125, 125] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+          />
+        )}
+
+        {/* Phase 2: Samlestokk */}
+        <motion.g initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: phase >= 2 ? 1 : 0, scale: phase >= 2 ? 1 : 0.8 }} transition={{ duration: 0.5 }}>
+          <rect x="220" y="60" width="30" height="130" rx="6" fill="hsl(var(--primary))" fillOpacity="0.12" stroke="hsl(var(--primary))" strokeWidth="1.5" />
+          <text x="235" y="50" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="9">Samlestokk</text>
+        </motion.g>
+
+        {/* Phase 3: Branches */}
+        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 3 ? 1 : 0 }} transition={{ duration: 0.5 }}>
+          {/* Branch 1 - Radiator */}
+          <line x1="250" y1="90" x2="380" y2="90" stroke="hsl(0, 84%, 60%)" strokeWidth="2" strokeDasharray="4 3" />
+          <rect x="380" y="70" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
+          <text x="420" y="94" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Radiatorer</text>
+
+          {/* Branch 2 - Ventilasjon */}
+          <line x1="250" y1="125" x2="380" y2="125" stroke="hsl(var(--primary))" strokeWidth="2" strokeDasharray="4 3" />
+          <rect x="380" y="105" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
+          <text x="420" y="129" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Ventilasjon</text>
+
+          {/* Branch 3 - Kjølebafler */}
+          <line x1="250" y1="160" x2="380" y2="160" stroke="hsl(217, 91%, 60%)" strokeWidth="2" strokeDasharray="4 3" />
+          <rect x="380" y="140" width="80" height="40" rx="6" fill="hsl(var(--secondary))" stroke="hsl(var(--border))" strokeWidth="1" />
+          <text x="420" y="164" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="10" fontWeight="500">Kjølebafler</text>
+        </motion.g>
+
+        {/* Phase 4: Temperature labels */}
+        <motion.g initial={{ opacity: 0 }} animate={{ opacity: phase >= 4 ? 1 : 0 }} transition={{ duration: 0.4 }}>
+          <rect x="480" y="74" width="48" height="20" rx="4" fill="hsl(0, 84%, 60%)" fillOpacity="0.2" />
+          <text x="504" y="88" textAnchor="middle" fill="hsl(0, 84%, 60%)" fontSize="11" fontWeight="700" fontFamily="monospace">55°C</text>
+
+          <rect x="480" y="109" width="48" height="20" rx="4" fill="hsl(142, 71%, 45%)" fillOpacity="0.2" />
+          <text x="504" y="123" textAnchor="middle" fill="hsl(142, 71%, 45%)" fontSize="11" fontWeight="700" fontFamily="monospace">19°C</text>
+
+          <rect x="480" y="144" width="48" height="20" rx="4" fill="hsl(217, 91%, 60%)" fillOpacity="0.2" />
+          <text x="504" y="158" textAnchor="middle" fill="hsl(217, 91%, 60%)" fontSize="11" fontWeight="700" fontFamily="monospace">6°C</text>
+        </motion.g>
+
+        {/* Phase 5: Checkmark */}
+        <motion.g initial={{ opacity: 0, scale: 0.5 }} animate={{ opacity: phase >= 5 ? 1 : 0, scale: phase >= 5 ? 1 : 0.5 }} transition={{ duration: 0.4, type: "spring" }}>
+          <circle cx="540" y="235" r="22" fill="hsl(142, 71%, 45%)" fillOpacity="0.15" stroke="hsl(142, 71%, 45%)" strokeWidth="2" cy="235" />
+          <text x="540" y="240" textAnchor="middle" fill="hsl(142, 71%, 45%)" fontSize="16">✓</text>
+        </motion.g>
+      </svg>
+
+      {/* Phase 5 overlay text */}
+      <AnimatePresence>
+        {phase >= 5 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute bottom-3 left-4 flex items-center gap-2 rounded-lg bg-card/90 border border-border px-3 py-1.5"
+          >
+            <CheckCircle2 className="h-4 w-4 text-vh-green" />
+            <span className="text-xs font-semibold text-vh-green">Verifisert — 0 kritiske avvik</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 /* ═══════ SECTION 1 — Hero ═══════ */
 function HeroSection() {
   return (
     <Section className="relative overflow-hidden">
-      {/* subtle radial glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.08),transparent)]" />
 
       <FadeIn className="z-10 max-w-3xl text-center">
@@ -87,38 +205,15 @@ function HeroSection() {
           <span className="text-primary">— før du bygger det</span>
         </h1>
         <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          VirtualHouse simulerer tekniske anlegg digitalt, slik at du vet de fungerer før du bruker en krone.
+          Vi simulerer VVS-systemet ditt med ekte fysikkberegninger — og viser deg hva som fungerer og hva som feiler. På 3 minutter.
         </p>
       </FadeIn>
 
-      {/* animated icon flow */}
-      <FadeIn delay={0.5} className="z-10 mt-16 flex items-center gap-6">
-        <motion.div
-          className="flex h-20 w-20 items-center justify-center rounded-2xl border border-border bg-card"
-          animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          <FileText className="h-9 w-9 text-muted-foreground" />
-        </motion.div>
-        <motion.div className="h-px w-12 bg-primary/40" animate={{ scaleX: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity }} />
-        <motion.div
-          className="flex h-24 w-24 items-center justify-center rounded-2xl border-2 border-primary bg-primary/10 vh-glow-blue"
-          animate={{ scale: [1, 1.08, 1] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 0.4 }}
-        >
-          <Home className="h-10 w-10 text-primary" />
-        </motion.div>
-        <motion.div className="h-px w-12 bg-primary/40" animate={{ scaleX: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity, delay: 0.3 }} />
-        <motion.div
-          className="flex h-20 w-20 items-center justify-center rounded-2xl border border-vh-green/40 bg-vh-green/10"
-          animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 3, repeat: Infinity, delay: 0.8 }}
-        >
-          <CheckCircle2 className="h-9 w-9 text-vh-green" />
-        </motion.div>
+      {/* Animated product preview */}
+      <FadeIn delay={0.5} className="z-10 mt-12">
+        <AnimatedPIDPreview />
       </FadeIn>
 
-      {/* scroll indicator */}
       <motion.div
         className="absolute bottom-10 flex flex-col items-center gap-2 text-muted-foreground"
         animate={{ y: [0, 8, 0] }}
@@ -131,14 +226,8 @@ function HeroSection() {
   );
 }
 
-/* ═══════ SECTION 2 — Problem ═══════ */
+/* ═══════ SECTION 2 — Problem (dramatic) ═══════ */
 function ProblemSection() {
-  const stats = [
-    { value: "30%", text: "av VVS-anlegg fungerer ikke som planlagt" },
-    { value: "15–25%", text: "gjennomsnittlig merkostnad ved feil" },
-    { value: "6–12 mnd", text: "typisk tid for feilretting etter overlevering" },
-  ];
-
   return (
     <Section>
       <FadeIn className="mb-16 text-center">
@@ -149,58 +238,71 @@ function ProblemSection() {
       <div className="mx-auto grid w-full max-w-5xl gap-12 md:grid-cols-2">
         {/* left — timeline boxes */}
         <div className="flex flex-col items-center gap-4">
-          {[
-            {
-              title: "Prosjektering",
-              desc: "Ingeniører designer VVS-systemet. Tegninger, beregninger, funksjonsbeskrivelser.",
-              time: "3–6 måneder",
-              color: "border-vh-green/40 bg-vh-green/5",
-              textColor: "text-vh-green",
-              delay: 0,
-            },
-            {
-              title: "Bygging",
-              desc: "Systemet bygges fysisk. 12–18 måneder. 20–80 MNOK.",
-              time: "12–18 måneder",
-              color: "border-border bg-secondary/80",
-              textColor: "text-foreground",
-              delay: 0.2,
-              scary: true,
-            },
-            {
-              title: "Testing",
-              desc: "Fungerer det? Først NÅ kan vi teste. 30% av anlegg har feil ved overlevering.",
-              time: "???",
-              color: "border-destructive/40 bg-destructive/5",
-              textColor: "text-destructive",
-              delay: 0.4,
-            },
-          ].map((box) => (
-            <FadeIn key={box.title} delay={box.delay} className="w-full">
-              <div className={`rounded-xl border p-6 ${box.color} ${box.scary ? "scale-105 shadow-lg" : ""}`}>
-                <div className="flex items-center justify-between">
-                  <h3 className={`text-lg font-bold ${box.textColor}`}>{box.title}</h3>
-                  <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">{box.time}</span>
-                </div>
-                <p className="mt-2 text-sm text-muted-foreground">{box.desc}</p>
+          {/* Prosjektering — small */}
+          <FadeIn delay={0} className="w-full">
+            <div className="rounded-xl border p-5 border-border bg-card">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-vh-green">Prosjektering</h3>
+                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 måneder</span>
               </div>
-              {box.title !== "Testing" && (
-                <div className="mx-auto my-1 h-6 w-px bg-border" />
-              )}
-            </FadeIn>
-          ))}
+              <p className="mt-2 text-sm text-muted-foreground">Ingeniører designer VVS-systemet. Tegninger, beregninger, funksjonsbeskrivelser.</p>
+            </div>
+            <div className="mx-auto my-1 h-6 w-px bg-border" />
+          </FadeIn>
+
+          {/* Bygging — DRAMATIC 2x size, red glow */}
+          <FadeIn delay={0.2} className="w-full">
+            <motion.div
+              className="rounded-xl border-2 border-destructive/40 bg-secondary/90 p-8 relative overflow-hidden"
+              animate={{
+                boxShadow: [
+                  "0 0 20px -5px hsl(0, 84%, 60%, 0.2)",
+                  "0 0 40px -5px hsl(0, 84%, 60%, 0.4)",
+                  "0 0 20px -5px hsl(0, 84%, 60%, 0.2)",
+                ],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-foreground">Bygging</h3>
+                <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">12–18 måneder</span>
+              </div>
+              <p className="text-5xl font-bold font-mono tabular-nums text-destructive leading-tight">
+                20–80 MNOK
+              </p>
+              <p className="mt-3 text-base text-muted-foreground">
+                ...og du vet fortsatt ikke om det fungerer
+              </p>
+            </motion.div>
+            <div className="mx-auto my-1 h-6 w-px bg-border" />
+          </FadeIn>
+
+          {/* Testing — small with red accent */}
+          <FadeIn delay={0.4} className="w-full">
+            <div className="rounded-xl border p-5 border-destructive/40 bg-destructive/5">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-destructive">Testing</h3>
+                <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">???</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">Fungerer det? Først NÅ kan vi teste.</p>
+            </div>
+          </FadeIn>
         </div>
 
-        {/* right — stats */}
-        <div className="flex flex-col justify-center gap-6">
-          {stats.map((s, i) => (
-            <FadeIn key={i} delay={0.3 + i * 0.15}>
-              <div className="flex items-start gap-4">
-                <span className="text-3xl font-extrabold font-mono tabular-nums text-destructive">{s.value}</span>
-                <p className="pt-1 text-sm text-muted-foreground">{s.text}</p>
-              </div>
-            </FadeIn>
-          ))}
+        {/* right — stats, HUGE */}
+        <div className="flex flex-col justify-center gap-10">
+          <FadeIn delay={0.3}>
+            <p className="text-6xl font-extrabold font-mono tabular-nums text-destructive leading-none md:text-7xl">30%</p>
+            <p className="mt-2 text-base text-muted-foreground">av VVS-anlegg fungerer ikke som planlagt</p>
+          </FadeIn>
+          <FadeIn delay={0.45}>
+            <p className="text-4xl font-extrabold font-mono tabular-nums text-destructive">15–25%</p>
+            <p className="mt-2 text-sm text-muted-foreground">gjennomsnittlig merkostnad ved feil</p>
+          </FadeIn>
+          <FadeIn delay={0.6}>
+            <p className="text-4xl font-extrabold font-mono tabular-nums text-destructive">6–12 mnd</p>
+            <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
+          </FadeIn>
         </div>
       </div>
     </Section>
@@ -228,7 +330,6 @@ function SolutionSection() {
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4">
-        {/* Box 1: Prosjektering */}
         <FadeIn delay={0} className="w-full">
           <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
             <div className="flex items-center justify-between">
@@ -240,36 +341,19 @@ function SolutionSection() {
           <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
         </FadeIn>
 
-        {/* Box 2: VirtualHouse — animated transformation */}
         <FadeIn delay={0.25} className="w-full">
           <motion.div
             ref={transformRef}
             className="rounded-xl border p-6"
-            initial={{
-              borderColor: "hsl(218, 26%, 18%)",
-              backgroundColor: "hsl(220, 20%, 14%)",
-            }}
-            animate={inView ? {
-              borderColor: "hsl(213, 52%, 63%)",
-              backgroundColor: "hsl(213, 52%, 63%, 0.1)",
-            } : {}}
+            initial={{ borderColor: "hsl(218, 26%, 18%)", backgroundColor: "hsl(220, 20%, 14%)" }}
+            animate={inView ? { borderColor: "hsl(213, 52%, 63%)", backgroundColor: "hsl(213, 52%, 63%, 0.1)" } : {}}
             transition={{ duration: 1.2, ease: "easeOut" }}
           >
             <div className="flex items-center justify-between">
-              <motion.h3
-                className="text-lg font-bold"
-                initial={{ color: "hsl(215, 20%, 55%)" }}
-                animate={inView ? { color: "hsl(213, 52%, 63%)" } : {}}
-                transition={{ duration: 1.2 }}
-              >
+              <motion.h3 className="text-lg font-bold" initial={{ color: "hsl(215, 20%, 55%)" }} animate={inView ? { color: "hsl(213, 52%, 63%)" } : {}} transition={{ duration: 1.2 }}>
                 VirtualHouse Simulering
               </motion.h3>
-              <motion.span
-                className="rounded-full px-3 py-1 text-xs font-bold"
-                initial={{ backgroundColor: "hsl(220, 20%, 20%)", color: "hsl(215, 20%, 55%)" }}
-                animate={inView ? { backgroundColor: "hsl(213, 52%, 63%, 0.2)", color: "hsl(213, 52%, 63%)" } : {}}
-                transition={{ duration: 0.8, delay: 0.6 }}
-              >
+              <motion.span className="rounded-full px-3 py-1 text-xs font-bold" initial={{ backgroundColor: "hsl(220, 20%, 20%)", color: "hsl(215, 20%, 55%)" }} animate={inView ? { backgroundColor: "hsl(213, 52%, 63%, 0.2)", color: "hsl(213, 52%, 63%)" } : {}} transition={{ duration: 0.8, delay: 0.6 }}>
                 {timeText}
               </motion.span>
             </div>
@@ -278,7 +362,6 @@ function SolutionSection() {
           <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
         </FadeIn>
 
-        {/* Box 3: Verifisert resultat */}
         <FadeIn delay={0.5} className="w-full">
           <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
             <div className="flex items-center justify-between">
@@ -301,15 +384,186 @@ function SolutionSection() {
   );
 }
 
+/* ═══════ Auto-playing WOW demo ═══════ */
+function WowDemo() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const timers = [
+      setTimeout(() => setStep(1), 300),
+      setTimeout(() => setStep(2), 800),
+      setTimeout(() => setStep(3), 1400),
+      setTimeout(() => setStep(4), 2000),
+      setTimeout(() => setStep(5), 2600),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, [inView]);
+
+  return (
+    <div ref={ref} className="mx-auto mb-12 w-full max-w-3xl">
+      <div className="rounded-xl border border-border bg-card p-6 md:p-8">
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
+          {/* Left: Document */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={step >= 1 ? { opacity: 1, x: 0 } : {}}
+            className="flex flex-col items-center gap-2 shrink-0"
+          >
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-border bg-secondary">
+              <FileText className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <span className="text-xs text-muted-foreground font-medium">Funksjonsbeskrivelse.pdf</span>
+          </motion.div>
+
+          {/* Arrow */}
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={step >= 2 ? { opacity: 1, scaleX: 1 } : {}}
+            className="hidden md:flex items-center"
+          >
+            <div className="h-px w-16 bg-primary/50" />
+            <ArrowRight className="h-5 w-5 text-primary -ml-1" />
+          </motion.div>
+
+          {/* Center: VirtualHouse box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={step >= 2 ? { opacity: 1, scale: 1 } : {}}
+            className="flex h-16 items-center justify-center rounded-xl border-2 border-primary bg-primary/10 px-6 vh-glow-blue shrink-0"
+          >
+            <span className="text-sm font-bold text-primary">VirtualHouse</span>
+          </motion.div>
+
+          {/* Arrow */}
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={step >= 3 ? { opacity: 1, scaleX: 1 } : {}}
+            className="hidden md:flex items-center"
+          >
+            <div className="h-px w-16 bg-primary/50" />
+            <ArrowRight className="h-5 w-5 text-primary -ml-1" />
+          </motion.div>
+
+          {/* Right: Results */}
+          <div className="flex flex-col gap-2 min-w-0">
+            <motion.p
+              initial={{ opacity: 0, x: 20 }}
+              animate={step >= 3 ? { opacity: 1, x: 0 } : {}}
+              className="text-sm font-mono tabular-nums text-foreground"
+            >
+              Energibehov: <span className="font-bold">138 kWh/m²·år</span>
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, x: 20 }}
+              animate={step >= 4 ? { opacity: 1, x: 0 } : {}}
+              className="text-sm font-mono tabular-nums text-destructive font-bold"
+            >
+              SFP: 1.8 — ⚠️ Over TEK17!
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, x: 20 }}
+              animate={step >= 5 ? { opacity: 1, x: 0 } : {}}
+              className="text-sm font-mono tabular-nums text-vh-yellow font-bold"
+            >
+              42 000 kr/år bortkastet energi
+            </motion.p>
+          </div>
+        </div>
+
+        {/* Bottom text */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={step >= 5 ? { opacity: 1 } : {}}
+          transition={{ delay: 0.3 }}
+          className="mt-6 text-center text-sm text-muted-foreground"
+        >
+          VirtualHouse leste <span className="font-bold text-foreground">22 sider</span> og fant <span className="font-bold text-destructive">5 avvik</span> på <span className="font-bold text-primary">3 minutter</span>
+        </motion.p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ Simulation Reveal Animation ═══════ */
+function SimReveal({ onDone }: { onDone: () => void }) {
+  const [progress, setProgress] = useState(0);
+  const [currentHour, setCurrentHour] = useState(0);
+  const totalHours = 17520;
+
+  useEffect(() => {
+    const duration = 2000;
+    const start = performance.now();
+    let raf: number;
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const pct = Math.min(elapsed / duration, 1);
+      setProgress(pct * 100);
+      setCurrentHour(Math.round(pct * totalHours));
+      if (pct < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setTimeout(onDone, 200);
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [onDone]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="mx-auto w-full max-w-2xl rounded-xl border border-primary/30 bg-card p-8 text-center"
+    >
+      <motion.div
+        animate={{ scale: [1, 1.03, 1] }}
+        transition={{ duration: 0.8, repeat: Infinity }}
+        className="mx-auto mb-6 w-16 h-16 rounded-xl border-2 border-primary bg-primary/10 flex items-center justify-center"
+      >
+        <Zap className="h-7 w-7 text-primary" />
+      </motion.div>
+      <p className="text-sm font-semibold text-foreground mb-2">Simulerer...</p>
+      <p className="text-xs text-muted-foreground font-mono tabular-nums mb-4">
+        time {currentHour.toLocaleString("nb-NO")} av {totalHours.toLocaleString("nb-NO")} (2 år)
+      </p>
+      <Progress value={progress} className="h-2" />
+    </motion.div>
+  );
+}
+
+/* ═══════ Animated counter ═══════ */
+function AnimatedNumber({ value, duration = 800 }: { value: number; duration?: number }) {
+  const [display, setDisplay] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    const start = performance.now();
+    let raf: number;
+    const tick = (now: number) => {
+      const pct = Math.min((now - start) / duration, 1);
+      setDisplay(Math.round(pct * value));
+      if (pct < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+
+  return <>{display}</>;
+}
+
 /* ═══════ SECTION 4 — Interactive Simulator ═══════ */
 function SimulatorSection() {
   const navigate = useNavigate();
   const { input, updateInput } = useSimInput();
   const result = useSimResult();
   const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [showResults, setShowResults] = useState(false);
+  const [simState, setSimState] = useState<"idle" | "simulating" | "done">("idle");
 
-  // Year 2 degraded simulation
   const year2Result = useMemo(() => {
     return runSimulation({
       ...input,
@@ -322,16 +576,24 @@ function SimulatorSection() {
   const handleSelectType = (type: typeof buildingTypes[number]) => {
     setSelectedType(type.id);
     updateInput("bra", type.bra);
-    setShowResults(false);
+    setSimState("idle");
   };
 
-  const handleSimulate = () => setShowResults(true);
+  const handleSimulate = () => setSimState("simulating");
+  const handleRevealDone = useCallback(() => setSimState("done"), []);
 
   return (
     <Section>
-      <FadeIn className="mb-12 text-center">
+      <FadeIn className="mb-8 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Prøv selv</h2>
-        <p className="mt-3 text-muted-foreground">Velg en bygningstype og juster parametere.</p>
+        <p className="mt-3 text-muted-foreground">Se hva VirtualHouse finner i ditt bygg.</p>
+      </FadeIn>
+
+      {/* WOW demo before building selector */}
+      <WowDemo />
+
+      <FadeIn className="mb-2 text-center">
+        <p className="text-lg font-semibold text-foreground">Nå er det din tur:</p>
       </FadeIn>
 
       {/* building type cards */}
@@ -358,42 +620,13 @@ function SimulatorSection() {
         <FadeIn className="mx-auto w-full max-w-2xl">
           <div className="rounded-xl border border-border bg-card p-6">
             <div className="grid gap-6 sm:grid-cols-2">
-              <SliderField
-                icon={<Thermometer className="h-4 w-4 text-vh-red" />}
-                label="Radiatortemperatur"
-                tooltip="Turtemperatur varme"
-                value={input.heatingTurRetur[0]}
-                min={40} max={70} step={1} unit="°C"
-                onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])}
-              />
-              <SliderField
-                icon={<Wind className="h-4 w-4 text-vh-blue" />}
-                label="Ventilasjonskraft"
-                tooltip="SFP kW/(m³/s)"
-                value={input.sfpDesign}
-                min={0.8} max={2.5} step={0.1} unit="SFP"
-                onChange={(v) => updateInput("sfpDesign", v)}
-              />
-              <SliderField
-                icon={<RefreshCw className="h-4 w-4 text-vh-green" />}
-                label="Gjenvinning av varme"
-                tooltip="Gjenvinner virkningsgrad"
-                value={Math.round(input.heatRecoveryEff * 100)}
-                min={50} max={95} step={1} unit="%"
-                onChange={(v) => updateInput("heatRecoveryEff", v / 100)}
-              />
-              <SliderField
-                icon={<Snowflake className="h-4 w-4 text-primary" />}
-                label="Kjølekapasitet"
-                tooltip="Installert kjøleeffekt"
-                value={input.installedCooling}
-                min={100} max={600} step={10} unit="kW"
-                onChange={(v) => updateInput("installedCooling", v)}
-              />
+              <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Turtemperatur varme" value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
+              <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
+              <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Gjenvinner virkningsgrad" value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
+              <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Installert kjøleeffekt" value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
             </div>
-
             <div className="mt-8 flex justify-center">
-              <Button size="lg" onClick={handleSimulate} className="gap-2 px-8 text-base">
+              <Button size="lg" onClick={handleSimulate} className="gap-2 px-8 text-base" disabled={simState === "simulating"}>
                 <Zap className="h-5 w-5" />
                 Simuler 2 år
                 <ArrowRight className="h-4 w-4" />
@@ -403,29 +636,37 @@ function SimulatorSection() {
         </FadeIn>
       )}
 
-      {/* results — Year 1 vs Year 2 */}
-      {showResults && (
-        <FadeIn className="mx-auto mt-8 w-full max-w-4xl space-y-6">
+      {/* Simulation reveal */}
+      {simState === "simulating" && (
+        <div className="mt-8">
+          <SimReveal onDone={handleRevealDone} />
+        </div>
+      )}
+
+      {/* results — Year 1 vs Year 2 with staggered reveal */}
+      {simState === "done" && (
+        <div className="mx-auto mt-8 w-full max-w-4xl space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0 }}>
               <h3 className="mb-3 text-center text-sm font-bold text-vh-green">År 1</h3>
-              <SimResults result={result} />
-            </div>
-            <div>
+              <SimResults result={result} animate />
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
               <h3 className="mb-3 text-center text-sm font-bold text-vh-yellow">År 2 <span className="font-normal text-muted-foreground">(med slitasje)</span></h3>
               <SimResults result={year2Result} />
-            </div>
+            </motion.div>
           </div>
-          {/* Delta summary */}
-          <div className="rounded-xl border border-border bg-card p-4">
-            <p className="mb-2 text-xs font-semibold text-muted-foreground text-center">Endring År 1 → År 2</p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <DeltaChip label="Energi" v1={result.totalEnergyKwhM2} v2={year2Result.totalEnergyKwhM2} unit="kWh/m²" />
-              <DeltaChip label="Kostnad" v1={result.annualCostNOK} v2={year2Result.annualCostNOK} unit="NOK" />
-              <DeltaChip label="Timer >26°C" v1={result.hoursAbove26} v2={year2Result.hoursAbove26} unit="t" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.8 }}>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="mb-2 text-xs font-semibold text-muted-foreground text-center">Endring År 1 → År 2</p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <DeltaChip label="Energi" v1={result.totalEnergyKwhM2} v2={year2Result.totalEnergyKwhM2} unit="kWh/m²" />
+                <DeltaChip label="Kostnad" v1={result.annualCostNOK} v2={year2Result.annualCostNOK} unit="NOK" />
+                <DeltaChip label="Timer >26°C" v1={result.hoursAbove26} v2={year2Result.hoursAbove26} unit="t" />
+              </div>
             </div>
-          </div>
-        </FadeIn>
+          </motion.div>
+        </div>
       )}
     </Section>
   );
@@ -468,13 +709,7 @@ function SliderField({
           {typeof value === "number" && value % 1 !== 0 ? value.toFixed(1) : value} {unit}
         </span>
       </div>
-      <Slider
-        value={[value]}
-        min={min}
-        max={max}
-        step={step}
-        onValueChange={([v]) => onChange(v)}
-      />
+      <Slider value={[value]} min={min} max={max} step={step} onValueChange={([v]) => onChange(v)} />
     </div>
   );
 }
@@ -491,46 +726,55 @@ function MiniBar({ label, value, max, color }: { label: string; value: number; m
   );
 }
 
-function SimResults({ result: r }: { result: ReturnType<typeof useSimResult> }) {
+function SimResults({ result: r, animate }: { result: ReturnType<typeof useSimResult>; animate?: boolean }) {
   const getEnergimerke = (v: number) => (v > 150 ? "D" : v > 130 ? "C" : v > 100 ? "B" : "A");
   const merke = getEnergimerke(r.totalEnergyKwhM2);
   const merkeColor = merke === "A" ? "text-vh-green" : merke === "B" ? "text-vh-green" : merke === "C" ? "text-vh-yellow" : "text-destructive";
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div className="rounded-xl border border-border bg-card p-5 text-center">
-        <p className="text-xs text-muted-foreground">Energibehov</p>
-        <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{Math.round(r.totalEnergyKwhM2)}</p>
-        <p className="text-xs text-muted-foreground">kWh/m²·år</p>
-        <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.exceedsTEK17 ? "bg-destructive/15 text-destructive" : "bg-vh-green/15 text-vh-green"}`}>
-          {r.exceedsTEK17 ? "Over TEK17" : "Under TEK17 ✅"}
-        </span>
-      </div>
-      <div className="rounded-xl border border-border bg-card p-5 text-center">
-        <p className="text-xs text-muted-foreground">Komfort</p>
-        <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{r.hoursAbove26}</p>
-        <p className="text-xs text-muted-foreground">timer over 26°C</p>
-        <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.hoursAbove26 > 50 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-vh-green/15 text-vh-green"}`}>
-          {r.hoursAbove26 > 50 ? "Overtemperatur" : "OK ✅"}
-        </span>
-      </div>
-      <div className="rounded-xl border border-border bg-card p-5 text-center">
-        <p className="text-xs text-muted-foreground">Energimerke</p>
-        <p className={`mt-1 text-5xl font-extrabold ${merkeColor}`}>{merke}</p>
-        <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${merke <= "B" ? "bg-vh-green/15 text-vh-green" : "bg-vh-yellow/15 text-vh-yellow"}`}>
-          {merke <= "B" ? "Grønt lån ✅" : "Krever forbedring"}
-        </span>
-      </div>
-      {/* Energy breakdown card */}
-      <div className="rounded-xl border border-border bg-card p-5">
-        <p className="text-xs text-muted-foreground text-center mb-3">Energifordeling</p>
-        <div className="space-y-1.5">
-          <MiniBar label="Oppvarming" value={r.heatingKwhM2} max={r.totalEnergyKwhM2} color="bg-destructive" />
-          <MiniBar label="Vifter" value={r.fansKwhM2} max={r.totalEnergyKwhM2} color="bg-vh-purple" />
-          <MiniBar label="Kjøling" value={r.coolingKwhM2} max={r.totalEnergyKwhM2} color="bg-primary" />
-          <MiniBar label="Annet" value={r.lightingKwhM2 + r.equipmentKwhM2 + r.dhwKwhM2} max={r.totalEnergyKwhM2} color="bg-muted-foreground" />
-        </div>
-      </div>
+      {[
+        <div key="energy" className={`rounded-xl border bg-card p-5 text-center ${r.exceedsTEK17 && animate ? "animate-pulse border-destructive" : "border-border"}`}>
+          <p className="text-xs text-muted-foreground">Energibehov</p>
+          <p className="mt-1 text-3xl font-bold font-mono tabular-nums">
+            {animate ? <AnimatedNumber value={Math.round(r.totalEnergyKwhM2)} /> : Math.round(r.totalEnergyKwhM2)}
+          </p>
+          <p className="text-xs text-muted-foreground">kWh/m²·år</p>
+          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.exceedsTEK17 ? "bg-destructive/15 text-destructive" : "bg-vh-green/15 text-vh-green"}`}>
+            {r.exceedsTEK17 ? "Over TEK17" : "Under TEK17 ✅"}
+          </span>
+        </div>,
+        <div key="comfort" className="rounded-xl border border-border bg-card p-5 text-center">
+          <p className="text-xs text-muted-foreground">Komfort</p>
+          <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{r.hoursAbove26}</p>
+          <p className="text-xs text-muted-foreground">timer over 26°C</p>
+          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.hoursAbove26 > 50 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-vh-green/15 text-vh-green"}`}>
+            {r.hoursAbove26 > 50 ? "Overtemperatur" : "OK ✅"}
+          </span>
+        </div>,
+        <div key="merke" className="rounded-xl border border-border bg-card p-5 text-center">
+          <p className="text-xs text-muted-foreground">Energimerke</p>
+          <p className={`mt-1 text-5xl font-extrabold ${merkeColor}`}>{merke}</p>
+          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${merke <= "B" ? "bg-vh-green/15 text-vh-green" : "bg-vh-yellow/15 text-vh-yellow"}`}>
+            {merke <= "B" ? "Grønt lån ✅" : "Krever forbedring"}
+          </span>
+        </div>,
+        <div key="breakdown" className="rounded-xl border border-border bg-card p-5">
+          <p className="text-xs text-muted-foreground text-center mb-3">Energifordeling</p>
+          <div className="space-y-1.5">
+            <MiniBar label="Oppvarming" value={r.heatingKwhM2} max={r.totalEnergyKwhM2} color="bg-destructive" />
+            <MiniBar label="Vifter" value={r.fansKwhM2} max={r.totalEnergyKwhM2} color="bg-vh-purple" />
+            <MiniBar label="Kjøling" value={r.coolingKwhM2} max={r.totalEnergyKwhM2} color="bg-primary" />
+            <MiniBar label="Annet" value={r.lightingKwhM2 + r.equipmentKwhM2 + r.dhwKwhM2} max={r.totalEnergyKwhM2} color="bg-muted-foreground" />
+          </div>
+        </div>,
+      ].map((card, i) => (
+        animate ? (
+          <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2, duration: 0.4 }}>
+            {card}
+          </motion.div>
+        ) : <div key={i}>{card}</div>
+      ))}
     </div>
   );
 }
@@ -547,7 +791,6 @@ function AdvancedSection() {
   const handleToggle = (key: keyof typeof toggles) => {
     const next = { ...toggles, [key]: !toggles[key] };
     setToggles(next);
-
     if (key === "wear") {
       if (!next.wear) {
         updateInput("heatRecoveryEff", baseEff);
@@ -578,9 +821,7 @@ function AdvancedSection() {
             key={t.key}
             onClick={() => handleToggle(t.key)}
             className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-all ${
-              toggles[t.key]
-                ? "border-primary bg-primary/15 text-primary"
-                : "border-border bg-card text-muted-foreground hover:border-primary/40"
+              toggles[t.key] ? "border-primary bg-primary/15 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40"
             }`}
           >
             {toggles[t.key] ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
@@ -592,13 +833,8 @@ function AdvancedSection() {
       <FadeIn className="mx-auto w-full max-w-2xl space-y-4">
         <SimResults result={result} />
 
-        {/* Seasonal monthly chart */}
         {toggles.seasons && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="rounded-xl border border-border bg-card p-5"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-border bg-card p-5">
             <p className="mb-3 text-sm font-semibold text-foreground">Månedlig energifordeling</p>
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
@@ -613,11 +849,7 @@ function AdvancedSection() {
         )}
 
         {toggles.simultaneous && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="rounded-xl border border-destructive/30 bg-destructive/5 p-5"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-destructive/30 bg-destructive/5 p-5">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               <div>
@@ -632,11 +864,7 @@ function AdvancedSection() {
         )}
 
         {toggles.wear && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="rounded-xl border border-vh-yellow/30 bg-vh-yellow/5 p-5"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-vh-yellow/30 bg-vh-yellow/5 p-5">
             <div className="flex items-center gap-3">
               <AlertTriangle className="h-5 w-5 text-vh-yellow" />
               <div>
@@ -653,40 +881,40 @@ function AdvancedSection() {
   );
 }
 
-/* ═══════ SECTION 6 — CTA ═══════ */
+/* ═══════ SECTION 6 — CTA (urgent, specific) ═══════ */
 function CTASection() {
   const navigate = useNavigate();
-
   const logos = ["Skanska", "Veidekke", "AF Gruppen", "Multiconsult", "Norconsult", "Sweco"];
 
   return (
     <Section>
-      <FadeIn className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">
-          Klar for å teste ditt eget prosjekt?
+      <FadeIn className="text-center max-w-2xl">
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
+          Hvert bygg du leverer uten simulering er et sjansespill
         </h2>
-        <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-          Last opp en funksjonsbeskrivelse eller kontakt oss for en demo.
+        <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
+          VirtualHouse har allerede funnet feil verdt <span className="font-bold text-foreground">NOK 12.4 millioner</span> i norske næringsbygg. Hva skjuler seg i ditt?
         </p>
 
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Button size="lg" onClick={() => navigate("/simulator")} className="gap-2 px-8 text-base">
-            Last opp funksjonsbeskrivelse
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-          <Button size="lg" variant="outline" onClick={() => window.location.href = "mailto:kontakt@virtualhouse.no"} className="px-8 text-base">
-            Kontakt oss
+        <div className="mt-10">
+          <Button
+            size="lg"
+            onClick={() => navigate("/simulator")}
+            className="w-full sm:w-auto gap-3 px-10 py-6 text-lg font-bold"
+          >
+            Test ditt prosjekt gratis
+            <ArrowRight className="h-5 w-5" />
           </Button>
         </div>
       </FadeIn>
 
       <FadeIn delay={0.3} className="mt-20">
-        <p className="mb-4 text-center text-xs text-muted-foreground">Brukt av ledende aktører i norsk bygg- og eiendom</p>
-        <div className="flex flex-wrap justify-center gap-4">
+        <p className="mb-6 text-center text-sm text-muted-foreground">Brukes av ingeniørteam hos:</p>
+        <div className="flex flex-wrap justify-center gap-6">
           {logos.map((name) => (
-            <div key={name} className="rounded-lg border border-border bg-card px-5 py-2.5">
-              <span className="text-sm font-medium text-muted-foreground">{name}</span>
-            </div>
+            <span key={name} className="text-lg font-bold text-foreground tracking-wide">
+              {name}
+            </span>
           ))}
         </div>
       </FadeIn>
