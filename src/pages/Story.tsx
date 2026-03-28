@@ -33,8 +33,8 @@ import LiveSystemDiagram from "@/components/LiveSystemDiagram";
 import TimelinePlayer from "@/components/TimelinePlayer";
 
 /* ───────── helpers ───────── */
-function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <section className={`relative flex flex-col items-center justify-center px-6 ${className}`}>{children}</section>;
+function Section({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
+  return <section id={id} className={`relative flex flex-col items-center justify-center px-6 ${className}`}>{children}</section>;
 }
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {

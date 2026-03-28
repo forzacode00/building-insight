@@ -87,11 +87,11 @@ export default function IsometricBuilding({
         <g clipPath={clipActive ? `url(#revealClip-${uid})` : undefined}>
           {/* === BUILDING SHELL === */}
           {/* Left wall */}
-          <path d={ISO_LEFT_WALL} fill="hsl(var(--primary))" fillOpacity="0.08" stroke="hsl(var(--border))" strokeWidth="1.5" />
+          <path d={ISO_LEFT_WALL} fill="hsl(var(--primary))" fillOpacity="0.18" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeOpacity="0.5" />
           {/* Roof */}
-          <path d={ISO_ROOF} fill="hsl(var(--primary))" fillOpacity="0.06" stroke="hsl(var(--border))" strokeWidth="1.5" />
+          <path d={ISO_ROOF} fill="hsl(var(--primary))" fillOpacity="0.14" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeOpacity="0.5" />
           {/* Right wall outline (cutaway — dashed) */}
-          <path d={ISO_RIGHT_WALL} fill="none" stroke="hsl(var(--border))" strokeWidth="1" strokeDasharray="4 4" />
+          <path d={ISO_RIGHT_WALL} fill="hsl(var(--primary))" fillOpacity="0.06" stroke="hsl(var(--primary))" strokeWidth="1.2" strokeOpacity="0.4" strokeDasharray="4 4" />
 
           {/* Floor lines inside cutaway */}
           {FLOORS.map((f, i) => (
