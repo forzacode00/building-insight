@@ -1416,7 +1416,7 @@ function FAQSection() {
   const faqs = [
     {
       q: "Hvor nøyaktig er simuleringen?",
-      a: "Motoren er basert på ISO 13790 forenklet timesmetode med 8 760 timers klimadata. For tidligfase kvalitetssikring gir dette 90-95% nøyaktighet sammenlignet med fullskala IDA-ICE-simulering — på en brøkdel av tiden.",
+      a: "Motoren er basert på ISO 13790 forenklet timesmetode med 8 760 timers klimadata (1991–2020 normaler). For tidligfase kvalitetssikring gir dette typisk ±10–20% avvik fra fullskala IDA-ICE/SIMIEN. Formålet er å fange systemkonflikter og dimensjoneringsfeil tidlig — ikke å erstatte den formelle NS 3031-beregningen.",
     },
     {
       q: "Kan jeg bruke dette på et reelt prosjekt?",
