@@ -495,21 +495,21 @@ function WowDemo() {
               animate={step >= 3 ? { opacity: 1, x: 0 } : {}}
               className="text-sm font-mono tabular-nums text-foreground"
             >
-              Energibehov: <span className="font-bold">138 kWh/m²·år</span>
+              År 1: <span className="font-bold">138 kWh/m²·år</span>
             </motion.p>
             <motion.p
               initial={{ opacity: 0, x: 20 }}
               animate={step >= 4 ? { opacity: 1, x: 0 } : {}}
               className="text-sm font-mono tabular-nums text-destructive font-bold"
             >
-              SFP: 1.8 — ⚠️ Over TEK17!
+              År 2: <span className="font-bold">152 kWh/m²·år</span> (+10%)
             </motion.p>
             <motion.p
               initial={{ opacity: 0, x: 20 }}
               animate={step >= 5 ? { opacity: 1, x: 0 } : {}}
               className="text-sm font-mono tabular-nums text-vh-yellow font-bold"
             >
-              42 000 kr/år bortkastet energi
+              ⚠ 3 fremtidige avvik forutsett
             </motion.p>
           </div>
         </div>
