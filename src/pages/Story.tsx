@@ -134,6 +134,9 @@ function HeroBuilding() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const avvikCount = Math.min(Math.round(progress * 5), 5);
+  const scanning = progress > 0 && progress < 1;
+
   return (
     <div className="relative w-full max-w-[520px]">
       <IsometricBuilding
@@ -144,12 +147,35 @@ function HeroBuilding() {
         revealProgress={progress}
         className="w-full"
       />
+
+      {/* Scanning status bar */}
+      {scanning && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute bottom-3 left-3 right-3 flex items-center gap-3 rounded-lg bg-card/90 border border-border px-3 py-2"
+        >
+          <div className="h-1.5 flex-1 rounded-full bg-secondary overflow-hidden">
+            <motion.div className="h-full rounded-full bg-primary" style={{ width: `${progress * 100}%` }} />
+          </div>
+          <span className="text-[10px] font-mono text-primary shrink-0">Analyserer systemer…</span>
+        </motion.div>
+      )}
+
+      {/* Live avvik counter during scan */}
+      {avvikCount > 0 && scanning && (
+        <div className="absolute top-3 left-3 rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1">
+          <span className="text-xs font-mono font-bold text-destructive">{avvikCount} avvik</span>
+        </div>
+      )}
+
+      {/* Final result badges */}
       <AnimatePresence>
         {progress >= 1 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-4 right-2 flex flex-col gap-1.5"
+            className="absolute top-3 right-2 flex flex-col gap-1.5"
           >
             <div className="rounded-lg border border-destructive/40 bg-card/90 px-2.5 py-1 text-xs font-semibold text-destructive">
               ⚠ SFP 1.8 — Over TEK17
@@ -158,7 +184,7 @@ function HeroBuilding() {
               ⚡ 42 000 kr/år energitap
             </div>
             <div className="rounded-lg border border-border bg-card/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-              📄 5 avvik funnet
+              5 fremtidige avvik forutsett
             </div>
           </motion.div>
         )}
