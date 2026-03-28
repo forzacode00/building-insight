@@ -2,7 +2,6 @@ import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
-  FileText,
   ChevronDown,
   Building2,
   GraduationCap,
@@ -16,10 +15,6 @@ import {
   Zap,
   ToggleLeft,
   ToggleRight,
-  TrendingUp,
-  TrendingDown,
-  Share2,
-  Copy,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -29,7 +24,6 @@ import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 import IsometricBuilding from "@/components/IsometricBuilding";
-import LiveSystemDiagram from "@/components/LiveSystemDiagram";
 import TimelinePlayer from "@/components/TimelinePlayer";
 
 /* ───────── helpers ───────── */
@@ -223,14 +217,6 @@ function PainBandSection() {
           <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
         </div>
       </FadeIn>
-      {/* Visual: system conflict illustration */}
-      <FadeIn delay={0.1} className="mx-auto mb-6 w-full max-w-2xl">
-        <div className="rounded-xl overflow-hidden border border-border">
-          <img src="/vh_conflict.png" alt="Systemkonflikt: varme og kjøling kolliderer" className="w-full h-auto" loading="lazy" />
-        </div>
-        <p className="mt-3 text-center text-sm text-primary font-semibold">VirtualHouse oppdager systemkonflikter før de koster millioner</p>
-      </FadeIn>
-
       {/* Kompakt timeline — vertikal, én kolonne */}
       <FadeIn delay={0.2} className="mx-auto flex w-full max-w-lg flex-col items-center gap-0">
         <div className="w-full rounded-xl border border-border bg-card p-5">
@@ -285,13 +271,6 @@ function TheFlipSection() {
         <p className="mt-3 text-muted-foreground">VirtualHouse simulerer samspillet mellom alle tekniske systemer — og forutser konflikter før de oppstår.</p>
       </FadeIn>
 
-      {/* Process flow visual */}
-      <FadeIn className="mx-auto mb-12 w-full max-w-3xl">
-        <div className="rounded-xl overflow-hidden border border-border">
-          <img src="/vh_process_flow.png" alt="Prosjektering → VirtualHouse → Verifisert" className="w-full h-auto" loading="lazy" />
-        </div>
-      </FadeIn>
-
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
         <FadeIn delay={0} className="w-full">
           <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
@@ -344,81 +323,7 @@ function TheFlipSection() {
         </FadeIn>
       </div>
 
-      {/* How it works — 3-step visual */}
-      <FadeIn delay={0.9} className="w-full">
-        <p className="mb-6 text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest">Slik fungerer det</p>
-        <HowItWorks />
-      </FadeIn>
     </Section>
-  );
-}
-
-/* ═══════ How It Works — 3-step visual process (DXC Input→Model→Output) ═══════ */
-function HowItWorks() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-50px" });
-
-  const steps = [
-    {
-      num: "01",
-      title: "Last opp",
-      desc: "Funksjonsbeskrivelse, systemskjema, eller manuell input",
-      icon: <FileText className="h-6 w-6" />,
-      color: "text-primary",
-      items: ["PDF-dokument", "VVS-parametre", "Bygningsdata"],
-    },
-    {
-      num: "02",
-      title: "Simuler",
-      desc: "ISO 13790-basert motor kjører 17 520 timer på sekunder",
-      icon: <Zap className="h-6 w-6" />,
-      color: "text-primary",
-      items: ["Tverrfaglig analyse", "Systemsamspill", "24-mnd prognose"],
-    },
-    {
-      num: "03",
-      title: "Forutse",
-      desc: "Fremtidige avvik, TEK17-sjekk, og konkrete tiltak",
-      icon: <AlertTriangle className="h-6 w-6" />,
-      color: "text-destructive",
-      items: ["Avviksrapport", "Health Score", "Systemkonflikter"],
-    },
-  ];
-
-  return (
-    <div ref={ref} className="mx-auto max-w-4xl">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {steps.map((s, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: i * 0.2, duration: 0.4 }}
-            className="rounded-xl border border-border bg-card p-5 relative"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">{s.num}</span>
-              <h3 className="text-base font-bold text-foreground">{s.title}</h3>
-            </div>
-            <p className="text-xs text-muted-foreground mb-3">{s.desc}</p>
-            <div className="space-y-1.5">
-              {s.items.map((item, j) => (
-                <div key={j} className="flex items-center gap-2 text-[10px]">
-                  <span className={`h-1 w-1 rounded-full ${i === 2 ? "bg-destructive" : "bg-primary"}`} />
-                  <span className="text-muted-foreground">{item}</span>
-                </div>
-              ))}
-            </div>
-            {/* Arrow to next step */}
-            {i < 2 && (
-              <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
-                <ArrowRight className="h-5 w-5 text-primary/40" />
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -567,109 +472,7 @@ function TimelinePlayerSection({ result, year2Result, input }: {
         totalMonths={24}
         onMonthChange={setTimeMonth}
       />
-      {/* Live building state at current timeline position */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">Bygningsstatus måned {Math.round(timeMonth)}</p>
-          <IsometricBuilding
-            heatingTemp={liveTemp}
-            sfpValue={liveSfp}
-            recoveryEff={liveRecovery}
-            coolingKw={liveCooling}
-            className="w-full max-w-[280px] mx-auto"
-          />
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">Systemstatus måned {Math.round(timeMonth)}</p>
-          <LiveSystemDiagram
-            heatingTemp={liveTemp}
-            sfpValue={liveSfp}
-            recoveryEff={liveRecovery}
-            coolingKw={liveCooling}
-            className="w-full max-w-[320px] mx-auto"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
 
-/* ═══════ Simulation Timeline (DXC-inspired) ═══════ */
-function SimTimeline({ result, year2Result }: { result: ReturnType<typeof useSimResult>; year2Result: ReturnType<typeof useSimResult> }) {
-  // Generate timeline events from simulation data
-  const events: Array<{ month: number; type: "critical" | "warning" | "info"; label: string }> = [];
-
-  // Find months where overheating occurs (summer)
-  result.monthlyKwh.forEach((_, i) => {
-    if (i >= 5 && i <= 8 && result.hoursAbove26 > 30) {
-      events.push({ month: i, type: "warning", label: "Overtemperatur" });
-    }
-  });
-
-  // TEK17 exceedance
-  if (result.exceedsTEK17) {
-    events.push({ month: 0, type: "critical", label: "Over TEK17-ramme" });
-  }
-  // SFP exceedance
-  if (result.sfpActual > 1.5) {
-    events.push({ month: 1, type: "critical", label: `SFP ${result.sfpActual.toFixed(1)}` });
-  }
-  // Year 2 degradation
-  events.push({ month: 12, type: "info", label: "Gjenvinner -6%" });
-  events.push({ month: 14, type: "warning", label: `SFP +15%` });
-  if (year2Result.exceedsTEK17 && !result.exceedsTEK17) {
-    events.push({ month: 18, type: "critical", label: "År 2: Over TEK17" });
-  }
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-5">
-      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Prediktiv tidslinje — 24 måneders fremtidssimulering</p>
-
-      {/* Timeline bar */}
-      <div className="relative">
-        {/* Track */}
-        <div className="h-2 rounded-full bg-secondary w-full" />
-        {/* Year 1 progress */}
-        <div className="absolute top-0 left-0 h-2 rounded-l-full bg-primary/40 w-1/2" />
-        {/* Year 2 progress (degraded) */}
-        <div className="absolute top-0 left-1/2 h-2 rounded-r-full bg-vh-yellow/30 w-1/2" />
-
-        {/* Event markers */}
-        {events.map((e, i) => (
-          <div
-            key={i}
-            className="absolute -top-1"
-            style={{ left: `${(e.month / 24) * 100}%` }}
-          >
-            <div className={`h-4 w-4 rounded-full border-2 border-card ${
-              e.type === "critical" ? "bg-destructive" : e.type === "warning" ? "bg-vh-yellow" : "bg-primary"
-            }`} style={{ filter: e.type === "critical" ? "drop-shadow(0 0 4px hsl(0, 84%, 60%))" : undefined }} />
-          </div>
-        ))}
-
-        {/* Year labels */}
-        <div className="flex justify-between mt-2">
-          <span className="text-[10px] text-muted-foreground">År 1</span>
-          <span className="text-[10px] text-muted-foreground">|År 2</span>
-          <span className="text-[10px] text-muted-foreground">24 mnd</span>
-        </div>
-      </div>
-
-      {/* Event list */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {events.map((e, i) => (
-          <span key={i} className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium ${
-            e.type === "critical" ? "bg-destructive/10 text-destructive" :
-            e.type === "warning" ? "bg-vh-yellow/10 text-vh-yellow" :
-            "bg-primary/10 text-primary"
-          }`}>
-            <span className={`h-1.5 w-1.5 rounded-full ${
-              e.type === "critical" ? "bg-destructive" : e.type === "warning" ? "bg-vh-yellow" : "bg-primary"
-            }`} />
-            mnd {e.month + 1}: {e.label}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -703,14 +506,36 @@ function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult
     },
   ];
 
-  const passCount = checks.filter(c => c.pass).length;
+  const climateChecks = [
+    {
+      label: "CO₂ (snitt)",
+      value: `${r.avgCO2ppm} ppm`,
+      limit: "≤ 800",
+      pass: r.avgCO2ppm <= 800,
+    },
+    {
+      label: "Timer >26°C",
+      value: `${r.hoursAbove26}`,
+      limit: "≤ 50",
+      pass: r.hoursAbove26 <= 50,
+    },
+    {
+      label: "RF vinter",
+      value: `${r.avgRHwinter}%`,
+      limit: "≥ 20%",
+      pass: r.avgRHwinter >= 20,
+    },
+  ];
+
+  const allChecks = [...checks, ...climateChecks];
+  const passCount = allChecks.filter(c => c.pass).length;
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">TEK17 Compliance</p>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${passCount === checks.length ? "bg-vh-green/15 text-vh-green" : "bg-destructive/15 text-destructive"}`}>
-          {passCount}/{checks.length} bestått
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">TEK17 & Inneklima</p>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${passCount === allChecks.length ? "bg-vh-green/15 text-vh-green" : "bg-destructive/15 text-destructive"}`}>
+          {passCount}/{allChecks.length} bestått
         </span>
       </div>
       <div className="space-y-2">
@@ -728,6 +553,26 @@ function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult
             </div>
           </div>
         ))}
+      </div>
+      {/* Inneklima (NS-EN 16798) */}
+      <div className="mt-4 pt-4 border-t border-border/50">
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Inneklima (NS-EN 16798)</p>
+        <div className="space-y-2">
+          {climateChecks.map((c, i) => (
+            <div key={i} className="flex items-center justify-between rounded-lg bg-secondary/30 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm ${c.pass ? "text-vh-green" : "text-destructive"}`}>
+                  {c.pass ? "✓" : "✗"}
+                </span>
+                <span className="text-sm text-foreground">{c.label}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono tabular-nums text-muted-foreground">{c.limit}</span>
+                <span className={`text-xs font-mono tabular-nums font-bold ${c.pass ? "text-vh-green" : "text-destructive"}`}>{c.value}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -852,45 +697,6 @@ function SystemConflicts({ result }: { result: ReturnType<typeof useSimResult> }
   );
 }
 
-/* ═══════ Share Results ═══════ */
-function ShareResults({ result, input }: { result: ReturnType<typeof useSimResult>; input: ReturnType<typeof useSimInput>["input"] }) {
-  const [copied, setCopied] = useState(false);
-  const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
-
-  const handleShare = async () => {
-    const text = `VirtualHouse simulering — ${buildingLabel} ${input.bra.toLocaleString("nb-NO")} m²
-
-Building Health Score: ${result.healthScore}/100
-Energibehov: ${Math.round(result.totalEnergyKwhM2)} kWh/m²·år
-TEK17: ${result.exceedsTEK17 ? "IKKE BESTÅTT" : "Bestått"}
-Avvik funnet: ${result.avvik.length}
-Årskostnad: NOK ${Math.round(result.annualCostNOK).toLocaleString("nb-NO")}
-
-Kjør din egen simulering: https://virtualhouse.no`;
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback
-    }
-  };
-
-  return (
-    <button
-      onClick={handleShare}
-      className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
-    >
-      {copied ? (
-        <><Copy className="h-4 w-4 text-vh-green" /> Kopiert til utklippstavlen</>
-      ) : (
-        <><Share2 className="h-4 w-4" /> Del simuleringsresultatene</>
-      )}
-    </button>
-  );
-}
-
 /* ═══════ SECTION 4 — Interactive Simulator ═══════ */
 function SimulatorSection() {
   const navigate = useNavigate();
@@ -1004,21 +810,14 @@ function SimulatorSection() {
               </div>
             </div>
 
-            {/* Right: live-reactive visualizations */}
-            <div className="flex flex-col items-center justify-center gap-4 order-first md:order-last">
+            {/* Right: live-reactive building */}
+            <div className="flex items-center justify-center order-first md:order-last">
               <IsometricBuilding
                 heatingTemp={input.heatingTurRetur[0]}
                 sfpValue={input.sfpDesign}
                 recoveryEff={input.heatRecoveryEff}
                 coolingKw={input.installedCooling}
-                className="w-full max-w-[360px]"
-              />
-              <LiveSystemDiagram
-                heatingTemp={input.heatingTurRetur[0]}
-                sfpValue={input.sfpDesign}
-                recoveryEff={input.heatRecoveryEff}
-                coolingKw={input.installedCooling}
-                className="max-w-[400px]"
+                className="w-full max-w-[380px]"
               />
             </div>
           </div>
@@ -1034,166 +833,183 @@ function SimulatorSection() {
 
       {/* results — Year 1 vs Year 2 with staggered reveal */}
       {simState === "done" && (
-        <div className="mx-auto mt-8 w-full max-w-4xl space-y-6">
-          {/* Report header */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-primary/30 bg-primary/5 p-5">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-primary">Prediktiv simuleringsrapport</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : "Sykehus"} · {input.bra.toLocaleString("nb-NO")} m² · {input.location.charAt(0).toUpperCase() + input.location.slice(1)} · 17 520 timer simulert
+        <div className="mx-auto mt-8 w-full max-w-4xl">
+
+          {/* ═══ Group 1: Immediate feedback ═══ */}
+          <div className="space-y-4">
+            {/* Report header */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-primary/30 bg-primary/5 p-5">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-primary">Prediktiv simuleringsrapport</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : "Sykehus"} · {input.bra.toLocaleString("nb-NO")} m² · {input.location.charAt(0).toUpperCase() + input.location.slice(1)} · 17 520 timer simulert
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${
+                    result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
+                  }`}>Score: {result.healthScore}/100</span>
+                  <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">{result.avvik.length} avvik</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* System Vitals Bar */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+              <div className="rounded-xl border border-border bg-card p-3">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                  {[
+                    { label: "SFP", value: result.sfpActual.toFixed(1), unit: "kW/(m³/s)", warn: result.sfpActual > 1.5 },
+                    { label: "GGV", value: `${Math.round(result.heatRecoveryActual * 100)}`, unit: "%", warn: result.heatRecoveryActual < 0.76 },
+                    { label: "CO₂", value: `${result.avgCO2ppm}`, unit: "ppm", warn: result.avgCO2ppm > 800 },
+                    { label: "RF", value: `${result.avgRHwinter}`, unit: "%", warn: result.avgRHwinter < 20 },
+                    { label: ">26°C", value: `${result.hoursAbove26}`, unit: "timer", warn: result.hoursAbove26 > 50 },
+                    { label: "CO₂e", value: `${result.co2Tonnes}`, unit: "tonn/år", warn: false },
+                  ].map((v, i) => (
+                    <div key={i} className="text-center">
+                      <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{v.label}</p>
+                      <p className={`text-lg font-extrabold font-mono tabular-nums ${v.warn ? "text-destructive" : "text-foreground"}`}>{v.value}</p>
+                      <p className="text-[8px] text-muted-foreground">{v.unit}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ═══ Group 2: Year comparison ═══ */}
+          <div className="border-t border-border/50 pt-8 mt-8 space-y-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <div className="rounded-xl border border-border bg-card/50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">År 1 vs År 2 (med slitasje)</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border/50">
+                        <th className="text-left py-2 pr-4 text-xs font-medium text-muted-foreground">Metrikk</th>
+                        <th className="text-right py-2 px-4 text-xs font-medium text-vh-green">År 1</th>
+                        <th className="text-right py-2 px-4 text-xs font-medium text-vh-yellow">År 2</th>
+                        <th className="text-right py-2 pl-4 text-xs font-medium text-muted-foreground">Δ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        {
+                          label: "Energibehov",
+                          v1: `${Math.round(result.totalEnergyKwhM2)} kWh/m²`,
+                          v2: `${Math.round(year2Result.totalEnergyKwhM2)} kWh/m²`,
+                          delta: Math.round(year2Result.totalEnergyKwhM2 - result.totalEnergyKwhM2),
+                          unit: "kWh/m²",
+                          worse: year2Result.totalEnergyKwhM2 > result.totalEnergyKwhM2,
+                        },
+                        {
+                          label: "Kostnad",
+                          v1: `${Math.round(result.annualCostNOK / 1000)}k NOK`,
+                          v2: `${Math.round(year2Result.annualCostNOK / 1000)}k NOK`,
+                          delta: Math.round((year2Result.annualCostNOK - result.annualCostNOK) / 1000),
+                          unit: "k",
+                          worse: year2Result.annualCostNOK > result.annualCostNOK,
+                        },
+                        {
+                          label: "Timer >26°C",
+                          v1: `${result.hoursAbove26}`,
+                          v2: `${year2Result.hoursAbove26}`,
+                          delta: year2Result.hoursAbove26 - result.hoursAbove26,
+                          unit: "",
+                          worse: year2Result.hoursAbove26 > result.hoursAbove26,
+                        },
+                        {
+                          label: "Energimerke",
+                          v1: result.totalEnergyKwhM2 > 150 ? "D" : result.totalEnergyKwhM2 > 130 ? "C" : result.totalEnergyKwhM2 > 100 ? "B" : "A",
+                          v2: year2Result.totalEnergyKwhM2 > 150 ? "D" : year2Result.totalEnergyKwhM2 > 130 ? "C" : year2Result.totalEnergyKwhM2 > 100 ? "B" : "A",
+                          delta: 0,
+                          unit: "",
+                          worse: year2Result.totalEnergyKwhM2 > result.totalEnergyKwhM2,
+                          isDelta: false,
+                        },
+                      ].map((row, i) => (
+                        <tr key={i} className="border-b border-border/30 last:border-0">
+                          <td className="py-2.5 pr-4 text-foreground font-medium">{row.label}</td>
+                          <td className="py-2.5 px-4 text-right font-mono tabular-nums text-foreground">{row.v1}</td>
+                          <td className="py-2.5 px-4 text-right font-mono tabular-nums text-foreground">{row.v2}</td>
+                          <td className={`py-2.5 pl-4 text-right font-mono tabular-nums font-bold ${
+                            row.worse ? "text-destructive" : "text-vh-green"
+                          }`}>
+                            {"isDelta" in row && row.isDelta === false
+                              ? (row.v1 !== row.v2 ? "↓" : "—")
+                              : `${row.delta > 0 ? "+" : ""}${row.delta}${row.unit}`
+                            }
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* ═══ Group 3: Compliance ═══ */}
+          <div className="border-t border-border/50 pt-8 mt-8 space-y-4">
+            <div className="grid gap-6 md:grid-cols-2">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+                <HealthScoreGauge score={result.healthScore} />
+              </motion.div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+                <TEK17ReportCard result={result} />
+              </motion.div>
+            </div>
+          </div>
+
+          {/* ═══ Group 4: Time ═══ */}
+          <div className="border-t border-border/50 pt-8 mt-8 space-y-4">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+              <div className="rounded-xl border border-transparent bg-card/50 p-5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">24-måneders energiprognose (år 1 + år 2 med slitasje)</p>
+                <div className="h-36">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      ...result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], yr1: Math.round(v), yr2: 0 })),
+                      ...year2Result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i] + "\u2019", yr1: 0, yr2: Math.round(v) })),
+                    ]}>
+                      <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 7 }} axisLine={false} tickLine={false} interval={1} />
+                      <Bar dataKey="yr1" fill="hsl(213, 52%, 63%)" radius={[2, 2, 0, 0]} name="År 1" />
+                      <Bar dataKey="yr2" fill="hsl(38, 92%, 55%)" radius={[2, 2, 0, 0]} name="År 2" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex justify-center gap-4 mt-2">
+                  <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm bg-primary" />År 1</span>
+                  <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm" style={{background: "hsl(38, 92%, 55%)"}} />År 2 (slitasje)</span>
+                </div>
+                <p className="mt-2 text-[10px] text-muted-foreground text-center">
+                  År 2 viser {Math.round(((year2Result.totalEnergyKwhM2 - result.totalEnergyKwhM2) / result.totalEnergyKwhM2) * 100)}% økning grunnet slitasje på gjenvinner (-6%) og ventilasjon (+15% SFP)
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                  result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
-                }`}>Score: {result.healthScore}/100</span>
-                <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">{result.avvik.length} avvik</span>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* System Vitals Bar (DXC-inspired) */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-            <div className="rounded-xl border border-border bg-card p-3">
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                {[
-                  { label: "SFP", value: result.sfpActual.toFixed(1), unit: "kW/(m³/s)", warn: result.sfpActual > 1.5 },
-                  { label: "GGV", value: `${Math.round(result.heatRecoveryActual * 100)}`, unit: "%", warn: result.heatRecoveryActual < 0.76 },
-                  { label: "CO₂", value: `${result.avgCO2ppm}`, unit: "ppm", warn: result.avgCO2ppm > 800 },
-                  { label: "RF", value: `${result.avgRHwinter}`, unit: "%", warn: result.avgRHwinter < 20 },
-                  { label: ">26°C", value: `${result.hoursAbove26}`, unit: "timer", warn: result.hoursAbove26 > 50 },
-                  { label: "CO₂e", value: `${result.co2Tonnes}`, unit: "tonn/år", warn: false },
-                ].map((v, i) => (
-                  <div key={i} className="text-center">
-                    <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{v.label}</p>
-                    <p className={`text-lg font-extrabold font-mono tabular-nums ${v.warn ? "text-destructive" : "text-foreground"}`}>{v.value}</p>
-                    <p className="text-[8px] text-muted-foreground">{v.unit}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="grid gap-6 md:grid-cols-2">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0 }}>
-              <h3 className="mb-3 text-center text-sm font-bold text-vh-green">År 1</h3>
-              <SimResults result={result} animate />
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
-              <h3 className="mb-3 text-center text-sm font-bold text-vh-yellow">År 2 <span className="font-normal text-muted-foreground">(med slitasje)</span></h3>
-              <SimResults result={year2Result} />
-            </motion.div>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.8 }}>
-            <div className="rounded-xl border border-border bg-card p-4">
-              <p className="mb-2 text-xs font-semibold text-muted-foreground text-center">Endring År 1 → År 2</p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <DeltaChip label="Energi" v1={result.totalEnergyKwhM2} v2={year2Result.totalEnergyKwhM2} unit="kWh/m²" />
-                <DeltaChip label="Kostnad" v1={result.annualCostNOK} v2={year2Result.annualCostNOK} unit="NOK" />
-                <DeltaChip label="Timer >26°C" v1={result.hoursAbove26} v2={year2Result.hoursAbove26} unit="t" />
-              </div>
-            </div>
-          </motion.div>
 
-          {/* Health Score + TEK17 side by side */}
-          <div className="grid gap-6 md:grid-cols-2">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.85 }}>
-              <HealthScoreGauge score={result.healthScore} />
-            </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.9 }}>
-              <TEK17ReportCard result={result} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
+              <TimelinePlayerSection result={result} year2Result={year2Result} input={input} />
             </motion.div>
           </div>
 
-          {/* Indoor Climate Card */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.95 }}>
-            <div className="rounded-xl border border-border bg-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">Inneklima (NS-EN 16798)</p>
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.avgCO2ppm > 800 ? "text-vh-yellow" : "text-vh-green"}`}>{result.avgCO2ppm}</p>
-                  <p className="text-[10px] text-muted-foreground">CO₂ ppm snitt</p>
-                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.avgCO2ppm <= 800 ? "Kategori II ✔" : "Over anbefalt"}</p>
-                </div>
-                <div>
-                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.hoursAbove26 > 50 ? "text-destructive" : "text-vh-green"}`}>{result.hoursAbove26}</p>
-                  <p className="text-[10px] text-muted-foreground">timer over 26°C</p>
-                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.hoursAbove26 <= 50 ? "Innenfor krav" : "Overtemperatur"}</p>
-                </div>
-                <div>
-                  <p className={`text-2xl font-extrabold font-mono tabular-nums ${result.avgRHwinter < 20 ? "text-vh-yellow" : "text-vh-green"}`}>{result.avgRHwinter}%</p>
-                  <p className="text-[10px] text-muted-foreground">RF vinter</p>
-                  <p className="text-[9px] text-muted-foreground mt-0.5">{result.avgRHwinter >= 20 ? "Akseptabelt" : "Tørr luft"}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          {/* ═══ Group 5: Problems ═══ */}
+          <div className="border-t border-border/50 pt-8 mt-8 space-y-4">
+            {result.avvik.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                <AvvikPreview avvik={result.avvik} />
+              </motion.div>
+            )}
 
-          {/* 24-month energy curve */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.95 }}>
-            <div className="rounded-xl border border-border bg-card p-5">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">24-måneders energiprognose (år 1 + år 2 med slitasje)</p>
-              <div className="h-36">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={[
-                    ...result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], yr1: Math.round(v), yr2: 0 })),
-                    ...year2Result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i] + "\u2019", yr1: 0, yr2: Math.round(v) })),
-                  ]}>
-                    <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 7 }} axisLine={false} tickLine={false} interval={1} />
-                    <Bar dataKey="yr1" fill="hsl(213, 52%, 63%)" radius={[2, 2, 0, 0]} name="År 1" />
-                    <Bar dataKey="yr2" fill="hsl(38, 92%, 55%)" radius={[2, 2, 0, 0]} name="År 2" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex justify-center gap-4 mt-2">
-                <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm bg-primary" />År 1</span>
-                <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm" style={{background: "hsl(38, 92%, 55%)"}} />År 2 (slitasje)</span>
-              </div>
-              <p className="mt-2 text-[10px] text-muted-foreground text-center">
-                År 2 viser {Math.round(((year2Result.totalEnergyKwhM2 - result.totalEnergyKwhM2) / result.totalEnergyKwhM2) * 100)}% økning grunnet slitasje på gjenvinner (-6%) og ventilasjon (+15% SFP)
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Interactive Timeline Player */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.05 }}>
-            <TimelinePlayerSection result={result} year2Result={year2Result} input={input} />
-          </motion.div>
-
-          {/* Avvik preview */}
-          {result.avvik.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.2 }}>
-              <AvvikPreview avvik={result.avvik} />
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
+              <SystemConflicts result={result} />
             </motion.div>
-          )}
+          </div>
 
-          {/* System Conflicts */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.35 }}>
-            <SystemConflicts result={result} />
-          </motion.div>
-
-          {/* Share results */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.4 }}>
-            <ShareResults result={result} input={input} />
-          </motion.div>
         </div>
       )}
     </Section>
-  );
-}
-
-function DeltaChip({ label, v1, v2, unit }: { label: string; v1: number; v2: number; unit: string }) {
-  const delta = v2 - v1;
-  const isWorse = delta > 0;
-  return (
-    <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs">
-      <span className="text-muted-foreground">{label}</span>
-      {isWorse ? <TrendingUp className="h-3 w-3 text-destructive" /> : <TrendingDown className="h-3 w-3 text-vh-green" />}
-      <span className={`font-mono font-bold tabular-nums ${isWorse ? "text-destructive" : "text-vh-green"}`}>
-        {delta > 0 ? "+" : ""}{Math.round(delta)} {unit}
-      </span>
-    </div>
   );
 }
 
@@ -1255,7 +1071,7 @@ function SimResults({ result: r, animate }: { result: ReturnType<typeof useSimRe
             {r.exceedsTEK17 ? "Over TEK17" : "Under TEK17 ✅"}
           </span>
         </div>,
-        <div key="comfort" className="rounded-xl border border-border bg-card p-5 text-center">
+        <div key="comfort" className="rounded-xl border border-transparent bg-card/50 p-5 text-center">
           <p className="text-xs text-muted-foreground">Komfort</p>
           <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{r.hoursAbove26}</p>
           <p className="text-xs text-muted-foreground">timer over 26°C</p>
@@ -1263,14 +1079,14 @@ function SimResults({ result: r, animate }: { result: ReturnType<typeof useSimRe
             {r.hoursAbove26 > 50 ? "Overtemperatur" : "OK ✅"}
           </span>
         </div>,
-        <div key="merke" className="rounded-xl border border-border bg-card p-5 text-center">
+        <div key="merke" className="rounded-xl border border-transparent bg-card/50 p-5 text-center">
           <p className="text-xs text-muted-foreground">Energimerke</p>
           <p className={`mt-1 text-5xl font-extrabold ${merkeColor}`}>{merke}</p>
           <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${merke <= "B" ? "bg-vh-green/15 text-vh-green" : "bg-vh-yellow/15 text-vh-yellow"}`}>
             {merke <= "B" ? "Grønt lån ✅" : "Krever forbedring"}
           </span>
         </div>,
-        <div key="breakdown" className="rounded-xl border border-border bg-card p-5">
+        <div key="breakdown" className="rounded-xl border border-transparent bg-card/50 p-5">
           <p className="text-xs text-muted-foreground text-center mb-3">Energifordeling</p>
           <div className="space-y-1.5">
             <MiniBar label="Oppvarming" value={r.heatingKwhM2} max={r.totalEnergyKwhM2} color="bg-destructive" />
@@ -1342,20 +1158,14 @@ function AdvancedSection() {
         ))}
       </FadeIn>
 
-      {/* Live system visualizations showing toggle effects */}
-      <FadeIn className="mx-auto mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl">
+      {/* Live building showing toggle effects */}
+      <FadeIn className="mx-auto mb-6 flex justify-center">
         <IsometricBuilding
           heatingTemp={toggles.wear ? 70 : input.heatingTurRetur[0]}
           sfpValue={toggles.wear ? input.sfpDesign * 1.15 : input.sfpDesign}
           recoveryEff={toggles.wear ? input.heatRecoveryEff * 0.94 : input.heatRecoveryEff}
           coolingKw={toggles.simultaneous ? input.installedCooling * 1.5 : input.installedCooling}
-          className="w-full"
-        />
-        <LiveSystemDiagram
-          heatingTemp={toggles.wear ? 70 : input.heatingTurRetur[0]}
-          sfpValue={toggles.wear ? input.sfpDesign * 1.15 : input.sfpDesign}
-          recoveryEff={toggles.wear ? input.heatRecoveryEff * 0.94 : input.heatRecoveryEff}
-          coolingKw={toggles.simultaneous ? input.installedCooling * 1.5 : input.installedCooling}
+          className="w-full max-w-sm"
         />
       </FadeIn>
 
