@@ -1355,14 +1355,20 @@ function AdvancedSection() {
         ))}
       </FadeIn>
 
-      {/* Live building showing toggle effects */}
-      <FadeIn className="mx-auto mb-6 flex justify-center">
+      {/* Live system visualizations showing toggle effects */}
+      <FadeIn className="mx-auto mb-6 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-3xl">
         <IsometricBuilding
           heatingTemp={toggles.wear ? 70 : input.heatingTurRetur[0]}
           sfpValue={toggles.wear ? input.sfpDesign * 1.15 : input.sfpDesign}
           recoveryEff={toggles.wear ? input.heatRecoveryEff * 0.94 : input.heatRecoveryEff}
           coolingKw={toggles.simultaneous ? input.installedCooling * 1.5 : input.installedCooling}
-          className="w-full max-w-[320px]"
+          className="w-full"
+        />
+        <LiveSystemDiagram
+          heatingTemp={toggles.wear ? 70 : input.heatingTurRetur[0]}
+          sfpValue={toggles.wear ? input.sfpDesign * 1.15 : input.sfpDesign}
+          recoveryEff={toggles.wear ? input.heatRecoveryEff * 0.94 : input.heatRecoveryEff}
+          coolingKw={toggles.simultaneous ? input.installedCooling * 1.5 : input.installedCooling}
         />
       </FadeIn>
 
