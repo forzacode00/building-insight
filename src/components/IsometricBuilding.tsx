@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { motion } from "framer-motion";
 
 function lerpColor(a: string, b: string, t: number): string {
@@ -58,6 +59,7 @@ export default function IsometricBuilding({
   const ventDuration = 3 - 1.8 * Math.max(0, Math.min(1, (sfpValue - 0.8) / 1.7));
   const ventParticles = Math.round(sfpValue * 2);
 
+  const uid = useId().replace(/:/g, "");
   const clipActive = revealProgress !== undefined && revealProgress < 1;
   const clipH = revealProgress !== undefined ? revealProgress * 380 : 380;
 
@@ -66,22 +68,22 @@ export default function IsometricBuilding({
       <svg viewBox="0 0 500 380" className="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
         <defs>
           {clipActive && (
-            <clipPath id="revealClip">
+            <clipPath id={`revealClip-${uid}`}>
               <rect x="0" y="0" width="500" height={clipH} />
             </clipPath>
           )}
-          <filter id="glowHeat">
+          <filter id={`glowHeat-${uid}`}>
             <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor={heatingColor} floodOpacity="0.6" />
           </filter>
-          <filter id="glowVent">
+          <filter id={`glowVent-${uid}`}>
             <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#3b82f6" floodOpacity="0.5" />
           </filter>
-          <filter id="glowCool">
+          <filter id={`glowCool-${uid}`}>
             <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="#60a5fa" floodOpacity="0.5" />
           </filter>
         </defs>
 
-        <g clipPath={clipActive ? "url(#revealClip)" : undefined}>
+        <g clipPath={clipActive ? `url(#revealClip-${uid})` : undefined}>
           {/* === BUILDING SHELL === */}
           {/* Left wall */}
           <path d={ISO_LEFT_WALL} fill="hsl(var(--primary))" fillOpacity="0.08" stroke="hsl(var(--border))" strokeWidth="1.5" />
@@ -105,13 +107,13 @@ export default function IsometricBuilding({
 
           {/* === HEATING SYSTEM === */}
           {/* Main vertical pipe */}
-          <path d={HEATING_MAIN_PATH} stroke={heatingColor} strokeWidth="3" fill="none" filter="url(#glowHeat)" strokeLinecap="round" />
+          <path d={HEATING_MAIN_PATH} stroke={heatingColor} strokeWidth="3" fill="none" filter={`url(#glowHeat-${uid})`} strokeLinecap="round" />
           {/* Horizontal branches + radiators per floor */}
           {FLOORS.map((f, i) => {
             const pipeY = f.y + 50;
             return (
               <g key={`heat-${i}`}>
-                <line x1="140" y1={pipeY} x2="230" y2={pipeY} stroke={heatingColor} strokeWidth="2" filter="url(#glowHeat)" />
+                <line x1="140" y1={pipeY} x2="230" y2={pipeY} stroke={heatingColor} strokeWidth="2" filter={`url(#glowHeat-${uid})`} />
                 {/* Radiator */}
                 <rect x="215" y={pipeY - 8} width="16" height="16" rx="2" fill={heatingColor} fillOpacity="0.7" stroke={heatingColor} strokeWidth="0.5" />
               </g>
@@ -123,7 +125,7 @@ export default function IsometricBuilding({
               key={`hp-${i}`}
               r={3}
               fill={heatingColor}
-              filter="url(#glowHeat)"
+              filter={`url(#glowHeat-${uid})`}
               style={{
                 offsetPath: `path('${HEATING_MAIN_PATH}')`,
                 offsetRotate: "0deg" as any,
@@ -137,7 +139,7 @@ export default function IsometricBuilding({
           {FLOORS.map((f, i) => (
             <g key={`vent-${i}`}>
               {/* Supply duct */}
-              <path d={ventDuctSupply(f.y)} stroke="#3b82f6" strokeWidth="2" strokeDasharray="6 3" fill="none" filter="url(#glowVent)" />
+              <path d={ventDuctSupply(f.y)} stroke="#3b82f6" strokeWidth="2" strokeDasharray="6 3" fill="none" filter={`url(#glowVent-${uid})`} />
               {/* Exhaust duct */}
               <path d={ventDuctExhaust(f.y)} stroke="#64748b" strokeWidth="1.5" strokeDasharray="6 3" fill="none" />
               {/* Vent particles */}
@@ -146,7 +148,7 @@ export default function IsometricBuilding({
                   key={`vp-${i}-${pi}`}
                   r={2}
                   fill="#3b82f6"
-                  filter="url(#glowVent)"
+                  filter={`url(#glowVent-${uid})`}
                   style={{
                     offsetPath: `path('${ventDuctSupply(f.y)}')`,
                     offsetRotate: "0deg" as any,
@@ -168,9 +170,9 @@ export default function IsometricBuilding({
           {FLOORS.map((f, i) => (
             <g key={`cool-${i}`}>
               {/* Left room baffle */}
-              <rect x="275" y={f.y + 5} width="30" height="6" rx="2" fill="#60a5fa" fillOpacity={coolingOpacity} filter="url(#glowCool)" />
+              <rect x="275" y={f.y + 5} width="30" height="6" rx="2" fill="#60a5fa" fillOpacity={coolingOpacity} filter={`url(#glowCool-${uid})`} />
               {/* Right room baffle */}
-              <rect x="365" y={f.y - 10} width="30" height="6" rx="2" fill="#60a5fa" fillOpacity={coolingOpacity} filter="url(#glowCool)" />
+              <rect x="365" y={f.y - 10} width="30" height="6" rx="2" fill="#60a5fa" fillOpacity={coolingOpacity} filter={`url(#glowCool-${uid})`} />
             </g>
           ))}
 
