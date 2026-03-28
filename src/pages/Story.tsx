@@ -13,8 +13,6 @@ import {
   ArrowRight,
   AlertTriangle,
   Zap,
-  ToggleLeft,
-  ToggleRight,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -24,7 +22,6 @@ import { useSimInput, useSimResult } from "@/lib/SimContext";
 import { runSimulation } from "@/lib/simulationEngine";
 import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 import IsometricBuilding from "@/components/IsometricBuilding";
-import TimelinePlayer from "@/components/TimelinePlayer";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
@@ -91,18 +88,8 @@ export default function Story() {
         <SiteNav />
         <HeroSection />
         <PainBandSection />
-        {/* Trust bar */}
-        <section className="w-full border-y border-border bg-card/50 py-6 px-6">
-          <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground mb-4">Bygget for norsk byggbransje</p>
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-2 opacity-[0.65]">
-            {["Totalentreprenører", "Rådgivende ingeniører", "Byggherrer", "Eiendomsforvaltere", "Kommuner"].map(s => (
-              <span key={s} className="text-xs font-medium text-muted-foreground">{s}</span>
-            ))}
-          </div>
-        </section>
         <TheFlipSection />
         <SimulatorSection />
-        <AdvancedSection />
         <FAQSection />
         <CTASection />
       </div>
@@ -217,36 +204,6 @@ function PainBandSection() {
           <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
         </div>
       </FadeIn>
-      {/* Kompakt timeline — vertikal, én kolonne */}
-      <FadeIn delay={0.2} className="mx-auto flex w-full max-w-lg flex-col items-center gap-0">
-        <div className="w-full rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-vh-green">Prosjektering</h3>
-            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 mnd</span>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">Varme, ventilasjon, kjøling og automasjon prosjekteres — ofte av ulike rådgivere.</p>
-        </div>
-        <div className="mx-auto my-1 h-6 w-px bg-border" />
-        <motion.div
-          className="w-full rounded-xl border-2 border-destructive/40 bg-secondary/90 p-6 relative overflow-hidden"
-          animate={{ boxShadow: ["0 0 20px -5px hsl(0, 84%, 60%, 0.2)", "0 0 40px -5px hsl(0, 84%, 60%, 0.4)", "0 0 20px -5px hsl(0, 84%, 60%, 0.2)"] }}
-          transition={{ duration: 3, repeat: Infinity }}
-        >
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-bold text-foreground">Bygging</h3>
-            <span className="rounded-full bg-destructive/15 px-3 py-1 text-xs font-bold text-destructive">12–18 mnd · 20–80 MNOK</span>
-          </div>
-          <p className="text-sm text-muted-foreground">...og du vet fortsatt ikke om det fungerer.</p>
-        </motion.div>
-        <div className="mx-auto my-1 h-6 w-px bg-border" />
-        <div className="w-full rounded-xl border border-destructive/40 bg-destructive/5 p-5">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-destructive">Testing</h3>
-            <span className="rounded-full bg-destructive/10 px-3 py-1 text-xs font-bold text-destructive">???</span>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">Fungerer det? Først NÅ kan vi teste.</p>
-        </div>
-      </FadeIn>
     </section>
   );
 }
@@ -265,25 +222,14 @@ function TheFlipSection() {
   }, [inView]);
 
   return (
-    <Section className="min-h-screen py-24">
+    <Section className="py-24">
       <FadeIn className="mb-10 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne se fremtiden?</h2>
-        <p className="mt-3 text-muted-foreground">VirtualHouse simulerer samspillet mellom alle tekniske systemer — og forutser konflikter før de oppstår.</p>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">VirtualHouse simulerer samspillet mellom alle tekniske systemer — og forutser konflikter før de oppstår.</p>
       </FadeIn>
 
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4 mb-14">
-        <FadeIn delay={0} className="w-full">
-          <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-vh-green">Prosjektering</h3>
-              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 måneder</span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">Samme grundige design — men nå med digital tvilling.</p>
-          </div>
-          <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
-        </FadeIn>
-
-        <FadeIn delay={0.25} className="w-full">
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6">
+        <FadeIn delay={0.2} className="w-full">
           <motion.div
             ref={transformRef}
             className="rounded-xl border p-6"
@@ -299,22 +245,11 @@ function TheFlipSection() {
                 {timeText}
               </motion.span>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">3 minutter. Alle systemer simulert sammen — slik de faktisk opererer.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Alle systemer simulert sammen — slik de faktisk opererer.</p>
           </motion.div>
-          <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
         </FadeIn>
 
-        <FadeIn delay={0.5} className="w-full">
-          <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-vh-green">Verifisert resultat</h3>
-              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">✅ Bekreftet</span>
-            </div>
-            <p className="mt-2 text-sm text-muted-foreground">Du VET at det fungerer. Før første spiker.</p>
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.7} className="mt-6 text-center">
+        <FadeIn delay={0.5} className="text-center">
           <div className="inline-flex items-center gap-3 rounded-full border border-primary/30 bg-primary/5 px-5 py-2">
             <span className="text-sm text-muted-foreground line-through">18 måneder</span>
             <ArrowRight className="h-4 w-4 text-primary" />
@@ -322,7 +257,6 @@ function TheFlipSection() {
           </div>
         </FadeIn>
       </div>
-
     </Section>
   );
 }
@@ -438,45 +372,6 @@ function HealthScoreGauge({ score }: { score: number }) {
 }
 
 /* ═══════ Timeline Player Section (interactive time-travel) ═══════ */
-function TimelinePlayerSection({ result, year2Result, input }: {
-  result: ReturnType<typeof useSimResult>;
-  year2Result: ReturnType<typeof useSimResult>;
-  input: ReturnType<typeof useSimInput>["input"];
-}) {
-  const [timeMonth, setTimeMonth] = useState(0);
-
-  // Interpolate building parameters based on timeline position
-  const degradationT = Math.max(0, Math.min(1, (timeMonth - 12) / 12)); // 0 in year 1, 0→1 in year 2
-  const liveTemp = input.heatingTurRetur[0] + degradationT * 5; // temp drifts up
-  const liveSfp = input.sfpDesign * (1 + degradationT * 0.15);
-  const liveRecovery = input.heatRecoveryEff * (1 - degradationT * 0.06);
-  const liveCooling = input.installedCooling;
-
-  // Generate events from simulation
-  const events: Array<{ month: number; type: "critical" | "warning" | "info"; label: string }> = [];
-  if (result.exceedsTEK17) events.push({ month: 0, type: "critical", label: "Over TEK17-ramme" });
-  if (result.sfpActual > 1.5) events.push({ month: 1, type: "critical", label: `SFP ${result.sfpActual.toFixed(1)}` });
-  if (result.hoursAbove26 > 30) {
-    [5, 6, 7].forEach(m => events.push({ month: m, type: "warning", label: "Overtemperatur" }));
-  }
-  events.push({ month: 12, type: "info", label: "Gjenvinner -6%" });
-  events.push({ month: 14, type: "warning", label: "SFP +15%" });
-  if (year2Result.exceedsTEK17 && !result.exceedsTEK17) {
-    events.push({ month: 18, type: "critical", label: "År 2: Over TEK17" });
-  }
-
-  return (
-    <div className="space-y-4">
-      <TimelinePlayer
-        events={events}
-        totalMonths={24}
-        onMonthChange={setTimeMonth}
-      />
-
-    </div>
-  );
-}
-
 /* ═══════ TEK17 Report Card ═══════ */
 function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult> }) {
   const checks = [
@@ -983,9 +878,6 @@ function SimulatorSection() {
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.15 }}>
-              <TimelinePlayerSection result={result} year2Result={year2Result} input={input} />
-            </motion.div>
           </div>
 
           {/* ═══ Group 5: Problems ═══ */}
@@ -1046,197 +938,10 @@ function SliderField({
   );
 }
 
-function MiniBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
-  return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="w-20 text-right text-muted-foreground">{label}</span>
-      <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
-        <div className={`h-full rounded-full ${color}`} style={{ width: `${(value / max) * 100}%` }} />
-      </div>
-      <span className="w-8 font-mono tabular-nums text-muted-foreground">{Math.round(value)}</span>
-    </div>
-  );
-}
-
-function SimResults({ result: r, animate }: { result: ReturnType<typeof useSimResult>; animate?: boolean }) {
-  const getEnergimerke = (v: number) => (v > 150 ? "D" : v > 130 ? "C" : v > 100 ? "B" : "A");
-  const merke = getEnergimerke(r.totalEnergyKwhM2);
-  const merkeColor = merke === "A" ? "text-vh-green" : merke === "B" ? "text-vh-green" : merke === "C" ? "text-vh-yellow" : "text-destructive";
-
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {[
-        <div key="energy" className={`rounded-xl border bg-card p-5 text-center ${r.exceedsTEK17 ? "border-destructive" : "border-border"}`}>
-          <p className="text-xs text-muted-foreground">Energibehov</p>
-          <p className="mt-1 text-3xl font-bold font-mono tabular-nums">
-            {animate ? <AnimatedNumber value={Math.round(r.totalEnergyKwhM2)} /> : Math.round(r.totalEnergyKwhM2)}
-          </p>
-          <p className="text-xs text-muted-foreground">kWh/m²·år</p>
-          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.exceedsTEK17 ? "bg-destructive/15 text-destructive" : "bg-vh-green/15 text-vh-green"}`}>
-            {r.exceedsTEK17 ? "Over TEK17" : "Under TEK17 ✅"}
-          </span>
-        </div>,
-        <div key="comfort" className="rounded-xl border border-transparent bg-card/50 p-5 text-center">
-          <p className="text-xs text-muted-foreground">Komfort</p>
-          <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{r.hoursAbove26}</p>
-          <p className="text-xs text-muted-foreground">timer over 26°C</p>
-          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${r.hoursAbove26 > 50 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-vh-green/15 text-vh-green"}`}>
-            {r.hoursAbove26 > 50 ? "Overtemperatur" : "OK ✅"}
-          </span>
-        </div>,
-        <div key="merke" className="rounded-xl border border-transparent bg-card/50 p-5 text-center">
-          <p className="text-xs text-muted-foreground">Energimerke</p>
-          <p className={`mt-1 text-5xl font-extrabold ${merkeColor}`}>{merke}</p>
-          <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${merke <= "B" ? "bg-vh-green/15 text-vh-green" : "bg-vh-yellow/15 text-vh-yellow"}`}>
-            {merke <= "B" ? "Grønt lån ✅" : "Krever forbedring"}
-          </span>
-        </div>,
-        <div key="breakdown" className="rounded-xl border border-transparent bg-card/50 p-5">
-          <p className="text-xs text-muted-foreground text-center mb-3">Energifordeling</p>
-          <div className="space-y-1.5">
-            <MiniBar label="Oppvarming" value={r.heatingKwhM2} max={r.totalEnergyKwhM2} color="bg-destructive" />
-            <MiniBar label="Vifter" value={r.fansKwhM2} max={r.totalEnergyKwhM2} color="bg-vh-purple" />
-            <MiniBar label="Kjøling" value={r.coolingKwhM2} max={r.totalEnergyKwhM2} color="bg-primary" />
-            <MiniBar label="Annet" value={r.lightingKwhM2 + r.equipmentKwhM2 + r.dhwKwhM2} max={r.totalEnergyKwhM2} color="bg-muted-foreground" />
-          </div>
-        </div>,
-      ].map((card, i) => (
-        animate ? (
-          <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2, duration: 0.4 }}>
-            {card}
-          </motion.div>
-        ) : <div key={i}>{card}</div>
-      ))}
-    </div>
-  );
-}
-
-/* ═══════ SECTION 5 — Advanced insights ═══════ */
-function AdvancedSection() {
-  const { input, updateInput } = useSimInput();
-  const result = useSimResult();
-  const [toggles, setToggles] = useState({ seasons: false, wear: false, simultaneous: false });
-
-  // Lagre brukerens opprinnelige verdier (ikke hardkodet)
-  const baseEffRef = useRef(input.heatRecoveryEff);
-  const baseSfpRef = useRef(input.sfpDesign);
-
-  const handleToggle = (key: keyof typeof toggles) => {
-    const next = { ...toggles, [key]: !toggles[key] };
-    setToggles(next);
-    if (key === "wear") {
-      if (!next.wear) {
-        updateInput("heatRecoveryEff", baseEffRef.current);
-        updateInput("sfpDesign", baseSfpRef.current);
-      } else {
-        updateInput("heatRecoveryEff", baseEffRef.current * 0.94);
-        updateInput("sfpDesign", baseSfpRef.current * 1.15);
-      }
-    }
-  };
-
-  const monthlyData = result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v) }));
-
-  return (
-    <Section className="py-20" id="avvik">
-      <FadeIn className="mb-10 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Men bygget ditt lever ikke i et laboratorium</h2>
-        <p className="mt-3 text-muted-foreground">Simuleringen viser ideelle forhold. Virkeligheten bringer slitasje, årstider og uforutsette belastninger — se hva som skjer når vi simulerer det også.</p>
-      </FadeIn>
-
-      <FadeIn className="mx-auto mb-8 flex flex-wrap justify-center gap-3">
-        {([
-          { key: "seasons" as const, label: "Årstidsvariasjoner" },
-          { key: "wear" as const, label: "Slitasje over 2 år" },
-          { key: "simultaneous" as const, label: "Samtidig varme/kjøle" },
-        ]).map((t) => (
-          <button
-            key={t.key}
-            onClick={() => handleToggle(t.key)}
-            className={`flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-medium transition-all ${
-              toggles[t.key] ? "border-primary bg-primary/15 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40"
-            }`}
-          >
-            {toggles[t.key] ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
-            {t.label}
-          </button>
-        ))}
-      </FadeIn>
-
-      {/* Live building showing toggle effects */}
-      <FadeIn className="mx-auto mb-6 flex justify-center">
-        <IsometricBuilding
-          heatingTemp={toggles.wear ? 70 : input.heatingTurRetur[0]}
-          sfpValue={toggles.wear ? input.sfpDesign * 1.15 : input.sfpDesign}
-          recoveryEff={toggles.wear ? input.heatRecoveryEff * 0.94 : input.heatRecoveryEff}
-          coolingKw={toggles.simultaneous ? input.installedCooling * 1.5 : input.installedCooling}
-          className="w-full max-w-sm"
-        />
-      </FadeIn>
-
-      <FadeIn className="mx-auto w-full max-w-2xl space-y-4">
-        <SimResults result={result} />
-
-        {toggles.seasons && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-border bg-card p-5">
-            <p className="mb-3 text-sm font-semibold text-foreground">Månedlig energifordeling</p>
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthlyData}>
-                  <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Bar dataKey="kwh" fill="hsl(213, 52%, 63%)" radius={[3, 3, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">Vintermånedene bruker opptil 3× mer energi enn sommeren — drevet av oppvarmingsbehov.</p>
-          </motion.div>
-        )}
-
-        {toggles.simultaneous && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-destructive/30 bg-destructive/5 p-5">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              <div>
-                <p className="text-sm font-semibold text-destructive">Samtidig varme og kjøling</p>
-                <p className="text-xs text-muted-foreground">
-                  Systemet varmer og kjøler samtidig i mellomsesongen. Estimert sløsing:{" "}
-                  <span className="font-bold text-destructive">NOK {Math.round(Math.min(result.coolingKwhM2, result.heatingKwhM2) * input.bra * 1.33 * 0.15).toLocaleString("nb-NO")}/år</span>.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {toggles.wear && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="rounded-xl border border-vh-yellow/30 bg-vh-yellow/5 p-5">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-vh-yellow" />
-              <div>
-                <p className="text-sm font-semibold text-vh-yellow">Slitasje-effekt</p>
-                <p className="text-xs text-muted-foreground">
-                  Gjenvinner virkningsgrad redusert med 6%. SFP økt med 15%. Energibehovet stiger tilsvarende.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </FadeIn>
-    </Section>
-  );
-}
-
 /* ═══════ FAQ / Objection Handling ═══════ */
 function FAQSection() {
   const [open, setOpen] = useState<number | null>(null);
   const faqs = [
-    {
-      q: "Hvor nøyaktig er simuleringen?",
-      a: "Motoren er basert på ISO 13790 forenklet timesmetode med 8 760 timers klimadata (1991–2020 normaler). For tidligfase kvalitetssikring gir dette typisk ±10–20% avvik fra fullskala IDA-ICE/SIMIEN. Formålet er å fange systemkonflikter og dimensjoneringsfeil tidlig — ikke å erstatte den formelle NS 3031-beregningen.",
-    },
-    {
-      q: "Kan jeg bruke dette på et reelt prosjekt?",
-      a: "Ja. Last opp en funksjonsbeskrivelse i PDF eller bruk manuell input. VirtualHouse analyserer systemoppbygning, dimensjonering og regulering — og genererer en avviksrapport med NS 3451-koder som kan legges rett inn i prosjektets kvalitetssystem.",
-    },
     {
       q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?",
       a: "SIMIEN og IDA-ICE er detaljerte energisimuleringsprogram for NS 3031-beregninger. VirtualHouse er et kvalitetssikringsverktøy som kjører på minutter, ikke uker. Vi erstatter ikke energiberegningen — vi fanger feil før den starter.",
@@ -1246,12 +951,8 @@ function FAQSection() {
       a: "Fra 4 900 kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er 12 900 kr/mnd. Enterprise-avtaler for portefolio — kontakt oss.",
     },
     {
-      q: "Trenger jeg teknisk kompetanse for å bruke det?",
-      a: "Grunnleggende VVS-forståelse er en fordel, men ikke et krav. Simulatoren veileder deg gjennom parametrene, og resultatene presenteres med klare anbefalt/ikke-anbefalt-indikatorer.",
-    },
-    {
-      q: "Hvilke standarder og referanser brukes?",
-      a: "Beregningsmetode: ISO 13790 forenklet timesmetode. Klimadata: met.no 1991–2020 normaler. Energiramme: TEK17 §14-2. SFP-krav: TEK17 §14-2. Inneklima: NS-EN 16798-1:2019. Systemklassifisering: NS 3451:2022. CO₂-faktor: NVE 2024 (norsk nett). Alle beregninger med 8 760 timers oppløsning.",
+      q: "Kan jeg bruke dette på et reelt prosjekt?",
+      a: "Ja. Last opp en funksjonsbeskrivelse i PDF eller bruk manuell input. VirtualHouse analyserer systemoppbygning, dimensjonering og regulering — og genererer en avviksrapport med NS 3451-koder som kan legges rett inn i prosjektets kvalitetssystem.",
     },
   ];
 
@@ -1332,13 +1033,6 @@ function CTASection() {
           </FadeIn>
         );
       })()}
-
-      {/* Before/After visual */}
-      <FadeIn className="mx-auto mb-10 w-full max-w-2xl">
-        <div className="rounded-xl overflow-hidden border border-border">
-          <img src="/vh_before_after.png" alt="Uten simulering vs med VirtualHouse" className="w-full h-auto" loading="lazy" />
-        </div>
-      </FadeIn>
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
