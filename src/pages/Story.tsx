@@ -259,9 +259,9 @@ function PainBandSection() {
   return (
     <section className="relative w-full px-6 py-16 flex flex-col items-center">
       {/* 3 smertestats i rad */}
-      <FadeIn className="mx-auto mb-12 grid w-full max-w-3xl grid-cols-3 gap-6 text-center">
+      <FadeIn className="mx-auto mb-4 grid w-full max-w-3xl grid-cols-1 sm:grid-cols-3 gap-6 text-center">
         <div>
-          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">30%</p>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive"><AnimatedNumber value={30} />%</p>
           <p className="mt-2 text-sm text-muted-foreground">av VVS-anlegg fungerer ikke som planlagt</p>
         </div>
         <div>
@@ -272,6 +272,9 @@ function PainBandSection() {
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–12 mnd</p>
           <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
         </div>
+      </FadeIn>
+      <FadeIn delay={0.1} className="mx-auto mb-12 text-center">
+        <p className="text-sm text-primary font-semibold">VirtualHouse forutser disse problemene — før de koster deg millioner.</p>
       </FadeIn>
 
       {/* Kompakt timeline — vertikal, én kolonne */}
