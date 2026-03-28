@@ -1057,20 +1057,35 @@ function CTASection() {
   return (
     <Section className="py-24">
       {/* Personalized summary — only if simulation has been run */}
-      {hasResult && (
-        <FadeIn className="mx-auto mb-10 w-full max-w-lg rounded-xl border border-primary/30 bg-primary/5 px-6 py-5 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-2">Din simulering</p>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-bold text-foreground">{buildingLabel}</span> · {input.bra.toLocaleString("nb-NO")} m² ·{" "}
-            Energibehov <span className="font-bold text-foreground">{Math.round(result.totalEnergyKwhM2)} kWh/m²·år</span>
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Estimert årlig energikostnad:{" "}
-            <span className="font-bold text-destructive">NOK {Math.round(result.annualCostNOK).toLocaleString("nb-NO")}</span>
-            {result.exceedsTEK17 ? " — Over TEK17-grense ⚠" : " — Under TEK17 ✅"}
-          </p>
-        </FadeIn>
-      )}
+      {hasResult && (() => {
+        const savingsLow = Math.round(result.annualCostNOK * 0.15);
+        const savingsHigh = Math.round(result.annualCostNOK * 0.25);
+        return (
+          <FadeIn className="mx-auto mb-10 w-full max-w-lg rounded-xl border border-primary/30 bg-primary/5 px-6 py-5 text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Din simulering — {buildingLabel} {input.bra.toLocaleString("nb-NO")} m²</p>
+            <div className="grid grid-cols-3 gap-4 mb-4">
+              <div>
+                <p className="text-2xl font-extrabold font-mono tabular-nums text-foreground">{Math.round(result.totalEnergyKwhM2)}</p>
+                <p className="text-[10px] text-muted-foreground">kWh/m²·år</p>
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold font-mono tabular-nums text-foreground">{result.healthScore}</p>
+                <p className="text-[10px] text-muted-foreground">Health Score</p>
+              </div>
+              <div>
+                <p className="text-2xl font-extrabold font-mono tabular-nums text-destructive">{result.avvik.length}</p>
+                <p className="text-[10px] text-muted-foreground">avvik funnet</p>
+              </div>
+            </div>
+            <div className="rounded-lg bg-primary/10 px-4 py-3">
+              <p className="text-xs text-muted-foreground">Estimert besparelse med VirtualHouse-optimalisering:</p>
+              <p className="text-lg font-bold text-primary mt-1">
+                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år
+              </p>
+            </div>
+          </FadeIn>
+        );
+      })()}
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
@@ -1086,9 +1101,9 @@ function CTASection() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Enterprise eller storvolum?{" "}
+          Fra <span className="font-bold text-foreground">4 900 kr/mnd</span> · Enterprise eller storvolum?{" "}
           <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
-            Kontakt oss for skreddersydd onboarding
+            Kontakt oss
           </a>
         </p>
       </FadeIn>
