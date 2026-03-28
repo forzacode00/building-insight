@@ -1124,16 +1124,21 @@ function SimulatorSection() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.95 }}>
             <div className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-3">24-måneders energiprognose (år 1 + år 2 med slitasje)</p>
-              <div className="h-32">
+              <div className="h-36">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={[
-                    ...result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v), type: "År 1" })),
-                    ...year2Result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i] + "'", kwh: Math.round(v), type: "År 2" })),
+                    ...result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], yr1: Math.round(v), yr2: 0 })),
+                    ...year2Result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i] + "\u2019", yr1: 0, yr2: Math.round(v) })),
                   ]}>
-                    <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 8 }} axisLine={false} tickLine={false} interval={1} />
-                    <Bar dataKey="kwh" fill="hsl(213, 52%, 63%)" radius={[2, 2, 0, 0]} />
+                    <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 7 }} axisLine={false} tickLine={false} interval={1} />
+                    <Bar dataKey="yr1" fill="hsl(213, 52%, 63%)" radius={[2, 2, 0, 0]} name="År 1" />
+                    <Bar dataKey="yr2" fill="hsl(38, 92%, 55%)" radius={[2, 2, 0, 0]} name="År 2" />
                   </BarChart>
                 </ResponsiveContainer>
+              </div>
+              <div className="flex justify-center gap-4 mt-2">
+                <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm bg-primary" />År 1</span>
+                <span className="flex items-center gap-1.5 text-[9px] text-muted-foreground"><span className="h-2 w-2 rounded-sm" style={{background: "hsl(38, 92%, 55%)"}} />År 2 (slitasje)</span>
               </div>
               <p className="mt-2 text-[10px] text-muted-foreground text-center">
                 År 2 viser {Math.round(((year2Result.totalEnergyKwhM2 - result.totalEnergyKwhM2) / result.totalEnergyKwhM2) * 100)}% økning grunnet slitasje på gjenvinner (-6%) og ventilasjon (+15% SFP)
