@@ -236,6 +236,22 @@ function HeroSection() {
 
               <HeroBuilding />
 
+              {/* What you get — instant value preview */}
+              <div className="mt-6 grid grid-cols-3 gap-3 w-full max-w-md mx-auto">
+                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+                  <p className="text-lg font-extrabold font-mono text-primary">24</p>
+                  <p className="text-[9px] text-muted-foreground">måneders prognose</p>
+                </div>
+                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+                  <p className="text-lg font-extrabold font-mono text-destructive">5+</p>
+                  <p className="text-[9px] text-muted-foreground">prediktive avvik</p>
+                </div>
+                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
+                  <p className="text-lg font-extrabold font-mono text-vh-green">TEK17</p>
+                  <p className="text-[9px] text-muted-foreground">compliance sjekk</p>
+                </div>
+              </div>
+
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Button size="lg" onClick={() => {
                   document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
