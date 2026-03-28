@@ -1585,6 +1585,13 @@ function CTASection() {
         );
       })()}
 
+      {/* Before/After visual */}
+      <FadeIn className="mx-auto mb-10 w-full max-w-2xl">
+        <div className="rounded-xl overflow-hidden border border-border">
+          <img src="/vh_before_after.png" alt="Uten simulering vs med VirtualHouse" className="w-full h-auto" loading="lazy" />
+        </div>
+      </FadeIn>
+
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
           Hvert bygg har fremtidige avvik. Spørsmålet er om du finner dem nå — eller etter overlevering
