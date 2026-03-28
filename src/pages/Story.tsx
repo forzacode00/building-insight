@@ -1417,7 +1417,16 @@ function CTASection() {
           ))}
         </div>
       </FadeIn>
-      <div className="mt-12 text-center text-xs text-muted-foreground/50">VirtualHouse™ Investor Demo — v1.0</div>
+      <footer className="mt-16 w-full border-t border-border pt-8 pb-4">
+        <div className="mx-auto max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <span className="font-bold text-foreground">VirtualHouse</span>
+          <div className="flex gap-6">
+            <a href="mailto:post@virtualhouse.no" className="hover:text-foreground transition-colors">post@virtualhouse.no</a>
+            <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="hover:text-foreground transition-colors">virtualhouse.no</a>
+          </div>
+          <span>© {new Date().getFullYear()} VirtualHouse AS</span>
+        </div>
+      </footer>
     </Section>
   );
 }
