@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import {
@@ -18,11 +18,15 @@ import {
   Zap,
   ToggleLeft,
   ToggleRight,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
+import { runSimulation } from "@/lib/simulationEngine";
+import { ResponsiveContainer, BarChart, Bar, XAxis } from "recharts";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -44,6 +48,8 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
     </motion.div>
   );
 }
+
+const MONTH_LABELS = ["Jan","Feb","Mar","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Des"];
 
 const buildingTypes = [
   { id: "kontor", label: "Kontor", icon: Building2, bra: 6000 },
@@ -201,8 +207,19 @@ function ProblemSection() {
   );
 }
 
-/* ═══════ SECTION 3 — Solution ═══════ */
+/* ═══════ SECTION 3 — Solution (animated transformation) ═══════ */
 function SolutionSection() {
+  const transformRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(transformRef, { once: true, margin: "-100px" });
+  const [timeText, setTimeText] = useState("12–18 mnd");
+
+  useEffect(() => {
+    if (inView) {
+      const timer = setTimeout(() => setTimeText("3 minutter"), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [inView]);
+
   return (
     <Section>
       <FadeIn className="mb-16 text-center">
@@ -211,45 +228,66 @@ function SolutionSection() {
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-4">
-        {[
-          {
-            title: "Prosjektering",
-            desc: "Samme grundige design — men nå med digital tvilling.",
-            time: "3–6 måneder",
-            color: "border-vh-green/40 bg-vh-green/5",
-            textColor: "text-vh-green",
-            delay: 0,
-          },
-          {
-            title: "VirtualHouse Simulering",
-            desc: "3 minutter. 0 kroner i byggekostnad. Full digital test.",
-            time: "3 minutter",
-            color: "border-primary/60 bg-primary/10 vh-glow-blue",
-            textColor: "text-primary",
-            delay: 0.25,
-          },
-          {
-            title: "Verifisert resultat",
-            desc: "Du VET at det fungerer. Før første spiker.",
-            time: "✅ Bekreftet",
-            color: "border-vh-green/40 bg-vh-green/5",
-            textColor: "text-vh-green",
-            delay: 0.5,
-          },
-        ].map((box) => (
-          <FadeIn key={box.title} delay={box.delay} className="w-full">
-            <div className={`rounded-xl border p-6 ${box.color}`}>
-              <div className="flex items-center justify-between">
-                <h3 className={`text-lg font-bold ${box.textColor}`}>{box.title}</h3>
-                <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">{box.time}</span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">{box.desc}</p>
+        {/* Box 1: Prosjektering */}
+        <FadeIn delay={0} className="w-full">
+          <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-vh-green">Prosjektering</h3>
+              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">3–6 måneder</span>
             </div>
-            {box.title !== "Verifisert resultat" && (
-              <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
-            )}
-          </FadeIn>
-        ))}
+            <p className="mt-2 text-sm text-muted-foreground">Samme grundige design — men nå med digital tvilling.</p>
+          </div>
+          <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
+        </FadeIn>
+
+        {/* Box 2: VirtualHouse — animated transformation */}
+        <FadeIn delay={0.25} className="w-full">
+          <motion.div
+            ref={transformRef}
+            className="rounded-xl border p-6"
+            initial={{
+              borderColor: "hsl(218, 26%, 18%)",
+              backgroundColor: "hsl(220, 20%, 14%)",
+            }}
+            animate={inView ? {
+              borderColor: "hsl(213, 52%, 63%)",
+              backgroundColor: "hsl(213, 52%, 63%, 0.1)",
+            } : {}}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+          >
+            <div className="flex items-center justify-between">
+              <motion.h3
+                className="text-lg font-bold"
+                initial={{ color: "hsl(215, 20%, 55%)" }}
+                animate={inView ? { color: "hsl(213, 52%, 63%)" } : {}}
+                transition={{ duration: 1.2 }}
+              >
+                VirtualHouse Simulering
+              </motion.h3>
+              <motion.span
+                className="rounded-full px-3 py-1 text-xs font-bold"
+                initial={{ backgroundColor: "hsl(220, 20%, 20%)", color: "hsl(215, 20%, 55%)" }}
+                animate={inView ? { backgroundColor: "hsl(213, 52%, 63%, 0.2)", color: "hsl(213, 52%, 63%)" } : {}}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                {timeText}
+              </motion.span>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">3 minutter. 0 kroner i byggekostnad. Full digital test.</p>
+          </motion.div>
+          <div className="mx-auto my-1 h-6 w-px bg-primary/30" />
+        </FadeIn>
+
+        {/* Box 3: Verifisert resultat */}
+        <FadeIn delay={0.5} className="w-full">
+          <div className="rounded-xl border p-6 border-vh-green/40 bg-vh-green/5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-vh-green">Verifisert resultat</h3>
+              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-muted-foreground">✅ Bekreftet</span>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">Du VET at det fungerer. Før første spiker.</p>
+          </div>
+        </FadeIn>
 
         <FadeIn delay={0.7} className="mt-6 text-center">
           <div className="inline-flex items-center gap-3 rounded-full border border-primary/30 bg-primary/5 px-5 py-2">
@@ -270,6 +308,16 @@ function SimulatorSection() {
   const result = useSimResult();
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+
+  // Year 2 degraded simulation
+  const year2Result = useMemo(() => {
+    return runSimulation({
+      ...input,
+      heatRecoveryEff: input.heatRecoveryEff * 0.94,
+      sfpDesign: input.sfpDesign * 1.15,
+      cop: input.cop * 0.95,
+    });
+  }, [input]);
 
   const handleSelectType = (type: typeof buildingTypes[number]) => {
     setSelectedType(type.id);
@@ -355,13 +403,45 @@ function SimulatorSection() {
         </FadeIn>
       )}
 
-      {/* results */}
+      {/* results — Year 1 vs Year 2 */}
       {showResults && (
-        <FadeIn className="mx-auto mt-8 w-full max-w-2xl">
-          <SimResults result={result} />
+        <FadeIn className="mx-auto mt-8 w-full max-w-4xl space-y-6">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div>
+              <h3 className="mb-3 text-center text-sm font-bold text-vh-green">År 1</h3>
+              <SimResults result={result} />
+            </div>
+            <div>
+              <h3 className="mb-3 text-center text-sm font-bold text-vh-yellow">År 2 <span className="font-normal text-muted-foreground">(med slitasje)</span></h3>
+              <SimResults result={year2Result} />
+            </div>
+          </div>
+          {/* Delta summary */}
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="mb-2 text-xs font-semibold text-muted-foreground text-center">Endring År 1 → År 2</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <DeltaChip label="Energi" v1={result.totalEnergyKwhM2} v2={year2Result.totalEnergyKwhM2} unit="kWh/m²" />
+              <DeltaChip label="Kostnad" v1={result.annualCostNOK} v2={year2Result.annualCostNOK} unit="NOK" />
+              <DeltaChip label="Timer >26°C" v1={result.hoursAbove26} v2={year2Result.hoursAbove26} unit="t" />
+            </div>
+          </div>
         </FadeIn>
       )}
     </Section>
+  );
+}
+
+function DeltaChip({ label, v1, v2, unit }: { label: string; v1: number; v2: number; unit: string }) {
+  const delta = v2 - v1;
+  const isWorse = delta > 0;
+  return (
+    <div className="flex items-center gap-2 rounded-full border border-border bg-secondary/50 px-3 py-1.5 text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      {isWorse ? <TrendingUp className="h-3 w-3 text-destructive" /> : <TrendingDown className="h-3 w-3 text-vh-green" />}
+      <span className={`font-mono font-bold tabular-nums ${isWorse ? "text-destructive" : "text-vh-green"}`}>
+        {delta > 0 ? "+" : ""}{Math.round(delta)} {unit}
+      </span>
+    </div>
   );
 }
 
@@ -399,13 +479,25 @@ function SliderField({
   );
 }
 
+function MiniBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="w-20 text-right text-muted-foreground">{label}</span>
+      <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
+        <div className={`h-full rounded-full ${color}`} style={{ width: `${(value / max) * 100}%` }} />
+      </div>
+      <span className="w-8 font-mono tabular-nums text-muted-foreground">{Math.round(value)}</span>
+    </div>
+  );
+}
+
 function SimResults({ result: r }: { result: ReturnType<typeof useSimResult> }) {
   const getEnergimerke = (v: number) => (v > 150 ? "D" : v > 130 ? "C" : v > 100 ? "B" : "A");
   const merke = getEnergimerke(r.totalEnergyKwhM2);
   const merkeColor = merke === "A" ? "text-vh-green" : merke === "B" ? "text-vh-green" : merke === "C" ? "text-vh-yellow" : "text-destructive";
 
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div className="rounded-xl border border-border bg-card p-5 text-center">
         <p className="text-xs text-muted-foreground">Energibehov</p>
         <p className="mt-1 text-3xl font-bold font-mono tabular-nums">{Math.round(r.totalEnergyKwhM2)}</p>
@@ -426,8 +518,18 @@ function SimResults({ result: r }: { result: ReturnType<typeof useSimResult> }) 
         <p className="text-xs text-muted-foreground">Energimerke</p>
         <p className={`mt-1 text-5xl font-extrabold ${merkeColor}`}>{merke}</p>
         <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${merke <= "B" ? "bg-vh-green/15 text-vh-green" : "bg-vh-yellow/15 text-vh-yellow"}`}>
-          {merke <= "B" ? "Grønt lån-kvalifisert ✅" : "Krever forbedring"}
+          {merke <= "B" ? "Grønt lån ✅" : "Krever forbedring"}
         </span>
+      </div>
+      {/* Energy breakdown card */}
+      <div className="rounded-xl border border-border bg-card p-5">
+        <p className="text-xs text-muted-foreground text-center mb-3">Energifordeling</p>
+        <div className="space-y-1.5">
+          <MiniBar label="Oppvarming" value={r.heatingKwhM2} max={r.totalEnergyKwhM2} color="bg-destructive" />
+          <MiniBar label="Vifter" value={r.fansKwhM2} max={r.totalEnergyKwhM2} color="bg-vh-purple" />
+          <MiniBar label="Kjøling" value={r.coolingKwhM2} max={r.totalEnergyKwhM2} color="bg-primary" />
+          <MiniBar label="Annet" value={r.lightingKwhM2 + r.equipmentKwhM2 + r.dhwKwhM2} max={r.totalEnergyKwhM2} color="bg-muted-foreground" />
+        </div>
       </div>
     </div>
   );
@@ -456,6 +558,8 @@ function AdvancedSection() {
       }
     }
   };
+
+  const monthlyData = result.monthlyKwh.map((v, i) => ({ mnd: MONTH_LABELS[i], kwh: Math.round(v) }));
 
   return (
     <Section>
@@ -487,6 +591,26 @@ function AdvancedSection() {
 
       <FadeIn className="mx-auto w-full max-w-2xl space-y-4">
         <SimResults result={result} />
+
+        {/* Seasonal monthly chart */}
+        {toggles.seasons && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="rounded-xl border border-border bg-card p-5"
+          >
+            <p className="mb-3 text-sm font-semibold text-foreground">Månedlig energifordeling</p>
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={monthlyData}>
+                  <XAxis dataKey="mnd" tick={{ fill: "hsl(215, 20%, 55%)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Bar dataKey="kwh" fill="hsl(213, 52%, 63%)" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Vintermånedene bruker opptil 3× mer energi enn sommeren — drevet av oppvarmingsbehov.</p>
+          </motion.div>
+        )}
 
         {toggles.simultaneous && (
           <motion.div
