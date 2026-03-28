@@ -555,6 +555,88 @@ function AnimatedNumber({ value, duration = 800 }: { value: number; duration?: n
   return <>{display}</>;
 }
 
+/* ═══════ Health Score Gauge ═══════ */
+function HealthScoreGauge({ score }: { score: number }) {
+  const color = score >= 80 ? "text-vh-green" : score >= 60 ? "text-vh-yellow" : "text-destructive";
+  const bgColor = score >= 80 ? "bg-vh-green/15" : score >= 60 ? "bg-vh-yellow/15" : "bg-destructive/15";
+  const label = score >= 80 ? "Godt dimensjonert" : score >= 60 ? "Forbedringspotensial" : "Kritiske avvik";
+  const circumference = 2 * Math.PI * 40;
+  const offset = circumference - (score / 100) * circumference;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6 flex items-center gap-6">
+      <div className="relative shrink-0">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="40" fill="none" stroke="hsl(var(--border))" strokeWidth="6" />
+          <circle
+            cx="48" cy="48" r="40" fill="none"
+            stroke="currentColor"
+            strokeWidth="6" strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className={color}
+            transform="rotate(-90 48 48)"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className={`text-2xl font-extrabold font-mono tabular-nums ${color}`}>{score}</span>
+        </div>
+      </div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Building Health Score</p>
+        <p className={`mt-1 text-lg font-bold ${color}`}>{label}</p>
+        <p className="mt-1 text-xs text-muted-foreground">Basert på energi, komfort, TEK17 og systemvirkningsgrader</p>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════ Avvik Preview ═══════ */
+function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; severity: string; title: string; description: string }> }) {
+  const navigate = useNavigate();
+  const shown = avvik.slice(0, 2);
+  const remaining = avvik.length - 2;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Avviksrapport</p>
+        <span className="rounded-full bg-destructive/15 px-2.5 py-0.5 text-xs font-bold text-destructive">
+          {avvik.length} avvik funnet
+        </span>
+      </div>
+      <div className="space-y-3">
+        {shown.map((a, i) => (
+          <div key={i} className="flex items-start gap-3 rounded-lg border border-border bg-secondary/30 p-3">
+            <div className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${
+              a.severity === "critical" ? "bg-destructive" : a.severity === "warning" ? "bg-vh-yellow" : "bg-vh-green"
+            }`} />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-muted-foreground">{a.system}</span>
+                <span className={`text-[10px] font-bold uppercase ${
+                  a.severity === "critical" ? "text-destructive" : a.severity === "warning" ? "text-vh-yellow" : "text-vh-green"
+                }`}>{a.severity}</span>
+              </div>
+              <p className="text-sm font-semibold text-foreground mt-0.5">{a.title}</p>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {remaining > 0 && (
+        <button
+          onClick={() => navigate("/simulator/simulering")}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/5 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
+        >
+          Se alle {avvik.length} avvik i full rapport
+          <ArrowRight className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ═══════ SECTION 4 — Interactive Simulator ═══════ */
 function SimulatorSection() {
   const navigate = useNavigate();
@@ -672,6 +754,18 @@ function SimulatorSection() {
               </div>
             </div>
           </motion.div>
+
+          {/* Building Health Score */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.0 }}>
+            <HealthScoreGauge score={result.healthScore} />
+          </motion.div>
+
+          {/* Avvik preview */}
+          {result.avvik.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.2 }}>
+              <AvvikPreview avvik={result.avvik} />
+            </motion.div>
+          )}
         </div>
       )}
     </Section>
