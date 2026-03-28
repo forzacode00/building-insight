@@ -265,7 +265,7 @@ function PainBandSection() {
   );
 }
 
-/* ═══════ SECTION 3 — The Flip (animated transformation + WowDemo) ═══════ */
+/* ═══════ SECTION 3 — The Flip (visual transformation) ═══════ */
 function TheFlipSection() {
   const transformRef = useRef<HTMLDivElement>(null);
   const inView = useInView(transformRef, { once: true, margin: "-100px" });
@@ -422,115 +422,6 @@ function HowItWorks() {
   );
 }
 
-/* ═══════ Auto-playing WOW demo ═══════ */
-function WowDemo() {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: false, margin: "-100px" });
-  const [step, setStep] = useState(0);
-
-  useEffect(() => {
-    if (!inView) { setStep(0); return; }
-    const timers = [
-      setTimeout(() => setStep(1), 300),
-      setTimeout(() => setStep(2), 800),
-      setTimeout(() => setStep(3), 1400),
-      setTimeout(() => setStep(4), 2000),
-      setTimeout(() => setStep(5), 2600),
-    ];
-    return () => timers.forEach(clearTimeout);
-  }, [inView]);
-
-  useEffect(() => {
-    if (step === 5) {
-      const reset = setTimeout(() => setStep(0), 3000);
-      return () => clearTimeout(reset);
-    }
-  }, [step]);
-
-  return (
-    <div ref={ref} className="mx-auto mb-12 w-full max-w-3xl">
-      <div className="rounded-xl border border-border bg-card p-6 md:p-8">
-        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10">
-          {/* Left: Document */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={step >= 1 ? { opacity: 1, x: 0 } : {}}
-            className="flex flex-col items-center gap-2 shrink-0"
-          >
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-border bg-secondary">
-              <FileText className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <span className="text-xs text-muted-foreground font-medium">Funksjonsbeskrivelse.pdf</span>
-          </motion.div>
-
-          {/* Arrow desktop */}
-          <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={step >= 2 ? { opacity: 1, scaleX: 1 } : {}} className="hidden md:flex items-center">
-            <div className="h-px w-16 bg-primary/50" />
-            <ArrowRight className="h-5 w-5 text-primary -ml-1" />
-          </motion.div>
-          {/* Arrow mobile */}
-          <motion.div initial={{ opacity: 0 }} animate={step >= 2 ? { opacity: 1 } : {}} className="md:hidden flex justify-center">
-            <ChevronDown className="h-4 w-4 text-primary/60" />
-          </motion.div>
-
-          {/* Center: VirtualHouse box */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={step >= 2 ? { opacity: 1, scale: 1 } : {}}
-            className="flex h-16 items-center justify-center rounded-xl border-2 border-primary bg-primary/10 px-6 vh-glow-blue shrink-0"
-          >
-            <span className="text-sm font-bold text-primary">VirtualHouse</span>
-          </motion.div>
-
-          {/* Arrow desktop */}
-          <motion.div initial={{ opacity: 0, scaleX: 0 }} animate={step >= 3 ? { opacity: 1, scaleX: 1 } : {}} className="hidden md:flex items-center">
-            <div className="h-px w-16 bg-primary/50" />
-            <ArrowRight className="h-5 w-5 text-primary -ml-1" />
-          </motion.div>
-          {/* Arrow mobile */}
-          <motion.div initial={{ opacity: 0 }} animate={step >= 3 ? { opacity: 1 } : {}} className="md:hidden flex justify-center">
-            <ChevronDown className="h-4 w-4 text-primary/60" />
-          </motion.div>
-
-          {/* Right: Results */}
-          <div className="flex flex-col gap-2 min-w-0">
-            <motion.p
-              initial={{ opacity: 0, x: 20 }}
-              animate={step >= 3 ? { opacity: 1, x: 0 } : {}}
-              className="text-sm font-mono tabular-nums text-foreground"
-            >
-              År 1: <span className="font-bold">138 kWh/m²·år</span>
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, x: 20 }}
-              animate={step >= 4 ? { opacity: 1, x: 0 } : {}}
-              className="text-sm font-mono tabular-nums text-destructive font-bold"
-            >
-              År 2: <span className="font-bold">152 kWh/m²·år</span> (+10%)
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, x: 20 }}
-              animate={step >= 5 ? { opacity: 1, x: 0 } : {}}
-              className="text-sm font-mono tabular-nums text-vh-yellow font-bold"
-            >
-              ⚠ 3 fremtidige avvik forutsett
-            </motion.p>
-          </div>
-        </div>
-
-        {/* Bottom text */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={step >= 5 ? { opacity: 1 } : {}}
-          transition={{ delay: 0.3 }}
-          className="mt-6 text-center text-sm text-muted-foreground"
-        >
-          VirtualHouse leste <span className="font-bold text-foreground">22 sider</span> og forutsa <span className="font-bold text-destructive">5 fremtidige avvik</span> på <span className="font-bold text-primary">3 minutter</span>
-        </motion.p>
-      </div>
-    </div>
-  );
-}
 
 /* ═══════ Simulation Reveal Animation ═══════ */
 function SimReveal({ onDone }: { onDone: () => void }) {
