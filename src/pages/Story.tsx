@@ -116,96 +116,44 @@ export default function Story() {
   );
 }
 
-/* ═══════ Hero Building (isometric scan reveal) ═══════ */
+/* ═══════ Hero Building (video + isometric fallback) ═══════ */
 function HeroBuilding() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const CYCLE = 6000;
-    let raf: number;
-    const start = performance.now();
-
-    const tick = (now: number) => {
-      const elapsed = (now - start) % CYCLE;
-      setProgress(Math.min(elapsed / 2400, 1));
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const avvikCount = Math.min(Math.round(progress * 5), 5);
-  const scanning = progress > 0 && progress < 1;
+  const [videoError, setVideoError] = useState(false);
 
   return (
-    <div className="relative w-full max-w-[520px]">
-      <IsometricBuilding
-        heatingTemp={65}
-        sfpValue={1.8}
-        recoveryEff={0.78}
-        coolingKw={300}
-        revealProgress={progress}
-        className="w-full"
-      />
-
-      {/* Scanning status bar */}
-      {scanning && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="absolute bottom-3 left-3 right-3 flex items-center gap-3 rounded-lg bg-card/90 border border-border px-3 py-2"
+    <div className="relative w-full max-w-[640px] rounded-xl overflow-hidden border border-border">
+      {!videoError ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/vh_hero_frame.png"
+          onError={() => setVideoError(true)}
+          className="w-full h-auto"
         >
-          <div className="h-1.5 flex-1 rounded-full bg-secondary overflow-hidden">
-            <motion.div className="h-full rounded-full bg-primary" style={{ width: `${progress * 100}%` }} />
-          </div>
-          <span className="text-[10px] font-mono text-primary shrink-0">Analyserer systemer…</span>
-        </motion.div>
+          <source src="/vh_hero_video.mp4" type="video/mp4" />
+        </video>
+      ) : (
+        <img src="/vh_hero_frame.png" alt="VirtualHouse building scan" className="w-full h-auto" />
       )}
-
-      {/* Live avvik counter during scan */}
-      {avvikCount > 0 && scanning && (
-        <div className="absolute top-3 left-3 rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1">
-          <span className="text-xs font-mono font-bold text-destructive">{avvikCount} avvik</span>
-        </div>
-      )}
-
-      {/* Final result badges */}
-      <AnimatePresence>
-        {progress >= 1 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute top-3 right-2 flex flex-col gap-1.5"
-          >
-            <div className="rounded-lg border border-destructive/40 bg-card/90 px-2.5 py-1 text-xs font-semibold text-destructive">
-              ⚠ SFP 1.8 — Over TEK17
-            </div>
-            <div className="rounded-lg border border-border bg-card/90 px-2.5 py-1 text-xs font-semibold text-vh-yellow">
-              ⚡ 42 000 kr/år energitap
-            </div>
-            <div className="rounded-lg border border-border bg-card/90 px-2.5 py-1 text-xs font-semibold text-foreground">
-              5 fremtidige avvik forutsett
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Overlay gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+      {/* Bottom badges */}
+      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+        <span className="rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1 text-xs font-mono font-bold text-destructive">
+          5 fremtidige avvik
+        </span>
+        <span className="rounded-lg bg-card/90 border border-border px-2.5 py-1 text-xs font-mono font-bold text-primary">
+          17 520 timer simulert
+        </span>
+      </div>
     </div>
   );
 }
 
 /* ═══════ SECTION 1 — Hero (Story Hook) ═══════ */
 function HeroSection() {
-  const storyRef = useRef<HTMLDivElement>(null);
-  const storyInView = useInView(storyRef, { once: true, margin: "-20%" });
-  const [showProduct, setShowProduct] = useState(false);
-
-  useEffect(() => {
-    if (storyInView) {
-      const t = setTimeout(() => setShowProduct(true), 600);
-      return () => clearTimeout(t);
-    }
-  }, [storyInView]);
-
   return (
     <Section className="min-h-screen py-20 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.06),transparent)]" />
@@ -217,84 +165,32 @@ function HeroSection() {
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
-          Et nybygg til 200 MNOK.
+          Se fremtidens avvik
           <br />
-          <span className="text-muted-foreground">Dag én etter overlevering:</span>
-          <br />
-          <motion.span
-            className="text-destructive"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-          >
-            det er 26°C i januar.
-          </motion.span>
+          <span className="text-primary">før bygget står</span>
         </h1>
 
-        <motion.p
-          className="mx-auto mt-6 max-w-lg text-base text-muted-foreground"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.3, duration: 0.5 }}
-        >
-          Ventilasjonsaggregatets gjenvinner er underdimensjonert. Radiatorer og kjølebafler kjører samtidig. Ingen oppdaget det — før leietaker ringte.
-        </motion.p>
-
-        <motion.p
-          className="mx-auto mt-4 max-w-lg text-base text-foreground font-semibold"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2.0, duration: 0.5 }}
-        >
-          Feilretting: 18 måneder. Merkostnad: 12 MNOK. Alt kunne vært forutsett på 3 minutter.
-        </motion.p>
+        <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
+          VirtualHouse simulerer samspillet mellom varme, ventilasjon og kjøling — og forutser feil som koster millioner å rette etter overlevering.
+        </p>
       </FadeIn>
 
-      {/* === THE TURN: What if you could have seen it coming? === */}
-      <div ref={storyRef} className="z-10 mt-12 w-full max-w-2xl">
-        <AnimatePresence>
-          {showProduct && (
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center"
-            >
-              <p className="mb-6 text-sm font-semibold text-primary uppercase tracking-widest">VirtualHouse forutser disse avvikene — før en eneste bolt er strammet</p>
+      {/* Product visual + CTA */}
+      <FadeIn delay={0.3} className="z-10 mt-10 w-full max-w-2xl text-center">
+        <HeroBuilding />
 
-              <HeroBuilding />
-
-              {/* What you get — instant value preview */}
-              <div className="mt-6 grid grid-cols-3 gap-3 w-full max-w-md mx-auto">
-                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
-                  <p className="text-lg font-extrabold font-mono text-primary">24</p>
-                  <p className="text-[9px] text-muted-foreground">måneders prognose</p>
-                </div>
-                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
-                  <p className="text-lg font-extrabold font-mono text-destructive">5+</p>
-                  <p className="text-[9px] text-muted-foreground">prediktive avvik</p>
-                </div>
-                <div className="rounded-lg border border-border bg-card/50 px-3 py-2 text-center">
-                  <p className="text-lg font-extrabold font-mono text-vh-green">TEK17</p>
-                  <p className="text-[9px] text-muted-foreground">compliance sjekk</p>
-                </div>
-              </div>
-
-              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button size="lg" onClick={() => {
-                  document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
-                }} className="gap-2 px-8 py-5 text-base font-bold">
-                  Test ditt bygg nå
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-                <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
-                  Book en demo →
-                </a>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button size="lg" onClick={() => {
+            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
+          }} className="gap-2 px-8 py-5 text-base font-bold">
+            Test ditt bygg nå
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+          <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+            Book en demo →
+          </a>
+        </div>
+      </FadeIn>
 
       <motion.div
         className="absolute bottom-4 sm:bottom-10 z-10 flex flex-col items-center gap-2 text-muted-foreground"
