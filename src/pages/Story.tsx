@@ -591,6 +591,65 @@ function HealthScoreGauge({ score }: { score: number }) {
   );
 }
 
+/* ═══════ TEK17 Report Card ═══════ */
+function TEK17ReportCard({ result: r }: { result: ReturnType<typeof useSimResult> }) {
+  const checks = [
+    {
+      label: "Energiramme §14-2",
+      value: `${Math.round(r.totalEnergyKwhM2)} kWh/m²·år`,
+      limit: `≤ ${r.tek17Limit}`,
+      pass: !r.exceedsTEK17,
+    },
+    {
+      label: "SFP ventilasjon",
+      value: `${r.sfpActual.toFixed(1)} kW/(m³/s)`,
+      limit: "≤ 1.5",
+      pass: r.sfpActual <= 1.5,
+    },
+    {
+      label: "Varmegjenvinning",
+      value: `${Math.round(r.heatRecoveryActual * 100)}%`,
+      limit: "≥ 80%",
+      pass: r.heatRecoveryActual >= 0.80,
+    },
+    {
+      label: "Overtemperatur",
+      value: `${r.hoursAbove26} timer >26°C`,
+      limit: "≤ 50 t",
+      pass: r.hoursAbove26 <= 50,
+    },
+  ];
+
+  const passCount = checks.filter(c => c.pass).length;
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-6">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">TEK17 Compliance</p>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${passCount === checks.length ? "bg-vh-green/15 text-vh-green" : "bg-destructive/15 text-destructive"}`}>
+          {passCount}/{checks.length} bestått
+        </span>
+      </div>
+      <div className="space-y-2">
+        {checks.map((c, i) => (
+          <div key={i} className="flex items-center justify-between rounded-lg bg-secondary/30 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span className={`text-sm ${c.pass ? "text-vh-green" : "text-destructive"}`}>
+                {c.pass ? "✓" : "✗"}
+              </span>
+              <span className="text-sm text-foreground">{c.label}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-mono tabular-nums text-muted-foreground">{c.limit}</span>
+              <span className={`text-xs font-mono tabular-nums font-bold ${c.pass ? "text-vh-green" : "text-destructive"}`}>{c.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ═══════ Avvik Preview ═══════ */
 function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; severity: string; title: string; description: string }> }) {
   const navigate = useNavigate();
@@ -758,6 +817,11 @@ function SimulatorSection() {
           {/* Building Health Score */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.0 }}>
             <HealthScoreGauge score={result.healthScore} />
+          </motion.div>
+
+          {/* TEK17 Report Card */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.1 }}>
+            <TEK17ReportCard result={result} />
           </motion.div>
 
           {/* Avvik preview */}
