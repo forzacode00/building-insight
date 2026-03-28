@@ -18,6 +18,8 @@ import {
   ToggleRight,
   TrendingUp,
   TrendingDown,
+  Share2,
+  Copy,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -696,6 +698,45 @@ function AvvikPreview({ avvik }: { avvik: Array<{ nr: number; system: string; se
   );
 }
 
+/* ═══════ Share Results ═══════ */
+function ShareResults({ result, input }: { result: ReturnType<typeof useSimResult>; input: ReturnType<typeof useSimInput>["input"] }) {
+  const [copied, setCopied] = useState(false);
+  const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
+
+  const handleShare = async () => {
+    const text = `VirtualHouse simulering — ${buildingLabel} ${input.bra.toLocaleString("nb-NO")} m²
+
+Building Health Score: ${result.healthScore}/100
+Energibehov: ${Math.round(result.totalEnergyKwhM2)} kWh/m²·år
+TEK17: ${result.exceedsTEK17 ? "IKKE BESTÅTT" : "Bestått"}
+Avvik funnet: ${result.avvik.length}
+Årskostnad: NOK ${Math.round(result.annualCostNOK).toLocaleString("nb-NO")}
+
+Kjør din egen simulering: https://virtualhouse.no`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  return (
+    <button
+      onClick={handleShare}
+      className="w-full flex items-center justify-center gap-2 rounded-xl border border-border bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+    >
+      {copied ? (
+        <><Copy className="h-4 w-4 text-vh-green" /> Kopiert til utklippstavlen</>
+      ) : (
+        <><Share2 className="h-4 w-4" /> Del simuleringsresultatene</>
+      )}
+    </button>
+  );
+}
+
 /* ═══════ SECTION 4 — Interactive Simulator ═══════ */
 function SimulatorSection() {
   const navigate = useNavigate();
@@ -756,7 +797,12 @@ function SimulatorSection() {
             <div className="rounded-xl border border-border bg-card p-6">
               <div className="grid gap-6 sm:grid-cols-2">
                 <SliderField icon={<Thermometer className="h-4 w-4 text-destructive" />} label="Radiatortemperatur" tooltip="Turtemperatur varme" value={input.heatingTurRetur[0]} min={40} max={70} step={1} unit="°C" onChange={(v) => updateInput("heatingTurRetur", [v, input.heatingTurRetur[1]])} />
-                <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
+                <div>
+                  <SliderField icon={<Wind className="h-4 w-4 text-primary" />} label="Ventilasjonskraft" tooltip="SFP kW/(m³/s)" value={input.sfpDesign} min={0.8} max={2.5} step={0.1} unit="SFP" onChange={(v) => updateInput("sfpDesign", v)} />
+                  <p className={`mt-1 text-[10px] font-mono ${input.sfpDesign * 1.15 > 1.5 ? "text-destructive" : "text-vh-green"}`}>
+                    Reell SFP: {(input.sfpDesign * 1.15).toFixed(1)} kW/(m³/s) {input.sfpDesign * 1.15 > 1.5 ? "— Over TEK17" : "✔"}
+                  </p>
+                </div>
                 <SliderField icon={<RefreshCw className="h-4 w-4 text-vh-green" />} label="Gjenvinning av varme" tooltip="Gjenvinner virkningsgrad" value={Math.round(input.heatRecoveryEff * 100)} min={50} max={95} step={1} unit="%" onChange={(v) => updateInput("heatRecoveryEff", v / 100)} />
                 <SliderField icon={<Snowflake className="h-4 w-4 text-primary" />} label="Kjølekapasitet" tooltip="Installert kjøleeffekt" value={input.installedCooling} min={100} max={600} step={10} unit="kW" onChange={(v) => updateInput("installedCooling", v)} />
               </div>
@@ -830,6 +876,11 @@ function SimulatorSection() {
               <AvvikPreview avvik={result.avvik} />
             </motion.div>
           )}
+
+          {/* Share results */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 1.4 }}>
+            <ShareResults result={result} input={input} />
+          </motion.div>
         </div>
       )}
     </Section>
