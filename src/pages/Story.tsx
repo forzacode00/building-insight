@@ -777,7 +777,24 @@ function SimulatorSection() {
     <Section className="min-h-screen py-24" id="simulator">
       <FadeIn className="mb-8 text-center">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Kjør en simulering på ditt eget bygg</h2>
-        <p className="mt-3 text-muted-foreground">Velg bygningstype, juster parametere, og se hva VirtualHouse avdekker — på 3 minutter.</p>
+        <p className="mt-3 text-muted-foreground">3 steg. 3 minutter. Full innsikt.</p>
+      </FadeIn>
+
+      {/* Progress stepper */}
+      <FadeIn className="mx-auto mb-8 flex items-center justify-center gap-2 text-xs font-medium">
+        {["Velg bygg", "Juster parametere", "Se resultater"].map((label, i) => {
+          const step = !selectedType ? 0 : simState === "done" ? 2 : selectedType ? 1 : 0;
+          const isActive = i <= step;
+          return (
+            <div key={i} className="flex items-center gap-2">
+              <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                isActive ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+              }`}>{i + 1}</div>
+              <span className={isActive ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+              {i < 2 && <div className={`h-px w-8 ${isActive ? "bg-primary" : "bg-border"}`} />}
+            </div>
+          );
+        })}
       </FadeIn>
 
       {/* building type cards */}
