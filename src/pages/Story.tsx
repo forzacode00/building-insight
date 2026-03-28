@@ -63,12 +63,22 @@ const buildingTypes = [
 /* ═══════ STICKY NAV ═══════ */
 function SiteNav() {
   const navigate = useNavigate();
+  const result = useSimResult();
+  const hasResult = result.totalEnergyKwhM2 > 0;
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Simulator</a>
+          {hasResult && (
+            <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
+              result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
+            }`}>
+              Score: {result.healthScore}
+            </span>
+          )}
           <Button size="sm" variant="default" className="gap-1.5 text-xs" onClick={() => navigate("/simulator")}>
             Prøv gratis <ArrowRight className="h-3.5 w-3.5" />
           </Button>
