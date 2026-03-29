@@ -207,17 +207,20 @@ function HeroSection() {
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
       <FadeIn className="z-10 max-w-2xl text-center">
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
-          Energisentral-simulering · Fra prosjektering til drift
+          Plattform for energisentral-simulering
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
-          Vet du om energisentralen din
+          Energisentralen din, simulert
           <br />
-          <span className="text-primary">faktisk vil fungere — før du bygger den?</span>
+          <span className="text-primary">fra funksjonsbeskrivelse til idriftsatt</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          VirtualHouse simulerer samspillet mellom varmepumper, kjølemaskiner, akkumuleringstanker og automasjon — og avdekker feil i dimensjonering og systemdesign før de koster deg.
+          Last opp prosjekteringen. Plattformen konfigurerer simulatoren. Du avdekker feilene — før de koster deg.
+        </p>
+        <p className="mx-auto mt-3 text-sm text-muted-foreground/70">
+          Fysikkmotor tilgjengelig nå · AI-konfigurering i beta
         </p>
       </FadeIn>
 
@@ -225,15 +228,15 @@ function HeroSection() {
       <FadeIn delay={0.3} className="z-10 mt-10 w-full max-w-2xl text-center">
         <HeroBuilding />
 
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button size="lg" onClick={() => {
-            document.getElementById('faser')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
           }} className="gap-2 px-8 py-5 text-base font-bold">
-            Se hvordan det fungerer
+            Kjør simulering
             <ArrowRight className="h-5 w-5" />
           </Button>
-          <a href="mailto:post@virtualhouse.no" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
-            Book en demo →
+          <a href="mailto:post@virtualhouse.no?subject=AI-demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md border border-border px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors">
+            Book AI-demo
           </a>
         </div>
       </FadeIn>
@@ -271,64 +274,82 @@ function PainBandSection() {
       </FadeIn>
       <FadeIn className="mt-10 text-center">
         <p className="text-base text-muted-foreground max-w-xl mx-auto">
-          VirtualHouse lar deg simulere energisentralen gjennom 7 moduler — slik at feilene oppdages i software, ikke på byggeplassen.
+          VirtualHouse er plattformen som lar deg simulere, validere og idriftsette energisentralen digitalt — før noe fysisk bygges.
         </p>
       </FadeIn>
     </section>
   );
 }
 
-/* ═══════ SECTION 3 — 7-fase tidslinje ═══════ */
+/* ═══════ SECTION 3 — Livsløpstidslinje med AI ═══════ */
 function TheFlipSection() {
-  const phases = [
-    { num: 1, name: "Rammebetingelser", desc: "Last opp klimadata og definer bruksmønstre. Plattformen genererer dimensjoneringsgrunnlag.", value: "Databasert grunnlag — ikke magefølelse" },
-    { num: 2, name: "Systemdesign", desc: "Konfigurer varmepumper, brønner, tanker og automatikk. Veiledet oppsett inkludert.", value: "Unngå feildimensjonert brønn eller underdimensjonert akkumulering" },
-    { num: 3, name: "Designvalidering", desc: "Kjør simulering. Se avvik, KPIer og temperaturutvikling umiddelbart.", value: "Verifisert ytelse og robusthet — før bygging" },
-    { num: 4, name: "Optimalisering", desc: "Sammenlign scenarier side ved side. Velg beste alternativ.", value: "Ett års simulert drift på timer — ikke år med trial-and-error" },
-    { num: 5, name: "Bordtest-modus", desc: "Del simuleringslenke med prosjektteamet. Alle ser samme data.", value: "Færre møter, dypere forankring på tvers av fag" },
-    { num: 6, name: "Virtuell idriftsettelse", desc: "Koble BAS til simulatoren. Test automasjon uten risiko.", value: "Alarmer, skjermbilder og automatikk testet før nøkkelen leveres" },
-    { num: 7, name: "Driftsoptimalisering", desc: "Kjør hva-skjer-hvis-scenarier, feilsøk hendelser, tren driftspersonell.", value: "Komplett testdekning for hele operasjonsområdet" },
+  const lifecycle = [
+    {
+      phase: "Prosjektering",
+      color: "text-primary",
+      bg: "bg-primary/10",
+      core: "Konfigurer energisentralen — varmepumper, brønner, tanker, automatikk. Kjør simulering og se avvik umiddelbart.",
+      ai: "Last opp FBD i PDF → AI konfigurerer simulatoren automatisk",
+      aiStatus: "Beta",
+    },
+    {
+      phase: "Validering",
+      color: "text-primary",
+      bg: "bg-primary/10",
+      core: "Sammenlign scenarier, optimaliser KPIer, del resultater med prosjektteamet — alle ser samme data.",
+      ai: "AI genererer avviksrapport med prioriterte anbefalinger",
+      aiStatus: "Beta",
+    },
+    {
+      phase: "Idriftsettelse",
+      color: "text-vh-yellow",
+      bg: "bg-vh-yellow/10",
+      core: "Koble BAS til simulatoren. Test automasjon, alarmer og skjermbilder — før fysisk idriftsettelse.",
+      ai: "Spør simulatoren med naturlig språk: \"hva skjer om VP-1 stopper i februar?\"",
+      aiStatus: "Kommer",
+    },
+    {
+      phase: "Drift",
+      color: "text-vh-green",
+      bg: "bg-vh-green/10",
+      core: "Feilsøk hendelser, kjør hva-skjer-hvis-scenarier, tren driftspersonell — raskere enn sanntid.",
+      ai: "AI-agent foreslår optimaliseringer og validerer mot fysikkmotoren før anbefaling",
+      aiStatus: "Kommer",
+    },
   ];
 
   return (
     <Section className="py-24" id="faser">
       <FadeIn className="mb-12 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Din energisentral, simulert gjennom 7 moduler</h2>
-        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fra dimensjoneringsgrunnlag til virtuell driftsoptimalisering — du styrer, simulatoren leverer svar.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Én plattform, hele livsløpet</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fysikkmotoren simulerer korrekt. AI-en stiller spørsmålene du ikke visste du burde stille.</p>
       </FadeIn>
 
-      <div className="mx-auto w-full max-w-2xl">
-        {phases.map((phase, i) => (
-          <FadeIn key={phase.num} delay={i * 0.08} className="relative">
-            {/* Connector line */}
-            {i < phases.length - 1 && (
-              <div className="absolute left-[19px] top-[44px] bottom-0 w-px bg-border" />
-            )}
-            <div className="flex gap-4 pb-8">
-              {/* Phase number dot */}
-              <div className={`flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${
-                phase.num <= 4 ? "bg-primary/15 text-primary" : phase.num <= 5 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-vh-green/15 text-vh-green"
-              }`}>
-                {phase.num}
+      <div className="mx-auto w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-4">
+        {lifecycle.map((item, i) => (
+          <FadeIn key={item.phase} delay={i * 0.1}>
+            <div className={`rounded-xl border border-border p-5 h-full flex flex-col`}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${item.bg} ${item.color} text-xs font-bold`}>{i + 1}</span>
+                <h3 className={`text-base font-bold ${item.color}`}>{item.phase}</h3>
               </div>
-              {/* Content */}
-              <div className="pt-1">
-                <h3 className="text-base font-bold text-foreground">{phase.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{phase.desc}</p>
-                <p className="mt-1.5 text-xs text-primary font-medium">{phase.value}</p>
+              <p className="text-sm text-muted-foreground flex-1">{item.core}</p>
+              <div className="mt-3 rounded-lg bg-secondary/50 px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                  <p className="text-xs text-foreground">{item.ai}</p>
+                </div>
+                <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  item.aiStatus === "Beta" ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"
+                }`}>{item.aiStatus}</span>
               </div>
             </div>
           </FadeIn>
         ))}
       </div>
 
-      {/* Mid-funnel CTA */}
-      <FadeIn delay={0.6} className="mt-4 text-center">
-        <p className="text-sm text-muted-foreground mb-3">De fleste starter med modul 3 eller 4. Hvilken fase er ditt prosjekt i?</p>
-        <a href="mailto:post@virtualhouse.no?subject=Interesse%20for%20VirtualHouse&body=Hei%2C%0A%0AJeg%20er%20interessert%20i%20VirtualHouse%20for%20et%20prosjekt%20i%20fase%20___" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors">
-          Start en samtale
-          <ArrowRight className="h-4 w-4" />
-        </a>
+      <FadeIn delay={0.5} className="mt-8 text-center">
+        <p className="text-xs text-muted-foreground mb-3">Vi har fysikkmotoren. Nå bygger vi intelligensen rundt den.</p>
       </FadeIn>
     </Section>
   );
@@ -1020,19 +1041,19 @@ function FAQSection() {
   const faqs = [
     {
       q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?",
-      a: "SIMIEN beregner bygningens energibehov. VirtualHouse simulerer energisentralen — varmepumper, akkumuleringstanker, energibrønner og BAS-automasjon. Det er to ulike disipliner: SIMIEN svarer på 'hvor mye energi trenger bygget', VirtualHouse svarer på 'vil energisentralen faktisk klare å levere det, og til hvilken kostnad'.",
+      a: "SIMIEN beregner bygningens energibehov. VirtualHouse er en plattform som simulerer selve energisentralen — varmepumper, akkumuleringstanker, energibrønner og BAS-automasjon i samspill. SIMIEN svarer på 'hvor mye energi trenger bygget'. VirtualHouse svarer på 'vil energisentralen faktisk klare å levere det'.",
+    },
+    {
+      q: "Hva gjør AI-en i VirtualHouse?",
+      a: "Fysikkmotoren gir riktige svar. AI-en gjør plattformen enklere å bruke: last opp en funksjonsbeskrivelse i PDF, og AI konfigurerer simulatoren automatisk. Etter simulering genererer AI avviksrapport med prioriterte anbefalinger. Fysikkmotoren er tilgjengelig nå — AI-funksjonene er i beta.",
+    },
+    {
+      q: "Kan jeg bruke plattformen selv?",
+      a: "Ja. Du eller prosjekteringsteamet legger energisentraldesignet inn i VirtualHouse. Plattformen simulerer dimensjonering og samspill — og genererer rapport med avvik, KPIer og konklusjoner. Onboarding er inkludert.",
     },
     {
       q: "Hva koster det?",
-      a: "VirtualHouse lisensieres per prosjekt eller som årsabonnement. En designvalidering (modul 3 + 4) starter fra fast pris — driftsoptimalisering faktureres månedlig. For et bygg med energikostnader på 1–5 MNOK/år er typisk besparelse 10–20%, noe som gir tilbakebetalingstid under tolv måneder. Enterprise-prising for portefølje.",
-    },
-    {
-      q: "Kan jeg bruke dette på et reelt prosjekt?",
-      a: "Ja. Du eller ditt prosjekteringsteam legger energisentraldesignet inn i VirtualHouse. Plattformen simulerer dimensjonering og samspill mellom komponenter — og genererer rapport med avvik, KPIer og konklusjoner. Trenger du hjelp med oppsettet? Onboarding er inkludert.",
-    },
-    {
-      q: "Hva er virtuell idriftsettelse?",
-      a: "BAS-systemet (bygningsautomasjonen) kobles til simulatoren før fysisk idriftsettelse. Dere kan utvikle og teste skjermbilder, alarmer, feilhåndtering og automatikk uten å risikere faktiske driftsforstyrrelser. Resultatet: automasjon som er ferdig testet når nøkkelen leveres.",
+      a: "VirtualHouse lisensieres per prosjekt eller som årsabonnement. For et bygg med energikostnader på 1–5 MNOK/år er typisk besparelse 10–20% — tilbakebetalingstid under tolv måneder. Enterprise-prising for portefølje.",
     },
   ];
 
@@ -1077,7 +1098,7 @@ function CTASection() {
   const navigate = useNavigate();
   const result = useSimResult();
   const { input } = useSimInput();
-  const segments = ["VVS-rådgivere", "Totalentreprenører", "Rådgivende ingeniører", "Eiendomsforvaltere", "Offentlige byggherrer"];
+  const segments = ["VVS-rådgivere", "Totalentreprenører", "Rådgivende ingeniører", "Driftsorganisasjoner", "Byggherrer"];
   const hasResult = result.totalEnergyKwhM2 > 0;
   const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
 
@@ -1116,14 +1137,14 @@ function CTASection() {
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          Vet du hva som skjer i energisentralen din under en kuldeperiode i februar?
+          Operativsystemet for energisentralen din
         </h2>
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          VirtualHouse simulerer energisentralen din — varmepumper, brønner, akkumuleringstanker og automasjon — slik at du vet det fungerer <span className="font-bold text-foreground">før det bygges</span>.
+          Fysikkmotor + AI i én plattform — fra prosjektering til driftsoptimalisering. <span className="font-bold text-foreground">Du laster opp, plattformen simulerer, du beslutter.</span>
         </p>
         <div className="mt-10">
           <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Start med én analyse
+            Få tilgang til plattformen
             <ArrowRight className="h-5 w-5" />
           </a>
         </div>
