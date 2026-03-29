@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -7,13 +7,11 @@ import {
   Snowflake,
   ArrowRight,
   Zap,
-  AlertTriangle,
-  CheckCircle2,
+  Clock,
+  Leaf,
 } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Progress } from "@/components/ui/progress";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
@@ -221,260 +219,189 @@ function TheFlipSection() {
 }
 
 
-/* ═══════ SECTION 4 — Interactive Energy Plant Demo ═══════ */
+/* ═══════ SECTION 4 — "Hva skjer når..." Scenarios ═══════ */
+const scenarios = [
+  {
+    id: "kulde",
+    icon: Snowflake,
+    color: "text-primary",
+    bg: "bg-primary/10",
+    borderColor: "border-primary/30",
+    question: "Det er −15°C i februar. Varmepumpen klarer ikke å følge med.",
+    steps: [
+      { time: "Dag 1, kl. 06:00", event: "Utetemperaturen faller til −15°C. Varmepumpen går på maks.", consequence: "Strømtopp: +340 kr denne timen." },
+      { time: "Dag 2", event: "Effektbehovet overstiger kapasiteten. El-patronen starter som backup.", consequence: "4× så dyr varme. Ingen varslet deg." },
+      { time: "Dag 5", event: "Leietakerne klager. Innetemperaturen har sunket 2°C.", consequence: "Risiko: kontraktsbrudd på komfortleveranse." },
+    ],
+    vhSolution: "AI-en forutså kuldegrepen 36 timer i forveien og forhåndsladde akkumulatortanken i lavprisperioden.",
+    vhResult: "Du betalte det samme. Ingen merket noe.",
+  },
+  {
+    id: "bronn",
+    icon: Wind,
+    color: "text-vh-yellow",
+    bg: "bg-vh-yellow/10",
+    borderColor: "border-vh-yellow/30",
+    question: "Etter 8 år synker brønntemperaturen. Ingen har fortalt deg det.",
+    steps: [
+      { time: "År 0", event: "Brønnen leverer 7°C. Varmepumpen er effektiv. COP er 4,2.", consequence: "Alt virker. Du er fornøyd." },
+      { time: "År 3", event: "Brønntemperaturen er nede i 5°C. Kompressoren jobber hardere.", consequence: "Strømforbruk opp 8%. Ingen merker det." },
+      { time: "År 6", event: "3,5°C. Kompressoren starter oftere. Levetiden forkortes.", consequence: "Estimert tap: 400 000 kr i for tidlig utskifting." },
+      { time: "År 8", event: "Kapasitetssvikt. Bygget trenger en ny varmekilde.", consequence: "Investering: 2,8–3,4 millioner kr." },
+    ],
+    vhSolution: "Trenden ble oppdaget i år 1. Tiltak kostet 80 000 kr.",
+    vhResult: "Du sparte 3 millioner og 7 år med uvitenhet.",
+  },
+  {
+    id: "natt",
+    icon: Zap,
+    color: "text-vh-green",
+    bg: "bg-vh-green/10",
+    borderColor: "border-vh-green/30",
+    question: "Klokken er 02:14. AI-en jobber. Du sover.",
+    steps: [
+      { time: "02:14", event: "Strømprisen faller til 12 øre/kWh. AI-en ser det.", consequence: "Turtemperaturen senkes 3°C. Bygget akkumulerer billig varme." },
+      { time: "05:30", event: "Prisspike forventes kl. 07:00. AI-en avslutter oppladingen.", consequence: "Du sover fortsatt. Ingen alarmer." },
+      { time: "07:00", event: "Pristopp. Bygget driftes på lagret varme.", consequence: "Strømkostnad denne morgenen: −62%." },
+    ],
+    vhSolution: "Dette skjer 12–18 netter per måned, automatisk.",
+    vhResult: "Estimert besparelse: 180 000–260 000 kr/år.",
+  },
+  {
+    id: "esg",
+    icon: Leaf,
+    color: "text-primary",
+    bg: "bg-primary/10",
+    borderColor: "border-primary/30",
+    question: "Styret spør om byggets klimaavtrykk. Du har ingen svar.",
+    steps: [
+      { time: "Q1", event: "EU Taksonomi-rapportering krever energidata per time, per kilde.", consequence: "Uten logging: du kan ikke dokumentere." },
+      { time: "Q2", event: "Leietaker med bærekraftsmål ber om energiattest.", consequence: "Risiko: tap av leietaker ved kontraktsfornyelse." },
+      { time: "Q4", event: "Refinansiering. Banken spør om GRESB-score.", consequence: "Manglende data = 0,15% ekstra rente." },
+    ],
+    vhSolution: "Alle data logges automatisk, time for time, med kilde og temperatur.",
+    vhResult: "Rapport genereres på 4 sekunder.",
+  },
+];
+
 function PlatformPreview() {
-  const [step, setStep] = useState<0 | 1 | 2 | 3>(0);
-  const [vpKw, setVpKw] = useState(200);
-  const [tankL, setTankL] = useState(2000);
-  const [wellCount, setWellCount] = useState(8);
-  const [turTemp, setTurTemp] = useState(45);
-  const [freeCool, setFreeCool] = useState(true);
-  const [simProgress, setSimProgress] = useState(0);
-
-  // Derived simulation results based on inputs
-  const tankRatio = tankL / vpKw; // optimal ~10
-  const scop = Math.round((4.8 - turTemp * 0.035) * 10) / 10;
-  const maskinstart = Math.round(3800 - tankRatio * 200 + (turTemp - 45) * 30);
-  const wellTemp10yr = Math.round((8.2 - (vpKw / (wellCount * 250)) * 5 - (freeCool ? 0 : 1.8)) * 10) / 10;
-  const extraKwh = Math.round((55 - turTemp) * vpKw * 4.5);
-  const freeKwhSaved = freeCool ? 38000 : 0;
-  const annualElKwh = Math.round(480000 / scop + 72000 - freeKwhSaved);
-  const annualCostKr = Math.round(annualElKwh * 1.5);
-
-  // Avvik detection
-  const avvik = [];
-  if (tankRatio < 8) avvik.push({ title: "Underdimensjonert akkumuleringstank", desc: `${Math.round(tankRatio)} l/kW — anbefalt ≥10 l/kW. Gir ${maskinstart > 3000 ? maskinstart : "for mange"} maskinstart/år og forkorter kompressorlevetid.`, cost: Math.round((maskinstart - 1850) * 40), fix: `Øk tank til ${vpKw * 10} liter` });
-  if (turTemp > 50) avvik.push({ title: "For høy turtemperatur", desc: `${turTemp}°C fast settpunkt i stedet for kurvestyrt 35–45°C. SCOP synker fra 3,6 til ${scop}.`, cost: Math.round((turTemp - 45) * vpKw * 6.75), fix: "Implementer utetemperaturkompensert varmekurve" });
-  if (!freeCool) avvik.push({ title: "Frikjøling deaktivert", desc: "Kompressoren kjører kjøling mai–sept selv om brønntemperaturen tillater fri kjøling. Gir +38 000 kWh/år.", cost: 57000, fix: "Aktiver frikjøling med settpunkt ΔT > 2K" });
-  if (wellTemp10yr < 4) avvik.push({ title: "Termisk drift i brønnfelt", desc: `Brønntemperatur når ${wellTemp10yr}°C innen år 10. VP kan ikke levere nominell effekt ved kaldeste perioder.`, cost: 0, fix: `Legg til ${Math.ceil((4 - wellTemp10yr) / 0.8)} ekstra brønner eller aktiver kjølegjenvinning` });
-  if (avvik.length === 0) avvik.push({ title: "Ingen kritiske avvik", desc: "Energisentralen er godt dimensjonert. Alle KPIer er innenfor anbefalte grenser.", cost: 0, fix: "" });
-
-  const totalSavings = avvik.reduce((s, a) => s + a.cost, 0);
-
-  const handleSimulate = useCallback(() => {
-    setStep(1);
-    setSimProgress(0);
-    const start = performance.now();
-    const duration = 2500;
-    const tick = (now: number) => {
-      const p = Math.min((now - start) / duration, 1);
-      setSimProgress(Math.round(p * 100));
-      if (p < 1) requestAnimationFrame(tick);
-      else setStep(2);
-    };
-    requestAnimationFrame(tick);
-  }, []);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const active = scenarios.find(s => s.id === activeId);
 
   return (
     <Section className="py-24" id="simulator">
-      <FadeIn className="mb-8 text-center max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">Prøv selv</p>
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Simuler en energisentral</h2>
-        <p className="mt-3 text-muted-foreground max-w-xl mx-auto">Parkveien Kontorbygg, 6 000 m², Oslo. Juster parametrene og se hva VirtualHouse avdekker.</p>
+      <FadeIn className="mb-10 text-center max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">Utforsk</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva skjer når...</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fire scenarioer. Fire konsekvenser du aldri hadde sett uten simulering.</p>
       </FadeIn>
 
-      {/* Step indicator */}
-      <div className="mx-auto mb-8 flex items-center justify-center gap-2 text-xs font-medium">
-        {["Konfigurer", "Simuler", "Resultater", "AI-anbefalinger"].map((label, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${i <= step ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>{i + 1}</div>
-            <span className={`hidden sm:inline ${i <= step ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
-            {i < 3 && <div className="hidden sm:block w-8 h-px bg-border" />}
-          </div>
+      {/* Scenario cards */}
+      <div className="mx-auto w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+        {scenarios.map((s) => (
+          <FadeIn key={s.id}>
+            <button
+              onClick={() => setActiveId(activeId === s.id ? null : s.id)}
+              className={`w-full text-left rounded-xl border p-5 transition-all duration-200 ${
+                activeId === s.id
+                  ? `${s.borderColor} ${s.bg}`
+                  : "border-border bg-card/50 hover:border-primary/20"
+              }`}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`flex-shrink-0 h-10 w-10 rounded-lg ${s.bg} flex items-center justify-center`}>
+                  <s.icon className={`h-5 w-5 ${s.color}`} />
+                </div>
+                <p className="text-sm font-semibold text-foreground leading-snug">{s.question}</p>
+              </div>
+            </button>
+          </FadeIn>
         ))}
       </div>
 
-      <div className="mx-auto w-full max-w-4xl">
-        <div className="rounded-xl border border-border bg-card/50 overflow-hidden">
-          {/* Dashboard header */}
-          <div className="border-b border-border px-5 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`h-3 w-3 rounded-full ${step >= 2 ? "bg-vh-green" : step === 1 ? "bg-vh-yellow animate-pulse" : "bg-muted-foreground"}`} />
-              <span className="text-sm font-bold text-foreground">Parkveien Kontorbygg — Energisentral</span>
-            </div>
-            <span className="text-[10px] font-mono text-muted-foreground">{step === 0 ? "Konfigurasjon" : step === 1 ? `Simulerer... ${simProgress}%` : step === 2 ? `${avvik.length} avvik funnet` : "AI-analyse"}</span>
-          </div>
-
-          {/* STEP 0: Configuration */}
-          {step === 0 && (
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left: Sliders */}
-                <div className="space-y-5">
-                  <div>
-                    <div className="flex justify-between mb-2"><span className="text-sm font-medium flex items-center gap-2"><Thermometer className="h-4 w-4 text-primary" />Varmepumpe</span><span className="text-sm font-mono font-bold text-primary">{vpKw} kW</span></div>
-                    <Slider value={[vpKw]} min={80} max={500} step={10} onValueChange={([v]) => { setVpKw(v); setTankL(v * 10); }} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2"><span className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-vh-yellow" />Akkumuleringstank</span><span className="text-sm font-mono font-bold text-vh-yellow">{tankL.toLocaleString("nb-NO")} L</span></div>
-                    <Slider value={[tankL]} min={500} max={8000} step={100} onValueChange={([v]) => setTankL(v)} />
-                    <p className="text-[10px] text-muted-foreground mt-1">{Math.round(tankL / vpKw)} l/kW — {tankL / vpKw >= 10 ? <span className="text-vh-green">✓ anbefalt</span> : <span className="text-destructive">under anbefalt (≥10)</span>}</p>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2"><span className="text-sm font-medium flex items-center gap-2"><Wind className="h-4 w-4 text-vh-green" />Energibrønner</span><span className="text-sm font-mono font-bold text-vh-green">{wellCount} × 250 m</span></div>
-                    <Slider value={[wellCount]} min={4} max={16} step={1} onValueChange={([v]) => setWellCount(v)} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-2"><span className="text-sm font-medium">Turtemperatur varme</span><span className="text-sm font-mono font-bold">{turTemp}°C</span></div>
-                    <Slider value={[turTemp]} min={35} max={60} step={1} onValueChange={([v]) => setTurTemp(v)} />
-                    <p className="text-[10px] text-muted-foreground mt-1">Estimert SCOP: {scop} — {turTemp <= 45 ? <span className="text-vh-green">✓ lavtemperatur</span> : <span className="text-vh-yellow">høyere = lavere COP</span>}</p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium flex items-center gap-2"><Snowflake className="h-4 w-4 text-primary" />Frikjøling (passiv)</span>
-                    <button onClick={() => setFreeCool(!freeCool)} className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${freeCool ? "bg-vh-green/15 text-vh-green" : "bg-destructive/15 text-destructive"}`}>
-                      {freeCool ? "Aktivert" : "Deaktivert"}
-                    </button>
-                  </div>
-                </div>
-                {/* Right: P&ID preview */}
-                <div className="rounded-lg bg-secondary/30 border border-border p-4 flex flex-col items-center justify-center gap-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Systemskjema</p>
-                  <div className="flex items-center gap-4 text-xs">
-                    {[
-                      { icon: Thermometer, label: "VP-1", value: `${vpKw} kW`, color: "text-primary", bg: "bg-primary/15" },
-                      { icon: Zap, label: "Tank", value: `${(tankL/1000).toFixed(1)}k L`, color: "text-vh-yellow", bg: "bg-vh-yellow/15" },
-                      { icon: Wind, label: "Brønn", value: `${wellCount}×250`, color: "text-vh-green", bg: "bg-vh-green/15" },
-                      { icon: Snowflake, label: freeCool ? "FriKjøl" : "Komp.", value: freeCool ? "Passiv" : "Aktiv", color: freeCool ? "text-vh-green" : "text-destructive", bg: freeCool ? "bg-vh-green/15" : "bg-destructive/15" },
-                    ].map((n, i) => (
-                      <div key={i} className="flex flex-col items-center gap-1">
-                        <div className={`h-10 w-10 rounded-lg ${n.bg} flex items-center justify-center`}><n.icon className={`h-4 w-4 ${n.color}`} /></div>
-                        <span className="text-muted-foreground text-[10px]">{n.label}</span>
-                        <span className={`font-mono text-[10px] font-bold ${n.color}`}>{n.value}</span>
+      {/* Expanded scenario detail */}
+      <AnimatePresence mode="wait">
+        {active && (
+          <motion.div
+            key={active.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+            className="mx-auto w-full max-w-4xl"
+          >
+            <div className={`rounded-xl border ${active.borderColor} overflow-hidden`}>
+              {/* Timeline steps */}
+              <div className="p-6 space-y-0">
+                {active.steps.map((step, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.15, duration: 0.3 }}
+                    className="relative flex gap-4 pb-6"
+                  >
+                    {/* Timeline connector */}
+                    {i < active.steps.length && (
+                      <div className="absolute left-[15px] top-[28px] bottom-0 w-px bg-border" />
+                    )}
+                    <div className="flex-shrink-0 z-10">
+                      <div className="h-8 w-8 rounded-full bg-destructive/15 border border-destructive/30 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-destructive">{i + 1}</span>
                       </div>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-2">Tur: {turTemp}°C · SCOP: {scop} · Maskinstart: ~{maskinstart}/år</p>
-                </div>
-              </div>
-              <div className="mt-6 text-center">
-                <Button size="lg" onClick={handleSimulate} className="gap-2 px-10 py-5 text-base font-bold">
-                  <Zap className="h-5 w-5" /> Simuler 10 års drift
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 1: Simulating */}
-          {step === 1 && (
-            <div className="p-10 text-center">
-              <p className="text-lg font-bold text-foreground mb-2">Simulerer {(wellCount * 250 * 8760).toLocaleString("nb-NO")} timer drift...</p>
-              <p className="text-sm text-muted-foreground mb-6">Varmepumpe, brønnfelt, akkumulering og automasjon i samspill</p>
-              <div className="mx-auto max-w-md"><Progress value={simProgress} className="h-2" /></div>
-              <p className="mt-3 text-xs font-mono text-muted-foreground">År {Math.min(10, Math.ceil(simProgress / 10))} av 10 · {simProgress}%</p>
-            </div>
-          )}
-
-          {/* STEP 2: Results + Avvik */}
-          {step === 2 && (
-            <div className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Key metrics */}
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Simuleringsresultater — 10 år</p>
-                  <div className="space-y-2">
-                    {[
-                      { label: "SCOP varme", value: scop.toString(), ok: scop >= 3.2 },
-                      { label: "Maskinstart/år", value: maskinstart.toLocaleString("nb-NO"), ok: maskinstart < 2500 },
-                      { label: "Brønntemp år 10", value: `${wellTemp10yr}°C`, ok: wellTemp10yr >= 4 },
-                      { label: "Elforbruk/år", value: `${Math.round(annualElKwh / 1000)} MWh`, ok: annualElKwh < 220000 },
-                      { label: "Årskostnad energi", value: `${Math.round(annualCostKr / 1000).toLocaleString("nb-NO")}k kr`, ok: annualCostKr < 300000 },
-                    ].map((m) => (
-                      <div key={m.label} className="flex items-center justify-between rounded-lg bg-secondary/30 px-3 py-2">
-                        <span className="text-xs text-muted-foreground">{m.label}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-mono font-bold tabular-nums text-foreground">{m.value}</span>
-                          <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-vh-green" : "bg-destructive"}`} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                {/* Avvik */}
-                <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Avvik avdekket</p>
-                  <div className="space-y-2">
-                    {avvik.map((a, i) => (
-                      <div key={i} className={`rounded-lg p-3 ${a.cost > 0 ? "bg-destructive/5 border border-destructive/20" : "bg-vh-green/5 border border-vh-green/20"}`}>
-                        <div className="flex items-start gap-2">
-                          {a.cost > 0 ? <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" /> : <CheckCircle2 className="h-4 w-4 text-vh-green flex-shrink-0 mt-0.5" />}
-                          <div>
-                            <p className="text-sm font-bold text-foreground">{a.title}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
-                            {a.cost > 0 && <p className="text-xs font-bold text-destructive mt-1">Kostnad: ~{a.cost.toLocaleString("nb-NO")} kr/år</p>}
-                            {a.fix && <p className="text-xs text-primary mt-0.5">→ {a.fix}</p>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  {totalSavings > 0 && (
-                    <div className="mt-3 rounded-lg bg-primary/10 px-3 py-2 text-center">
-                      <p className="text-xs text-muted-foreground">Totalt besparelsespotensial:</p>
-                      <p className="text-lg font-bold text-primary">{totalSavings.toLocaleString("nb-NO")} kr/år</p>
                     </div>
-                  )}
-                </div>
-              </div>
-              <div className="mt-6 text-center">
-                <Button size="lg" onClick={() => setStep(3)} className="gap-2 px-8 py-4 text-base font-bold">
-                  <Zap className="h-4 w-4" /> Se AI-anbefalinger
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: AI Recommendations */}
-          {step === 3 && (
-            <div className="p-6">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-4">AI-analyse</p>
-              <div className="space-y-3">
-                {[
-                  { title: "Dynamisk varmekurve med værvarsling", desc: `Settpunktjustering i SD-anlegget gir øyeblikkelig SCOP-forbedring. AI-agenten anbefaler turtemperatur basert på 72-timers værvarsling.`, saving: "60–70 000 kr/år", payback: "Under 1 måned", status: "Beta" },
-                  { title: "Prediktiv frikjølingsstyring", desc: "Kombinert aktivering av frikjøling og prediksjon basert på byggets termiske treghet og solinnfall. Forlenger brønnfeltets levetid med 8–12 år.", saving: "55 000 kr/år", payback: "0 kr investering", status: "Beta" },
-                  { title: "Kompressorbelastnings-optimalisering", desc: `Overvåker maskinstart kontinuerlig og varsler ved overskridelse. Anbefaler trinnvis oppstart for å redusere slitasje.`, saving: "NNV +420k over 15 år", payback: "~80 000 kr investering", status: "Kommer" },
-                ].map((rec, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.2, duration: 0.4 }} className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Zap className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-bold text-foreground">{rec.title}</span>
-                          <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${rec.status === "Beta" ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"}`}>{rec.status}</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">{rec.desc}</p>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className="text-sm font-bold text-vh-green">{rec.saving}</p>
-                        <p className="text-[10px] text-muted-foreground">{rec.payback}</p>
-                      </div>
+                    <div className="pt-0.5">
+                      <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{step.time}</p>
+                      <p className="text-sm text-foreground mt-1">{step.event}</p>
+                      <p className="text-sm font-semibold text-destructive mt-1">{step.consequence}</p>
                     </div>
                   </motion.div>
                 ))}
-              </div>
-              {/* Traction + Final CTA */}
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="rounded-xl border border-border bg-card/50 p-5">
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Brukt av nordiske ledere</p>
-                  <div className="flex flex-wrap gap-2">
-                    {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult"].map((n) => (
-                      <span key={n} className="rounded-full bg-secondary/70 px-3 py-1 text-xs font-medium text-foreground">{n}</span>
-                    ))}
+
+                {/* VH Solution — green resolution */}
+                <motion.div
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: active.steps.length * 0.15, duration: 0.3 }}
+                  className="relative flex gap-4 pt-2"
+                >
+                  <div className="flex-shrink-0 z-10">
+                    <div className="h-8 w-8 rounded-full bg-vh-green/15 border border-vh-green/30 flex items-center justify-center">
+                      <Zap className="h-4 w-4 text-vh-green" />
+                    </div>
                   </div>
-                  <p className="mt-2 text-xs text-muted-foreground"><span className="font-bold text-foreground">20+</span> enterprise-kunder · <span className="font-bold text-foreground">0%</span> churn</p>
-                </div>
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-                    Book en full demo <ArrowRight className="h-4 w-4" />
-                  </a>
-                  <button onClick={() => { setStep(0); }} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
-                    Kjør ny simulering med andre parametre
-                  </button>
-                </div>
+                  <div className="rounded-lg bg-vh-green/5 border border-vh-green/20 p-4 flex-1">
+                    <p className="text-xs font-bold text-vh-green uppercase tracking-wider mb-1">Med VirtualHouse</p>
+                    <p className="text-sm text-foreground">{active.vhSolution}</p>
+                    <p className="text-sm font-bold text-vh-green mt-2">{active.vhResult}</p>
+                  </div>
+                </motion.div>
               </div>
             </div>
-          )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Traction + CTA */}
+      <FadeIn delay={0.3} className="mt-12 mx-auto w-full max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="rounded-xl border border-border bg-card/50 p-5">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Brukt av nordiske ledere</p>
+            <div className="flex flex-wrap gap-2">
+              {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult"].map((n) => (
+                <span key={n} className="rounded-full bg-secondary/70 px-3 py-1 text-xs font-medium text-foreground">{n}</span>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground"><span className="font-bold text-foreground">20+</span> enterprise-kunder · <span className="font-bold text-foreground">0%</span> churn</p>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-3">
+            <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+              Se dette på ditt bygg <ArrowRight className="h-4 w-4" />
+            </a>
+            <p className="text-xs text-muted-foreground">Fysikkmotor nå · AI-funksjoner i beta</p>
+          </div>
         </div>
-      </div>
+      </FadeIn>
     </Section>
   );
 }
