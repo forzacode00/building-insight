@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSimInput } from "@/lib/SimContext";
+import { DemoBanner } from "@/components/DemoBanner";
 
 const LOCATIONS = [
   { value: "oslo", label: "Oslo" },
@@ -60,6 +61,7 @@ export default function Prosjekt() {
       <motion.div variants={item} className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Prosjekt — Parkveien Kontorbygg</h1>
         <p className="text-sm text-muted-foreground">Bygningsinformasjon og NS 3451:2022 systemvalg</p>
+        <DemoBanner />
       </motion.div>
 
       <div className="grid gap-6 xl:grid-cols-5">

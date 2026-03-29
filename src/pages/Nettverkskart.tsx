@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { graphNodes, graphEdges, NODE_COLORS, type GraphNode, type GraphEdge, type NodeGroup } from "@/components/nettverkskart/graphData";
 import { KnowledgeGraphCanvas } from "@/components/nettverkskart/KnowledgeGraphCanvas";
 import { InterfaceMatrixModal } from "@/components/nettverkskart/InterfaceMatrixModal";
+import { DemoBanner } from "@/components/DemoBanner";
 
 type FilterMode = "alle" | "varme" | "kjøling" | "ventilasjon" | "konflikter" | "kritisk";
 
@@ -91,6 +92,7 @@ export default function Nettverkskart() {
       <div className="shrink-0 border-b border-border px-6 py-4 lg:px-8">
         <h1 className="text-2xl font-bold text-foreground">VirtualHouse Knowledge Graph</h1>
         <p className="text-sm text-muted-foreground">Interaktivt avhengighetskart som viser hvordan hvert system påvirker de andre</p>
+        <DemoBanner />
 
         {/* Filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">

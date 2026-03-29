@@ -4,6 +4,7 @@ import { AlertTriangle, AlertCircle, Zap, Network, ClipboardList, TrendingUp, Cl
 import { Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip, ReferenceLine } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { useSimResult } from "@/lib/SimContext";
+import { DemoBanner } from "@/components/DemoBanner";
 
 const historikk = [
   { dato: "12. mars", beskrivelse: "Redusert turtemp 55→50°C", resultat: "Besparelse: NOK 34,000/år" },
@@ -91,7 +92,8 @@ export default function Driftsmorgen() {
           </h1>
           <p className="text-sm text-muted-foreground">
             Tirsdag 25. mars 2026, kl. 07:32
-          </p>
+           </p>
+          <DemoBanner />
         </div>
       </motion.div>
 

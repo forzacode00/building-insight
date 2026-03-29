@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Wifi, Play, X, Undo2, Radio, FileText, ClipboardCheck, Upload, Plug } from "lucide-react";
 import { useSimInput, useSimResult } from "@/lib/SimContext";
+import { DemoBanner } from "@/components/DemoBanner";
 import { runSimulation, type SimResult, type SimInput } from "@/lib/simulationEngine";
 
 function StatusBadge({ status, note }: { status: "ok" | "warning" | "critical"; note: string }) {
@@ -180,6 +181,7 @@ export default function SDLive() {
       <motion.div variants={item} className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">SD Live & What-If</h1>
         <p className="text-sm text-muted-foreground">Koble til SD-anlegget, les live verdier, simuler endringer</p>
+        <DemoBanner />
       </motion.div>
 
       {/* Connection panel */}

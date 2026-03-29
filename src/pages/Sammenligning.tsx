@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { ArrowDown, ArrowUp, Building2, ChevronDown } from "lucide-react";
 import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
+import { DemoBanner } from "@/components/DemoBanner";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
@@ -92,6 +93,7 @@ export default function Sammenligning() {
       <motion.div variants={item} className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Sammenligning</h1>
         <p className="text-sm text-muted-foreground">Opprinnelig design vs. optimalisert løsning</p>
+        <DemoBanner />
       </motion.div>
 
       <motion.div variants={item} ref={ref} className="mb-6 overflow-hidden rounded-xl border border-border">
