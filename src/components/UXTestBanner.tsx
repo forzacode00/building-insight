@@ -88,7 +88,7 @@ export function UXTestToggle() {
   return (
     <>
       {/* Toggle in admin area */}
-      <div className="fixed bottom-32 right-4 z-40 flex flex-col gap-2">
+      <div className="fixed bottom-16 right-4 z-40 flex flex-col gap-2 sm:bottom-32">
         <motion.button
           onClick={() => setShowInvite(true)}
           className="flex h-11 items-center gap-2 rounded-full border border-border bg-card px-4 shadow-lg shadow-black/20 transition-colors hover:bg-secondary"

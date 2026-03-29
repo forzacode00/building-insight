@@ -64,7 +64,7 @@ export function FeedbackButton() {
       {/* Floating button */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 right-4 z-40 flex h-11 items-center gap-2 rounded-full border border-border bg-card px-4 shadow-lg shadow-black/20 transition-colors hover:bg-secondary"
+        className="fixed bottom-5 right-4 z-40 flex h-10 items-center gap-2 rounded-full border border-border bg-card px-3 shadow-lg shadow-black/20 transition-colors hover:bg-secondary sm:bottom-20"
         whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
         data-testid="feedback-button"
