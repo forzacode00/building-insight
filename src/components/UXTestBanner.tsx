@@ -88,10 +88,10 @@ export function UXTestToggle() {
   return (
     <>
       {/* Toggle in admin area */}
-      <div className="fixed bottom-16 right-4 z-40 flex flex-col gap-2 sm:bottom-32">
+      <div className="fixed bottom-14 right-3 z-40 flex flex-col gap-1.5 sm:bottom-32 sm:right-4">
         <motion.button
           onClick={() => setShowInvite(true)}
-          className="flex h-11 items-center gap-2 rounded-full border border-border bg-card px-4 shadow-lg shadow-black/20 transition-colors hover:bg-secondary"
+          className="flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] shadow-lg shadow-black/20 transition-colors hover:bg-secondary sm:h-11 sm:px-4 sm:text-xs"
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.96 }}
           data-testid="ux-invite-button"
