@@ -12,7 +12,7 @@ import Simulering from "./pages/Simulering";
 import Sammenligning from "./pages/Sammenligning";
 import Nettverkskart from "./pages/Nettverkskart";
 import SDLive from "./pages/SDLive";
-import Priser from "./pages/Priser";
+
 import Prosjekt from "./pages/Prosjekt";
 import NotFound from "./pages/NotFound";
 
@@ -35,7 +35,7 @@ const App = () => (
               <Route path="sammenligning" element={<Sammenligning />} />
               <Route path="nettverkskart" element={<Nettverkskart />} />
               <Route path="sd-live" element={<SDLive />} />
-              <Route path="priser" element={<Priser />} />
+              
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
