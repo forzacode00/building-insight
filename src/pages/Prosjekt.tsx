@@ -280,7 +280,7 @@ function KlimaskallKalkulator() {
               <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs text-xs">Forenklede beregninger for skissefase. Detaljert simulering gjøres i Simulering-skjermen.</p>
+              <p className="max-w-xs text-xs">Forenklede beregninger for skissefase basert på ISO 13790. Juster fasade, isolasjon og solavskjerming for å se umiddelbar effekt på energiramme og TEK17-samsvar. Detaljert fysikksimulering gjøres i Simulering-skjermen.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

@@ -15,8 +15,8 @@ const plans = [
   {
     name: "Optimize",
     price: "12 900",
-    desc: "Full simulering + SD-integrasjon + What-If",
-    features: ["Alt i Verify", "Knowledge Graph", "SD Live", "What-If", "Konsekvensanalyse", "Skriv til SD"],
+    desc: "Full simulering + SD-integrasjon + AI-drevet What-If",
+    features: ["Alt i Verify", "Knowledge Graph", "SD Live", "AI-drevet What-If", "AI konsekvensanalyse", "Skriv til SD"],
     cta: "Start gratis prøveperiode",
     highlight: true,
     badge: "Mest populær",

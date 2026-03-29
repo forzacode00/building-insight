@@ -148,11 +148,12 @@ export default function Driftsmorgen() {
           <div className="rounded-xl border-l-4 border-vh-red bg-card p-5">
             <div className="mb-2 flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-vh-red" />
-              <span className="text-sm font-bold text-vh-red">SFP over TEK17-grense — AHU-3</span>
+              <span className="text-sm font-bold text-vh-red">Vifteeffekt over forskriftskrav — AHU-3</span>
             </div>
             <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-              Målt SFP 1.82 kW/(m³/s), krav ≤ 1.5. Mulig årsak: tilsmusset filter eller feil på frekvensomformer.
+              Målt vifteeffekt (SFP) 1.82 kW/(m³/s) — forskriftskrav er maks 1.5. Mulig årsak: tilsmusset filter eller feil på frekvensomformer.
             </p>
+            <p className="mb-4 text-[10px] text-muted-foreground/50">SFP = Spesifikk vifteeffekt. Lavere = bedre. TEK17 setter krav til maks 1.5 for kontorbygg.</p>
             <button
               onClick={() => navigate("/simulator/simulering", { state: { activeTab: "avvik" } })}
               className="inline-flex items-center gap-1 rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
