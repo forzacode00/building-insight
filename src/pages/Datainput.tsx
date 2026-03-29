@@ -16,6 +16,7 @@ export default function Datainput() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Datainput</h1>
         <p className="text-sm text-muted-foreground">Legg inn tekniske parametere eller last opp funksjonsbeskrivelse</p>
         <DemoBanner />
+        <p className="mt-2 text-xs text-muted-foreground/60">Støttede formater: PDF, Word (.docx) og Excel (.xlsx). VirtualHouse leser tekniske data automatisk fra funksjonsbeskrivelser.</p>
       </motion.div>
 
       <motion.div variants={item}>

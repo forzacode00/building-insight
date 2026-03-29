@@ -43,7 +43,10 @@ export function PIDDiagram({ buildStep = 999, highlights = { sfp: false, overtem
 
   return (
     <div className="rounded-xl border border-border bg-card p-5">
-      <h3 className="mb-4 text-sm font-semibold text-foreground">P&ID Flytdiagram</h3>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-foreground">Systemkart</h3>
+        <span className="text-[10px] text-muted-foreground/50">P&ID — viser rør, pumper og komponenter i energisystemet</span>
+      </div>
       <div className="relative space-y-6">
         {/* Varme section */}
         <AnimatePresence>

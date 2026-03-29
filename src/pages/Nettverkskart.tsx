@@ -90,9 +90,12 @@ export default function Nettverkskart() {
     >
       {/* Header */}
       <div className="shrink-0 border-b border-border px-6 py-4 lg:px-8">
-        <h1 className="text-2xl font-bold text-foreground">VirtualHouse Knowledge Graph</h1>
-        <p className="text-sm text-muted-foreground">Interaktivt avhengighetskart som viser hvordan hvert system påvirker de andre</p>
+        <h1 className="text-2xl font-bold text-foreground">Systemavhengigheter</h1>
+        <p className="text-sm text-muted-foreground">Se hvordan varme, kjøling og ventilasjon hånger sammen — og hva som påvirker hva</p>
         <DemoBanner />
+        <div className="mt-2 rounded-lg bg-secondary/30 border border-border/50 px-3 py-2 text-xs text-muted-foreground">
+          Hver node er en parameter (f.eks. turtemperatur, luftmengde). Linjer viser årsak-virkning. <span className="text-vh-red">Røde linjer</span> = konflikter mellom systemer. Klikk en node for detaljer.
+        </div>
 
         {/* Filters */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
