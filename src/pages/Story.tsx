@@ -7,8 +7,6 @@ import {
   Snowflake,
   ArrowRight,
   Zap,
-  Clock,
-  Leaf,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -217,65 +215,68 @@ function TheFlipSection() {
 /* ═══════ SECTION 4 — "Hva skjer når..." Scenarios ═══════ */
 const scenarios = [
   {
-    id: "kulde",
-    icon: Snowflake,
+    id: "settpunkt",
+    icon: Thermometer,
     color: "text-primary",
     bg: "bg-primary/10",
     borderColor: "border-primary/30",
-    question: "Det er −15°C i februar. Varmepumpen klarer ikke å følge med.",
+    who: "Driftssjef",
+    question: "Hva skjer om jeg skrur opp turtemperaturen nå?",
     steps: [
-      { time: "Dag 1, kl. 06:00", event: "Utetemperaturen faller til −15°C. Varmepumpen går på maks.", consequence: "Strømtopp: +340 kr denne timen." },
-      { time: "Dag 2", event: "Effektbehovet overstiger kapasiteten. El-patronen starter som backup.", consequence: "4× så dyr varme. Ingen varslet deg." },
-      { time: "Dag 5", event: "Leietakerne klager. Innetemperaturen har sunket 2°C.", consequence: "Risiko: kontraktsbrudd på komfortleveranse." },
+      { time: "Du spør", event: "Turtemperaturen skal fra 45°C til 55°C — leietaker klager på kulde.", consequence: "VH beregner hva økningen faktisk koster." },
+      { time: "VH svarer", event: "COP faller fra 3,6 til 2,9. Effektforbruk stiger 34%.", consequence: "+69 000 kr/år i strøm." },
+      { time: "VH foreslår", event: "Hev til 49°C og juster pumpetrinn — samme romtemperatur, 60% lavere kostnad.", consequence: "" },
     ],
-    vhSolution: "AI-en forutså kuldegrepen 36 timer i forveien og forhåndsladde akkumulatortanken i lavprisperioden.",
-    vhResult: "Du betalte det samme. Ingen merket noe.",
+    vhSolution: "Du tok en informert beslutning på 30 sekunder.",
+    vhResult: "38 000 kr spart per år — uten at noen fryser.",
   },
   {
-    id: "bronn",
-    icon: Wind,
+    id: "kaldt",
+    icon: Snowflake,
     color: "text-vh-yellow",
     bg: "bg-vh-yellow/10",
     borderColor: "border-vh-yellow/30",
-    question: "Etter 8 år synker brønntemperaturen. Ingen har fortalt deg det.",
+    who: "Driftssjef, etter klage",
+    question: "Det er for kaldt i 3. etasje — kan du finne ut hvorfor?",
     steps: [
-      { time: "År 0", event: "Brønnen leverer 7°C. Varmepumpen er effektiv. COP er 4,2.", consequence: "Alt virker. Du er fornøyd." },
-      { time: "År 3", event: "Brønntemperaturen er nede i 5°C. Kompressoren jobber hardere.", consequence: "Strømforbruk opp 8%. Ingen merker det." },
-      { time: "År 6", event: "3,5°C. Kompressoren starter oftere. Levetiden forkortes.", consequence: "Estimert tap: 400 000 kr i for tidlig utskifting." },
-      { time: "År 8", event: "Kapasitetssvikt. Bygget trenger en ny varmekilde.", consequence: "Investering: 2,8–3,4 millioner kr." },
+      { time: "Klagen", event: "Leietaker i 3. etasje melder om 19°C på morgenen. Settpunkt er 22°C.", consequence: "Du vet ikke hva som er galt." },
+      { time: "VH analyserer", event: "Går gjennom data time for time den siste uken for sone 3B.", consequence: "Finner: ventilen leverer 40% av beregnet vannmengde." },
+      { time: "Rotårsak", event: "Ventilen har stått feil stilt siden forrige service. VH peker på nøyaktig hvilken.", consequence: "" },
     ],
-    vhSolution: "Trenden ble oppdaget i år 1. Tiltak kostet 80 000 kr.",
-    vhResult: "Du sparte 3 millioner og 7 år med uvitenhet.",
+    vhSolution: "Problemet løses samme dag. Ingen tekniker trenger å gå alle etasjene.",
+    vhResult: "VH pekte direkte på årsaken — én ventil i sone 3B.",
   },
   {
-    id: "natt",
-    icon: Zap,
+    id: "andre",
+    icon: Wind,
     color: "text-vh-green",
     bg: "bg-vh-green/10",
     borderColor: "border-vh-green/30",
-    question: "Klokken er 02:14. AI-en jobber. Du sover.",
+    who: "Driftssjef, oppfølging",
+    question: "Kan dette ha skjedd andre steder i bygget?",
     steps: [
-      { time: "02:14", event: "Strømprisen faller til 12 øre/kWh. AI-en ser det.", consequence: "Turtemperaturen senkes 3°C. Bygget akkumulerer billig varme." },
-      { time: "05:30", event: "Prisspike forventes kl. 07:00. AI-en avslutter oppladingen.", consequence: "Du sover fortsatt. Ingen alarmer." },
-      { time: "07:00", event: "Pristopp. Bygget driftes på lagret varme.", consequence: "Strømkostnad denne morgenen: −62%." },
+      { time: "Du lurer", event: "Ventilproblemet i 3. etasje er løst. Men hva med resten?", consequence: "" },
+      { time: "VH sjekker", event: "Kjører tverranalyse: lav vannmengde relativt til settpunkt i alle soner.", consequence: "Finner to til: 1. etasje øst og 5. etasje vest." },
+      { time: "Rangert", event: "Begge er på vei mot samme problem — men har ikke utløst klager ennå.", consequence: "" },
     ],
-    vhSolution: "Dette skjer 12–18 netter per måned, automatisk.",
-    vhResult: "Estimert besparelse: 180 000–260 000 kr/år.",
+    vhSolution: "To leietakerklager forhindret før de oppstod.",
+    vhResult: "25 000 kr i akuttutrykninger og kompensasjon unngått.",
   },
   {
-    id: "esg",
-    icon: Leaf,
-    color: "text-primary",
-    bg: "bg-primary/10",
-    borderColor: "border-primary/30",
-    question: "Styret spør om byggets klimaavtrykk. Du har ingen svar.",
+    id: "feile",
+    icon: Zap,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+    borderColor: "border-destructive/30",
+    who: "Eiendomssjef, morgenmøte",
+    question: "Er det noen komponenter som kommer til å feile snart?",
     steps: [
-      { time: "Q1", event: "EU Taksonomi-rapportering krever energidata per time, per kilde.", consequence: "Uten logging: du kan ikke dokumentere." },
-      { time: "Q2", event: "Leietaker med bærekraftsmål ber om energiattest.", consequence: "Risiko: tap av leietaker ved kontraktsfornyelse." },
-      { time: "Q4", event: "Refinansiering. Banken spør om GRESB-score.", consequence: "Manglende data = 0,15% ekstra rente." },
+      { time: "Morgenmøte", event: "Eiendomssjef spør: hva er status på de kritiske komponentene?", consequence: "" },
+      { time: "VH svarer", event: "Kompressor K2: 4 200 starter på 18 måneder. Kjøler dårligere enn for 6 mnd siden.", consequence: "Flagget: forventet feil innen 4–6 måneder." },
+      { time: "Anbefaling", event: "Foreslår servicevindu i uke 16 — før sommerbelastningen.", consequence: "" },
     ],
-    vhSolution: "Alle data logges automatisk, time for time, med kilde og temperatur.",
-    vhResult: "Rapport genereres på 4 sekunder.",
+    vhSolution: "Planlagt bytte: 45 000 kr. Akutthavari i sommer: 180 000 kr + 3 dager uten kjøling.",
+    vhResult: "Du valgte planlagt. Bygget merket ingenting.",
   },
 ];
 
@@ -286,9 +287,9 @@ function PlatformPreview() {
   return (
     <Section className="py-24" id="simulator">
       <FadeIn className="mb-10 text-center max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">Utforsk</p>
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva skjer når...</h2>
-        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fire scenarioer. Fire konsekvenser du aldri hadde sett uten simulering.</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-4">Spør VirtualHouse</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Ekte spørsmål. Ekte svar.</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fire situasjoner der noen trenger et svar — og VirtualHouse leverer det.</p>
       </FadeIn>
 
       {/* Scenario cards */}
@@ -307,7 +308,10 @@ function PlatformPreview() {
                 <div className={`flex-shrink-0 h-10 w-10 rounded-lg ${s.bg} flex items-center justify-center`}>
                   <s.icon className={`h-5 w-5 ${s.color}`} />
                 </div>
-                <p className="text-sm font-semibold text-foreground leading-snug">{s.question}</p>
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground mb-1">{s.who}</p>
+                  <p className="text-sm font-semibold text-foreground leading-snug">«{s.question}»</p>
+                </div>
               </div>
             </button>
           </FadeIn>
