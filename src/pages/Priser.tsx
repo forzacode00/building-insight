@@ -1,49 +1,75 @@
 import { useState, useMemo } from "react";
-import { motion } from "framer-motion";
-import { Check, Star, Building2, FileText } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, Star, Zap, Building2, TrendingUp, Calculator, ChevronDown, Coins, ArrowRight, Info } from "lucide-react";
 import { useSimResult, useOptimizedResult } from "@/lib/SimContext";
+import { DemoBanner } from "@/components/DemoBanner";
 
+/* ───── Token costs per action ───── */
+const tokenCosts = [
+  { action: "Helårssimulering (8 760 timer)", tokens: 100, desc: "Én komplett simulering av ett bygg" },
+  { action: "Scenariosammenligning", tokens: 25, desc: "Sammenlign to scenarier mot hverandre" },
+  { action: "What-If-analyse", tokens: 10, desc: "Simuler én parameterendring" },
+  { action: "Avviksrapport (PDF)", tokens: 15, desc: "Generer og last ned rapport" },
+  { action: "TEK17-samsvarsrapport", tokens: 15, desc: "Komplett samsvarsdokument" },
+  { action: "ESG-rapport", tokens: 20, desc: "EU Taxonomy og bankdialog" },
+  { action: "SD Live — daglig synk", tokens: 2, desc: "Per dag med live-data" },
+  { action: "AI-konsekvensanalyse", tokens: 20, desc: "AI vurderer endring mot fysikkmotor" },
+];
+
+/* ───── Plans ───── */
 const plans = [
   {
-    name: "Verify",
-    price: "4 900",
-    desc: "Verifiser prosjekterte verdier mot faktisk drift",
-    features: ["Datainput", "Simulering", "Sammenligning", "Avviksrapport"],
-    cta: "Kom i gang",
+    name: "Starter",
+    price: "0",
+    priceLabel: "Gratis",
+    tokens: 200,
+    tokenLabel: "200 tokens inkludert",
+    desc: "Prøv VirtualHouse på ett bygg. Perfekt for å evaluere plattformen.",
+    features: ["Datainput + simulering", "Sammenligning", "Avviksrapport", "Gyldig i 30 dager"],
+    cta: "Kom i gang gratis",
     highlight: false,
+    color: "border-border/50",
   },
   {
-    name: "Optimize",
-    price: "12 900",
-    desc: "Full simulering + SD-integrasjon + AI-drevet What-If",
-    features: ["Alt i Verify", "Knowledge Graph", "SD Live", "AI-drevet What-If", "AI konsekvensanalyse", "Skriv til SD"],
-    cta: "Start gratis prøveperiode",
+    name: "Professional",
+    price: "4 900",
+    priceLabel: "kr/mnd",
+    tokens: 500,
+    tokenLabel: "500 tokens/mnd inkludert",
+    desc: "For rådgivere og driftsteam som jobber med 1–3 bygg.",
+    features: ["Alt i Starter", "Knowledge Graph", "SD Live-integrasjon", "What-If-analyser", "AI-konsekvensanalyse", "Ubegrenset brukere"],
+    cta: "Start 14-dagers prøveperiode",
     highlight: true,
     badge: "Mest populær",
+    color: "border-primary/40",
   },
   {
-    name: "Portfolio",
-    price: "8 900",
-    priceNote: "per bygg (min 5)",
-    desc: "For eiendomsforvaltere med flere bygg",
-    features: ["Alt i Optimize", "Portefølje", "Benchmarking", "ESG-rapportering"],
-    cta: "Kontakt oss",
+    name: "Enterprise",
+    price: "Tilpasset",
+    priceLabel: "",
+    tokens: null,
+    tokenLabel: "Ubegrenset tokens",
+    desc: "For eiendomsforvaltere med portefølje. Volumprising.",
+    features: ["Alt i Professional", "Portefølje-dashboard", "Benchmarking på tvers", "ESG-rapportering", "API-tilgang", "Dedikert support"],
+    cta: "Kontakt salg",
     highlight: false,
+    color: "border-border/50",
   },
 ];
 
-const container = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
 const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
 
 export default function Priser() {
   const [bra, setBra] = useState(6000);
   const [energiKost, setEnergiKost] = useState(184);
+  const [showTokens, setShowTokens] = useState(false);
 
   const roi = useMemo(() => {
     const total = bra * energiKost;
     const savLow = total * 0.15;
     const savHigh = total * 0.25;
-    const abb = 12900 * 12;
+    const abb = 4900 * 12;
     return {
       total,
       savLow: Math.round(savLow),
@@ -56,106 +82,206 @@ export default function Priser() {
 
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
-      <motion.div variants={item} className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-foreground">Velg din plan</h1>
-        <p className="mt-2 text-muted-foreground">Skalér fra verifisering til full porteføljestyring</p>
+      {/* Header */}
+      <motion.div variants={item} className="mb-6 text-center">
+        <h1 className="text-3xl font-bold text-foreground">Enkel, forutsigbar prising</h1>
+        <p className="mt-2 text-muted-foreground">Betal for det du bruker. Hver plan inkluderer simuleringstokens — kjøp flere når du trenger det.</p>
+        <DemoBanner />
       </motion.div>
 
-      {/* Tagline + context */}
+      {/* Context */}
       <motion.div variants={item} className="mb-8 text-center">
-        <p className="text-lg font-medium text-muted-foreground italic">
-          «Crash test for bygninger» — verifiser at tekniske systemer fungerer før de bygges
-        </p>
-        <p className="mt-3 text-sm text-muted-foreground/70 max-w-lg mx-auto">
-          En typisk VVS-konsulentanalyse koster 150 000–400 000 kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter — oppdatert daglig.
+        <p className="text-sm text-muted-foreground/60 max-w-lg mx-auto">
+          En typisk VVS-konsulentanalyse koster 150 000–400 000 kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter.
         </p>
       </motion.div>
 
       {/* Pricing cards */}
-      <motion.div variants={item} className="mb-8 grid gap-6 lg:grid-cols-3">
+      <motion.div variants={item} className="mb-10 grid gap-5 lg:grid-cols-3 max-w-5xl mx-auto">
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`relative rounded-2xl border p-6 transition-all ${
-              plan.highlight
-                ? "border-primary bg-card shadow-lg shadow-primary/10"
-                : "border-border bg-card"
+            className={`relative rounded-2xl border p-6 transition-all flex flex-col ${plan.color} ${
+              plan.highlight ? "bg-primary/5 shadow-lg shadow-primary/10" : "bg-card/30"
             }`}
           >
             {plan.badge && (
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
-                <Star className="mr-1 inline h-3 w-3" />
-                {plan.badge}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-bold text-primary-foreground">
+                  <Star className="h-3 w-3" /> {plan.badge}
+                </span>
               </div>
             )}
-            <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-3xl font-extrabold text-foreground font-mono tabular-nums">{plan.price}</span>
-              <span className="text-sm text-muted-foreground">kr/mnd</span>
+
+            <div className="mb-4">
+              <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
+              <div className="mt-2 flex items-baseline gap-1">
+                {plan.price === "0" ? (
+                  <span className="text-3xl font-extrabold text-vh-green font-mono">{plan.priceLabel}</span>
+                ) : plan.price === "Tilpasset" ? (
+                  <span className="text-2xl font-bold text-foreground">{plan.price}</span>
+                ) : (
+                  <>
+                    <span className="text-3xl font-extrabold text-foreground font-mono tabular-nums">{plan.price}</span>
+                    <span className="text-sm text-muted-foreground">{plan.priceLabel}</span>
+                  </>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{plan.desc}</p>
             </div>
-            {plan.priceNote && <p className="text-xs text-muted-foreground">{plan.priceNote}</p>}
-            <p className="mt-3 text-sm text-muted-foreground">{plan.desc}</p>
-            <ul className="mt-4 space-y-2">
+
+            {/* Token badge */}
+            <div className={`mb-4 rounded-lg px-3 py-2 flex items-center gap-2 ${
+              plan.tokens === null ? "bg-primary/10 border border-primary/20" :
+              plan.tokens >= 500 ? "bg-primary/10 border border-primary/20" :
+              "bg-secondary/50 border border-border/30"
+            }`}>
+              <Coins className={`h-4 w-4 ${plan.tokens === null ? "text-primary" : plan.tokens >= 500 ? "text-primary" : "text-muted-foreground"}`} />
+              <span className={`text-xs font-semibold ${plan.tokens === null ? "text-primary" : plan.tokens >= 500 ? "text-primary" : "text-foreground"}`}>
+                {plan.tokenLabel}
+              </span>
+            </div>
+
+            {/* Features */}
+            <ul className="space-y-2 flex-1 mb-5">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                  <Check className="h-4 w-4 shrink-0 text-vh-green" /> {f}
+                <li key={f} className="flex items-start gap-2 text-xs">
+                  <Check className="h-3.5 w-3.5 text-vh-green shrink-0 mt-0.5" />
+                  <span className="text-muted-foreground">{f}</span>
                 </li>
               ))}
             </ul>
-            <button
-              className={`mt-6 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
-                plan.highlight
-                  ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "border border-border bg-secondary text-foreground hover:bg-secondary/80"
-              }`}
-            >
+
+            {/* CTA */}
+            <button className={`w-full rounded-lg py-2.5 text-sm font-semibold transition-colors ${
+              plan.highlight
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-secondary text-foreground hover:bg-secondary/80"
+            }`}>
               {plan.cta}
             </button>
           </div>
         ))}
       </motion.div>
 
-      {/* Social proof + traction */}
-      <motion.div variants={item} className="mb-12">
-        <div className="rounded-xl border border-border/40 bg-secondary/10 p-6">
-          <p className="mb-4 text-center text-sm font-medium text-muted-foreground">
-            Brukt av ledende aktører i norsk byggebransje
-          </p>
-          <div className="flex flex-wrap justify-center gap-6 mb-4">
-            {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult", "Advansia", "Bravida"].map(name => (
-              <span key={name} className="text-sm font-bold text-muted-foreground/30 tracking-wide uppercase">
-                {name}
-              </span>
+      {/* Token pricing table */}
+      <motion.div variants={item} className="mb-10 max-w-3xl mx-auto">
+        <button
+          onClick={() => setShowTokens(!showTokens)}
+          className="w-full flex items-center justify-between rounded-xl border border-border/40 bg-card/30 px-5 py-4 text-left transition-colors hover:bg-secondary/20"
+        >
+          <div className="flex items-center gap-3">
+            <Coins className="h-5 w-5 text-primary" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Hva koster tokens?</p>
+              <p className="text-xs text-muted-foreground">Se hva hver handling koster i tokens, og kjøp ekstra ved behov</p>
+            </div>
+          </div>
+          <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${showTokens ? "rotate-180" : ""}`} />
+        </button>
+
+        <AnimatePresence>
+          {showTokens && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 rounded-xl border border-border/40 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border/30 bg-secondary/20">
+                      <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs">Handling</th>
+                      <th className="px-4 py-3 text-right font-semibold text-muted-foreground text-xs">Tokens</th>
+                      <th className="px-4 py-3 text-left font-semibold text-muted-foreground text-xs hidden sm:table-cell">Beskrivelse</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tokenCosts.map((t, i) => (
+                      <tr key={t.action} className={`border-b border-border/20 ${i % 2 === 0 ? "" : "bg-secondary/5"}`}>
+                        <td className="px-4 py-2.5 font-medium text-foreground text-xs">{t.action}</td>
+                        <td className="px-4 py-2.5 text-right">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary font-mono tabular-nums">
+                            {t.tokens}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2.5 text-xs text-muted-foreground hidden sm:table-cell">{t.desc}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="border-t border-border/30 bg-secondary/10 px-4 py-3 flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground">
+                    Trenger du flere tokens? Ekstra pakker fra <span className="font-bold text-foreground">kr 490</span> for 100 tokens.
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/50">Ubrukte tokens ruller over til neste måned</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      {/* Example: What 500 tokens gets you */}
+      <motion.div variants={item} className="mb-10 max-w-3xl mx-auto">
+        <div className="rounded-xl border border-primary/20 bg-primary/5 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Hva får du for 500 tokens/mnd? (Professional-planen)</h3>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { value: "3", label: "Helårssimuleringer", sub: "300 tokens" },
+              { value: "4", label: "What-If-analyser", sub: "40 tokens" },
+              { value: "2", label: "Avviksrapporter", sub: "30 tokens" },
+              { value: "30", label: "Dager SD Live", sub: "60 tokens" },
+            ].map((ex) => (
+              <div key={ex.label} className="rounded-lg bg-card/50 border border-border/30 px-3 py-2.5 text-center">
+                <p className="text-2xl font-extrabold text-primary font-mono tabular-nums">{ex.value}</p>
+                <p className="text-[10px] font-medium text-foreground">{ex.label}</p>
+                <p className="text-[9px] text-muted-foreground/50">{ex.sub}</p>
+              </div>
             ))}
           </div>
-          <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground/60 border-t border-border/30 pt-4">
-            <span><span className="font-bold text-foreground/80 text-sm">20+</span> enterprise-kunder</span>
-            <span className="h-3 w-px bg-border" />
-            <span><span className="font-bold text-foreground/80 text-sm">0%</span> enterprise churn</span>
-            <span className="h-3 w-px bg-border" />
-            <span><span className="font-bold text-foreground/80 text-sm">150k+</span> snitt årskontrakt NOK</span>
-          </div>
+          <p className="mt-3 text-[10px] text-muted-foreground/50 text-center">= 430 tokens brukt · 70 tokens til overs → ruller over</p>
         </div>
+      </motion.div>
 
-        {/* Enterprise pricing note */}
-        <div className="mt-4 rounded-lg bg-secondary/20 border border-border/30 px-5 py-3 text-center">
-          <p className="text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">Enterprise og setup-prising:</span> For større prosjekter tilbyr vi tilpasset setup (NOK 150–300k) + årlig SaaS-lisens (NOK 50–500k per bygg). <a href="mailto:post@virtualhouse.no" className="text-primary underline underline-offset-2">Kontakt oss for tilbud</a>
-          </p>
+      {/* Social proof + traction */}
+      <motion.div variants={item} className="mb-10 max-w-3xl mx-auto">
+        <div className="rounded-xl border border-border/30 bg-secondary/10 p-5">
+          <div className="flex flex-wrap justify-center gap-5 mb-3">
+            {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult", "Bravida"].map(name => (
+              <span key={name} className="text-xs font-bold text-muted-foreground/25 tracking-wide uppercase">{name}</span>
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-5 text-[11px] text-muted-foreground/50 border-t border-border/20 pt-3">
+            <span><span className="font-bold text-foreground/70">20+</span> enterprise-kunder</span>
+            <span className="h-3 w-px bg-border/30" />
+            <span><span className="font-bold text-foreground/70">0%</span> churn</span>
+            <span className="h-3 w-px bg-border/30" />
+            <span><span className="font-bold text-foreground/70">150k+</span> snitt årskontrakt</span>
+          </div>
         </div>
       </motion.div>
 
       {/* ROI Calculator */}
-      <motion.div variants={item} className="mx-auto max-w-2xl rounded-2xl border border-border bg-card p-6">
-        <h3 className="mb-4 text-lg font-bold text-foreground">ROI-kalkulator</h3>
-        <div className="mb-6 grid gap-4 sm:grid-cols-2">
+      <motion.div variants={item} className="mb-10 mx-auto max-w-2xl rounded-2xl border border-border/40 bg-card/30 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Calculator className="h-5 w-5 text-primary" />
+          <h3 className="text-lg font-bold text-foreground">ROI-kalkulator</h3>
+        </div>
+        <div className="mb-5 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="text-xs text-muted-foreground">BRA (m²)</label>
             <input
               type="number"
               value={bra}
               onChange={(e) => setBra(Number(e.target.value) || 0)}
-              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground font-mono tabular-nums"
+              className="mt-1 w-full rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm text-foreground font-mono tabular-nums focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           <div>
@@ -164,14 +290,14 @@ export default function Priser() {
               type="number"
               value={energiKost}
               onChange={(e) => setEnergiKost(Number(e.target.value) || 0)}
-              className="mt-1 w-full rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground font-mono tabular-nums"
+              className="mt-1 w-full rounded-lg border border-border bg-secondary/30 px-3 py-2 text-sm text-foreground font-mono tabular-nums focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
         <div className="space-y-2">
           <ROIRow label="Årlig energikostnad" value={`NOK ${roi.total.toLocaleString("no-NO")}`} />
           <ROIRow label="Besparelse 15–25%" value={`${roi.savLow.toLocaleString("no-NO")} – ${roi.savHigh.toLocaleString("no-NO")} kr/år`} />
-          <ROIRow label="Abonnement Optimize" value={`${roi.abb.toLocaleString("no-NO")} kr/år`} />
+          <ROIRow label="VirtualHouse Professional" value={`${roi.abb.toLocaleString("no-NO")} kr/år`} />
           <div className="flex items-center justify-between rounded-lg bg-vh-green/10 border border-vh-green/30 px-4 py-3">
             <span className="text-sm font-semibold text-foreground">Netto ROI</span>
             <span className="text-sm font-bold text-vh-green font-mono tabular-nums">
@@ -180,20 +306,35 @@ export default function Priser() {
           </div>
         </div>
         {roi.roiLow > 0 && (
-          <p className="mt-3 text-center text-sm font-semibold text-vh-green">
-            ✅ Positiv ROI fra dag én
-          </p>
+          <p className="mt-3 text-center text-sm font-semibold text-vh-green">Positiv ROI fra dag én</p>
         )}
       </motion.div>
 
       {/* ESG-finansieringsrapport */}
       <ESGSection />
+
+      {/* Enterprise note */}
+      <motion.div variants={item} className="mb-8 max-w-2xl mx-auto">
+        <div className="rounded-lg bg-secondary/20 border border-border/30 px-5 py-3 text-center">
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Enterprise og tilpasset setup:</span> For større prosjekter med behov for dedikert onboarding, API-integrasjon eller volumprising — <a href="mailto:post@virtualhouse.no" className="text-primary underline underline-offset-2">kontakt oss</a>
+          </p>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
 
-/* ─── ESG-finansieringsrapport ─── */
+function ROIRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between rounded-lg bg-secondary/20 px-4 py-2.5">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground font-mono tabular-nums">{value}</span>
+    </div>
+  );
+}
 
+/* ─── ESG-finansieringsrapport ─── */
 function ESGSection() {
   const r = useSimResult();
   const opt = useOptimizedResult();
@@ -204,138 +345,81 @@ function ESGSection() {
   const co2m2Opt = ((co2Opt * 1000) / 6000).toFixed(1);
   const energyNow = Math.round(r.totalEnergyKwhM2);
   const energyOpt = Math.round(opt.totalEnergyKwhM2);
-  const merkeNow = energyNow > 130 ? "C" : energyNow > 100 ? "B" : "A";
-  const merkeOpt = energyOpt > 130 ? "C" : energyOpt > 100 ? "B (estimert)" : "A (estimert)";
 
-  const bankRows = [
-    { bank: "DNB", krav: "Energimerke A/B", now: merkeNow, after: merkeOpt, nowOk: merkeNow <= "B", afterOk: !merkeOpt.startsWith("C") },
-    { bank: "Danske Bank", krav: "EPC A (etter 2020)", now: merkeNow, after: merkeOpt, nowOk: merkeNow === "A", afterOk: merkeOpt.startsWith("A") },
-    { bank: "KLP Bank", krav: "≤TEK17-krav (115)", now: String(energyNow), after: String(energyOpt), nowOk: energyNow <= 115, afterOk: energyOpt <= 115 },
-    { bank: "EU-taksonomi", krav: "≤70 kWh/m²·år", now: String(energyNow), after: String(energyOpt), nowOk: energyNow <= 70, afterOk: energyOpt <= 70 },
+  const energyDelta = energyOpt - energyNow;
+  const co2Delta = co2Opt - co2Now;
+
+  const bankTable = [
+    { bank: "DNB", krav: "Energimerke A/B", now: "B", after: "B (estimert)", ok: true },
+    { bank: "Danske Bank", krav: "EPC A (etter 2020)", now: "B", after: "B (estimert)", ok: false },
+    { bank: "KLP Bank", krav: `≤TEK17-krav (115)`, now: String(energyNow), after: String(energyOpt), ok: energyOpt <= 115 },
+    { bank: "EU-taksonomi", krav: "≤70 kWh/m²·år", now: String(energyNow), after: String(energyOpt), ok: energyOpt <= 70 },
   ];
 
-  const handlePrint = () => {
-    const win = window.open("", "_blank");
-    if (!win) return;
-    const today = new Date().toLocaleDateString("nb-NO");
-    win.document.write(`<!DOCTYPE html><html><head><title>ESG-finansieringsrapport</title>
-<style>
-  body{font-family:system-ui,sans-serif;padding:40px;color:#1a1a2e;font-size:13px}
-  h1{font-size:20px;margin-bottom:4px}
-  .sub{color:#666;font-size:12px;margin-bottom:20px}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-  .card{border:1px solid #ddd;border-radius:8px;padding:14px}
-  .card h3{margin:0 0 6px;font-size:14px}
-  .card .val{font-size:22px;font-weight:700;margin-bottom:4px}
-  .card .note{font-size:11px;color:#666}
-  .red{color:#dc2626} .yellow{color:#ca8a04} .green{color:#16a34a}
-  table{width:100%;border-collapse:collapse;margin-top:16px}
-  th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:12px}
-  th{background:#f5f5f5;font-size:10px;text-transform:uppercase}
-  .footer{margin-top:24px;border-top:1px solid #ddd;padding-top:10px;font-size:10px;color:#888}
-</style></head><body>
-  <h1>🏦 ESG-finansieringsrapport</h1>
-  <p class="sub">Parkveien Kontorbygg — VirtualHouse™ — ${today}</p>
-  <div class="grid">
-    <div class="card"><h3>Nåværende</h3>
-      <p class="val ${energyNow > 115 ? "red" : "green"}">${energyNow} kWh/m²·år</p>
-      <p class="val ${co2Now > 50 ? "red" : "yellow"}">${co2Now} tonn CO₂/år (${co2m2Now} kg/m²)</p>
-      <p class="val yellow">Energimerke ${merkeNow}</p>
-    </div>
-    <div class="card"><h3>Etter optimalisering</h3>
-      <p class="val ${energyOpt > 115 ? "yellow" : "green"}">${energyOpt} kWh/m²·år</p>
-      <p class="val green">${co2Opt} tonn CO₂/år (${co2m2Opt} kg/m²)</p>
-      <p class="val green">Energimerke ${merkeOpt}</p>
-    </div>
-  </div>
-  <h3>Bankkrav-sjekkliste</h3>
-  <table>
-    <tr><th>Bank</th><th>Grønt lån-krav</th><th>Nåværende</th><th>Etter tiltak</th><th>Status</th></tr>
-    ${bankRows.map(b => `<tr><td>${b.bank}</td><td>${b.krav}</td><td>${b.now}</td><td>${b.after}</td><td>${!b.nowOk && b.afterOk ? "⚠️→✅" : b.nowOk ? "✅" : "❌→❌"}</td></tr>`).join("")}
-  </table>
-  <div class="footer">VirtualHouse™ — Basert på simuleringer. Faktisk energimerke må bekreftes av akkreditert energirådgiver.</div>
-</body></html>`);
-    win.document.close();
-    win.print();
-  };
-
   return (
-    <motion.div variants={item} className="mx-auto mt-8 max-w-5xl">
-      <div className="mb-2 flex items-center gap-2">
+    <motion.div
+      variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } }}
+      className="mb-10 mx-auto max-w-3xl"
+    >
+      <div className="flex items-center gap-2 mb-4">
         <Building2 className="h-5 w-5 text-primary" />
         <h2 className="text-lg font-bold text-foreground">ESG-finansieringsrapport</h2>
       </div>
-      <p className="mb-5 text-sm text-muted-foreground">For grønn lånesøknad og EU-taksonomi-vurdering</p>
+      <p className="mb-4 text-sm text-muted-foreground">For grønn lånesøknad og EU-taksonomivurdering.</p>
 
-      {/* Scorecard */}
-      <div className="mb-6 grid gap-4 md:grid-cols-2">
-        {/* Nåværende */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Nåværende ESG-status</h3>
-          <div className="space-y-3">
-            <div className="rounded-lg bg-red-950/30 border border-red-800/40 p-3">
-              <p className="text-xl font-bold font-mono tabular-nums text-red-400">{energyNow} kWh/m²·år</p>
-              <p className="text-xs text-red-400/80">Over TEK17 (115). Over EU-taksonomi (70).</p>
+      <div className="grid gap-4 sm:grid-cols-2 mb-4">
+        <div className="rounded-xl border border-border/40 bg-card/30 p-4">
+          <p className="text-xs text-muted-foreground mb-2">Nåværende ESG-status</p>
+          <div className="space-y-2">
+            <div className="rounded-lg bg-vh-red/10 border border-vh-red/20 px-3 py-2">
+              <span className="text-sm font-bold text-vh-red font-mono">{energyNow} kWh/m²·år</span>
+              <p className="text-[10px] text-muted-foreground">Over TEK17 ({115}). Over EU-taksonomi (70).</p>
             </div>
-            <div className="rounded-lg bg-yellow-950/20 border border-yellow-800/40 p-3">
-              <p className="text-xl font-bold font-mono tabular-nums text-yellow-400">{co2Now} tonn/år = {co2m2Now} kg CO₂/m²·år</p>
-              <p className="text-xs text-yellow-400/80">Under EPC D-grense</p>
-            </div>
-            <div className="rounded-lg bg-yellow-950/20 border border-yellow-800/40 p-3">
-              <p className="text-xl font-bold text-yellow-400">Energimerke {merkeNow}</p>
-              <p className="text-xs text-yellow-400/80">Kvalifiserer ikke for grønt lån (krever A/B)</p>
+            <div className="rounded-lg bg-vh-yellow/10 border border-vh-yellow/20 px-3 py-2">
+              <span className="text-sm font-bold text-vh-yellow font-mono">{co2Now.toFixed(1)} tonn/år = {co2m2Now} kg CO₂/m²·år</span>
+              <p className="text-[10px] text-muted-foreground">Under EPC D-grense</p>
             </div>
           </div>
         </div>
-
-        {/* Etter optimalisering */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold text-foreground">Etter optimalisering</h3>
-          <div className="space-y-3">
-            <div className={`rounded-lg p-3 border ${energyOpt <= 115 ? "bg-emerald-950/20 border-emerald-800/40" : "bg-yellow-950/20 border-yellow-800/40"}`}>
-              <p className={`text-xl font-bold font-mono tabular-nums ${energyOpt <= 115 ? "text-emerald-400" : "text-yellow-400"}`}>{energyOpt} kWh/m²·år</p>
-              <p className={`text-xs ${energyOpt <= 115 ? "text-emerald-400/80" : "text-yellow-400/80"}`}>
-                {energyOpt <= 115 ? "Under TEK17 ✅." : "Over TEK17."} {energyOpt <= 70 ? "Under taksonomi ✅." : "Fremdeles over taksonomi (70)."}
-              </p>
+        <div className="rounded-xl border border-border/40 bg-card/30 p-4">
+          <p className="text-xs text-muted-foreground mb-2">Etter optimalisering</p>
+          <div className="space-y-2">
+            <div className={`rounded-lg px-3 py-2 ${energyOpt <= 115 ? "bg-vh-green/10 border border-vh-green/20" : "bg-vh-yellow/10 border border-vh-yellow/20"}`}>
+              <span className={`text-sm font-bold font-mono ${energyOpt <= 115 ? "text-vh-green" : "text-vh-yellow"}`}>{energyOpt} kWh/m²·år</span>
+              <p className="text-[10px] text-muted-foreground">{energyOpt <= 115 ? "Under TEK17 ✓" : "Fremdeles over TEK17"}. Fremdeles over taksonomi (70).</p>
             </div>
-            <div className="rounded-lg bg-emerald-950/20 border border-emerald-800/40 p-3">
-              <p className="text-xl font-bold font-mono tabular-nums text-emerald-400">{co2Opt} tonn/år = {co2m2Opt} kg CO₂/m²·år</p>
-              <p className="text-xs text-emerald-400/80">Redusert fra {co2Now} tonn</p>
-            </div>
-            <div className="rounded-lg bg-emerald-950/20 border border-emerald-800/40 p-3">
-              <p className="text-xl font-bold text-emerald-400">Energimerke {merkeOpt}</p>
-              <p className="text-xs text-emerald-400/80">Kvalifiserer for grønt lån ✅</p>
+            <div className="rounded-lg bg-vh-green/10 border border-vh-green/20 px-3 py-2">
+              <span className="text-sm font-bold text-vh-green font-mono">{co2Opt.toFixed(1)} tonn/år = {co2m2Opt} kg CO₂/m²·år</span>
+              <p className="text-[10px] text-muted-foreground">Redusert fra {co2Now.toFixed(1)} tonn</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Bankkrav-sjekkliste */}
-      <div className="mb-4 overflow-x-auto rounded-xl border border-border">
+      {/* Bank table */}
+      <div className="overflow-hidden rounded-xl border border-border/40">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-secondary/50">
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Bank</th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Grønt lån-krav</th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Nåværende</th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Etter tiltak</th>
-              <th className="px-4 py-2.5 text-left text-xs font-semibold text-muted-foreground">Status</th>
+            <tr className="border-b border-border/30 bg-secondary/20">
+              <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground text-xs">Bank</th>
+              <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground text-xs">Grønt lån-krav</th>
+              <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground text-xs">Nåværende</th>
+              <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground text-xs">Etter tiltak</th>
+              <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground text-xs">Status</th>
             </tr>
           </thead>
           <tbody>
-            {bankRows.map((b) => (
-              <tr key={b.bank} className="border-b border-border/50">
-                <td className="px-4 py-2.5 font-medium text-foreground">{b.bank}</td>
-                <td className="px-4 py-2.5 text-muted-foreground">{b.krav}</td>
-                <td className="px-4 py-2.5 font-mono tabular-nums text-foreground">{b.now}</td>
-                <td className="px-4 py-2.5 font-mono tabular-nums text-foreground">{b.after}</td>
-                <td className="px-4 py-2.5 text-sm font-semibold">
-                  {!b.nowOk && b.afterOk ? (
-                    <span className="text-emerald-400">⚠️→✅</span>
-                  ) : b.nowOk && b.afterOk ? (
-                    <span className="text-emerald-400">✅</span>
+            {bankTable.map((row) => (
+              <tr key={row.bank} className="border-b border-border/20">
+                <td className="px-4 py-2.5 font-medium text-foreground text-xs">{row.bank}</td>
+                <td className="px-4 py-2.5 text-muted-foreground text-xs">{row.krav}</td>
+                <td className="px-4 py-2.5 font-mono tabular-nums text-xs">{row.now}</td>
+                <td className="px-4 py-2.5 font-mono tabular-nums text-xs">{row.after}</td>
+                <td className="px-4 py-2.5">
+                  {row.ok ? (
+                    <span className="text-vh-green text-xs font-medium">✓</span>
                   ) : (
-                    <span className="text-red-400">❌→❌</span>
+                    <span className="text-vh-red text-xs font-medium">✕</span>
                   )}
                 </td>
               </tr>
@@ -343,28 +427,7 @@ function ESGSection() {
           </tbody>
         </table>
       </div>
-
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] text-muted-foreground/70">
-          Basert på simuleringer. Faktisk energimerke må bekreftes av akkreditert energirådgiver.
-        </p>
-        <button
-          onClick={handlePrint}
-          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary"
-        >
-          <FileText className="h-4 w-4" />
-          Generer ESG-rapport for bankdialog
-        </button>
-      </div>
+      <p className="mt-2 text-[10px] text-muted-foreground/40">Basert på simuleringer. Faktisk energimerke må bekreftes av akkreditert energirådgiver.</p>
     </motion.div>
-  );
-}
-
-function ROIRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between rounded-lg bg-secondary/50 px-4 py-2.5">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="text-sm font-semibold text-foreground font-mono tabular-nums">{value}</span>
-    </div>
   );
 }
