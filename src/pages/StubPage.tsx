@@ -7,7 +7,7 @@ const titles: Record<string, string> = {
   "/sammenligning": "Sammenligning",
   "/nettverkskart": "Nettverkskart",
   "/sd-live": "SD Live & What-If",
-  "/priser": "Priser",
+  
 };
 
 export default function StubPage() {
