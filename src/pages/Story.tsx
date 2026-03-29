@@ -262,7 +262,7 @@ function PainBandSection() {
         </div>
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">70 000</p>
-          <p className="mt-2 text-sm text-muted-foreground">kr per utrykning til teknisk feil i bygg (Newsec)</p>
+          <p className="mt-2 text-sm text-muted-foreground">kr per utrykning til teknisk feil i bygg</p>
         </div>
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-primary">&lt; 1 år</p>
