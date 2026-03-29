@@ -22,7 +22,7 @@ export function AppLayout() {
         </AnimatePresence>
       </main>
       <div className="fixed bottom-4 right-4 z-50 rounded-full bg-primary/10 border border-primary/20 px-3 py-1">
-        <span className="text-[10px] font-medium text-primary/60">VirtualHouse™ Investor Demo</span>
+        <span className="text-[10px] font-medium text-primary/60">VirtualHouse™ v0.9.4 · Investor Demo</span>
       </div>
     </div>
   );

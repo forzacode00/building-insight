@@ -16,6 +16,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navItems = [
   { icon: Sun, label: "Driftsmorgen", path: "/simulator", badge: null },
@@ -62,8 +63,8 @@ export function AppSidebar() {
           const isLocked = item.badge === "locked";
 
           return (
+            <div key={item.path} className="relative">
             <button
-              key={item.path}
               onClick={() => !isLocked && navigate(item.path)}
               disabled={isLocked}
               className={cn(
@@ -93,6 +94,14 @@ export function AppSidebar() {
                 <Lock className="ml-auto h-3.5 w-3.5" />
               )}
             </button>
+            {isLocked && (
+              <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 hidden group-hover:block z-50">
+                <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground shadow-lg whitespace-nowrap">
+                  Tilgjengelig med Portfolio-plan — <span className="text-primary font-medium">se Priser</span>
+                </div>
+              </div>
+            )}
+            </div>
           );
         })}
       </nav>
