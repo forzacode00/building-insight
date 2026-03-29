@@ -207,17 +207,17 @@ function HeroSection() {
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
       <FadeIn className="z-10 max-w-2xl text-center">
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
-          Tverrfaglig systemsimulering — prediktiv kvalitetssikring
+          Building performance, Verified
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
-          Se fremtidens avvik
+          Unngå feil beslutninger
           <br />
-          <span className="text-primary">før bygget står</span>
+          <span className="text-primary">tidlig — ikke etter overlevering</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          VirtualHouse simulerer samspillet mellom varme, ventilasjon og kjøling — og forutser feil som koster millioner å rette etter overlevering.
+          VirtualHouse verifiserer at byggets systemer faktisk virker sammen — og gir deg beslutningsgrunnlag til å kutte 10–20% i energikost, redusere Capex og eliminere feil før de blir kostbare.
         </p>
       </FadeIn>
 
@@ -261,12 +261,12 @@ function PainBandSection() {
           <p className="mt-2 text-sm text-muted-foreground">av tekniske anlegg har konflikter mellom systemer</p>
         </div>
         <div>
-          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">15–25%</p>
-          <p className="mt-2 text-sm text-muted-foreground">gjennomsnittlig merkostnad ved feil</p>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">70 000</p>
+          <p className="mt-2 text-sm text-muted-foreground">kr per utrykning til teknisk feil i bygg (Newsec)</p>
         </div>
         <div>
-          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–12 mnd</p>
-          <p className="mt-2 text-sm text-muted-foreground">typisk tid for feilretting etter overlevering</p>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-primary">&lt; 1 år</p>
+          <p className="mt-2 text-sm text-muted-foreground">typisk tilbakebetaling — analyse til 200k sparer 600k i energi år 1</p>
         </div>
       </FadeIn>
     </section>
@@ -289,8 +289,8 @@ function TheFlipSection() {
   return (
     <Section className="py-24">
       <FadeIn className="mb-10 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hva om du kunne se fremtiden?</h2>
-        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">VirtualHouse simulerer samspillet mellom alle tekniske systemer — og forutser konflikter før de oppstår.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hvert bygg er en kontinuerlig forbedringssirkel</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Design → Verifiser → Drift → Optimaliser → Re-design. VirtualHouse er sannhetslaget som kobler fasene — slik at hvert prosjekt forbedrer det neste.</p>
       </FadeIn>
 
       <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-6">
@@ -960,7 +960,7 @@ function SimulatorSection() {
             {/* Inline CTA — aha → handling */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }} className="pt-4">
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-6 text-center">
-                <p className="text-sm text-muted-foreground mb-3">Disse avvikene finnes sannsynligvis i ditt bygg også.</p>
+                <p className="text-sm text-muted-foreground mb-3">Simuleringen over er en indikasjon. En full VirtualHouse-analyse verifiserer systemoppførselen i ditt faktiske prosjekt — uansett hvilke verktøy teamet bruker.</p>
                 <Button size="lg" onClick={() => navigate("/simulator")} className="gap-2 px-8 py-5 text-base font-bold">
                   Test ditt prosjekt gratis
                   <ArrowRight className="h-4 w-4" />
@@ -1009,11 +1009,11 @@ function FAQSection() {
   const faqs = [
     {
       q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?",
-      a: "SIMIEN og IDA-ICE er detaljerte energisimuleringsprogram for NS 3031-beregninger. VirtualHouse er et kvalitetssikringsverktøy som kjører på minutter, ikke uker. Vi erstatter ikke energiberegningen — vi fanger feil før den starter.",
+      a: "SIMIEN og IDA-ICE beregner energibehov etter NS 3031. VirtualHouse verifiserer systemoppførselen — at varmeanlegg, ventilasjon og kjøling faktisk virker slik de er prosjektert, ikke bare på papiret. Vi erstatter ikke energiberegningen, vi bekrefter at den holder i praksis. Vi er heller ikke et alternativ til AI-verktøy — vi er verifikasjonslaget som bekrefter at AI-outputen er fysisk korrekt.",
     },
     {
       q: "Hva koster det?",
-      a: "Fra 4 900 kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er 12 900 kr/mnd. Enterprise-avtaler for portefolio — kontakt oss.",
+      a: "Fra 4 900 kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er 12 900 kr/mnd. For et bygg med 4 MNOK i energikostnad er typisk besparelse 10–15% (400–600 000 kr/år) — tilbakebetalingstid under ett år. Enterprise-avtaler for portefoli — kontakt oss.",
     },
     {
       q: "Kan jeg bruke dette på et reelt prosjekt?",
@@ -1062,7 +1062,7 @@ function CTASection() {
   const navigate = useNavigate();
   const result = useSimResult();
   const { input } = useSimInput();
-  const segments = ["Totalentreprenører", "Rådgivende ingeniører", "Eiendomsforvaltere", "Byggherrer", "FM-selskaper"];
+  const segments = ["Totalentreprenører", "Rådgivende ingeniører", "Eiendomsforvaltere", "Offentlige byggherrer", "Enova-rådgivere"];
   const hasResult = result.totalEnergyKwhM2 > 0;
   const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
 
@@ -1101,10 +1101,10 @@ function CTASection() {
 
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          Hvert bygg har fremtidige avvik. Spørsmålet er om du finner dem nå — eller etter overlevering
+          Den dyreste feilen er ikke avviket — det er beslutningen tatt uten å vite bedre
         </h2>
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          VirtualHouse har allerede funnet feil verdt <span className="font-bold text-foreground">NOK 12.4 millioner</span> i norske næringsbygg. Hva skjuler seg i ditt?
+          VirtualHouse brukes som verifikasjonslag i energiprogrammer og byggeprosjekter over hele landet. Resultatet: <span className="font-bold text-foreground">10–20% lavere energikostnader</span>, riktigere dimensjonering og færre overraskelser etter overlevering.
         </p>
         <div className="mt-10">
           <Button size="lg" onClick={() => navigate("/simulator")} className="w-full sm:w-auto gap-3 px-10 py-6 text-lg font-bold">
