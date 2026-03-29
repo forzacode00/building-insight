@@ -97,38 +97,103 @@ export default function Story() {
   );
 }
 
-/* ═══════ Hero Building (video + isometric fallback) ═══════ */
+/* ═══════ Hero Building (video background + isometric scan overlay) ═══════ */
 function HeroBuilding() {
   const [videoError, setVideoError] = useState(false);
+  const [revealProgress, setRevealProgress] = useState(0);
+  const [scanComplete, setScanComplete] = useState(false);
+
+  useEffect(() => {
+    const REVEAL_DURATION = 2400; // ms
+    const HOLD_DURATION = 4000; // ms after scan completes before restarting
+    let raf: number;
+    let start: number | null = null;
+
+    const tick = (now: number) => {
+      if (start === null) start = now;
+      const elapsed = now - start;
+      const totalCycle = REVEAL_DURATION + HOLD_DURATION;
+      const cycleElapsed = elapsed % totalCycle;
+
+      if (cycleElapsed < REVEAL_DURATION) {
+        const p = Math.min(cycleElapsed / REVEAL_DURATION, 1);
+        setRevealProgress(p);
+        setScanComplete(p >= 1);
+      } else {
+        setRevealProgress(1);
+        setScanComplete(true);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   return (
-    <div className="relative w-full max-w-[640px] rounded-xl overflow-hidden border border-border">
-      {!videoError ? (
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          poster="/vh_hero_frame.png"
-          onError={() => setVideoError(true)}
-          className="w-full h-auto"
-        >
-          <source src="/vh_hero_video.mp4" type="video/mp4" />
-        </video>
-      ) : (
-        <img src="/vh_hero_frame.png" alt="VirtualHouse building scan" className="w-full h-auto" />
-      )}
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-      {/* Bottom badges */}
-      <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-        <span className="rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1 text-xs font-mono font-bold text-destructive">
-          5 fremtidige avvik
-        </span>
-        <span className="rounded-lg bg-card/90 border border-border px-2.5 py-1 text-xs font-mono font-bold text-primary">
-          17 520 timer simulert
-        </span>
+    <div className="relative w-full max-w-[640px] rounded-xl overflow-hidden border border-border bg-background/50">
+      {/* Video / image background layer */}
+      <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
+        {!videoError ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="/vh_hero_frame.png"
+            onError={() => setVideoError(true)}
+            className="absolute inset-0 w-full h-full object-cover opacity-30"
+          >
+            <source src="/vh_hero_video.mp4" type="video/mp4" />
+          </video>
+        ) : (
+          <img src="/vh_hero_frame.png" alt="VirtualHouse building scan" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+        )}
+
+        {/* Isometric building scan overlay */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <IsometricBuilding
+            heatingTemp={55}
+            sfpValue={1.8}
+            recoveryEff={0.82}
+            coolingKw={300}
+            revealProgress={revealProgress}
+            className="w-full max-w-[420px] drop-shadow-[0_0_30px_hsl(var(--primary)/0.15)]"
+          />
+        </div>
+
+        {/* Scan-line effect */}
+        {!scanComplete && (
+          <motion.div
+            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent"
+            style={{ top: `${(1 - revealProgress) * 100}%` }}
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 0.8, repeat: Infinity }}
+          />
+        )}
       </div>
+
+      {/* Overlay gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/30 pointer-events-none" />
+
+      {/* Bottom badges — fade in after scan completes */}
+      <AnimatePresence>
+        {scanComplete && (
+          <motion.div
+            className="absolute bottom-3 left-3 right-3 flex items-center justify-between"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.4 }}
+          >
+            <span className="rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1 text-xs font-mono font-bold text-destructive">
+              5 fremtidige avvik
+            </span>
+            <span className="rounded-lg bg-card/90 border border-border px-2.5 py-1 text-xs font-mono font-bold text-primary">
+              17 520 timer simulert
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
