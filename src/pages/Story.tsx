@@ -227,6 +227,7 @@ const scenarios = [
       { time: "VH svarer", event: "COP faller fra 3,6 til 2,9. Effektforbruk stiger 34%.", consequence: "+69 000 kr/år i strøm." },
       { time: "VH foreslår", event: "Hev til 49°C og juster pumpetrinn — samme romtemperatur, 60% lavere kostnad.", consequence: "" },
     ],
+    how: "VH har en fysikkmodell av energisentralen din — varmepumpe, rørnett, akkumuleringstank. Når du endrer ett settpunkt, beregner modellen ringvirkningene gjennom hele systemet på sekunder. Samme beregning i virkeligheten tar måneder og koster driftsforstyrrelser.",
     vhSolution: "Du tok en informert beslutning på 30 sekunder.",
     vhResult: "38 000 kr spart per år — uten at noen fryser.",
   },
@@ -243,6 +244,7 @@ const scenarios = [
       { time: "VH analyserer", event: "Går gjennom data time for time den siste uken for sone 3B.", consequence: "Finner: ventilen leverer 40% av beregnet vannmengde." },
       { time: "Rotårsak", event: "Ventilen har stått feil stilt siden forrige service. VH peker på nøyaktig hvilken.", consequence: "" },
     ],
+    how: "VH er koblet til byggets SD-anlegg og leser temperatur- og strømningsdata kontinuerlig. Fordi VH vet hvordan systemet SKAL oppføre seg (fra fysikkmodellen), kan den sammenligne med hva som FAKTISK skjer — og peke på nøyaktig hvor avviket oppstår.",
     vhSolution: "Problemet løses samme dag. Ingen tekniker trenger å gå alle etasjene.",
     vhResult: "VH pekte direkte på årsaken — én ventil i sone 3B.",
   },
@@ -259,6 +261,7 @@ const scenarios = [
       { time: "VH sjekker", event: "Kjører tverranalyse: lav vannmengde relativt til settpunkt i alle soner.", consequence: "Finner to til: 1. etasje øst og 5. etasje vest." },
       { time: "Rangert", event: "Begge er på vei mot samme problem — men har ikke utløst klager ennå.", consequence: "" },
     ],
+    how: "Når VH finner et avvik étt sted, kan den kjøre samme sjekk på ALLE soner i bygget automatisk. Fysikkmodellen vet hva normal drift ser ut som for hver sone — så den fanger opp mønstre før de blir klager.",
     vhSolution: "To leietakerklager forhindret før de oppstod.",
     vhResult: "25 000 kr i akuttutrykninger og kompensasjon unngått.",
   },
@@ -275,6 +278,7 @@ const scenarios = [
       { time: "VH svarer", event: "Kompressor K2: 4 200 starter på 18 måneder. Kjøler dårligere enn for 6 mnd siden.", consequence: "Flagget: forventet feil innen 4–6 måneder." },
       { time: "Anbefaling", event: "Foreslår servicevindu i uke 16 — før sommerbelastningen.", consequence: "" },
     ],
+    how: "VH tracker driftshistorikk for hver komponent — antall starter, driftstimer, ytelse under last. Fysikkmodellen vet hva normal aldring ser ut som. Når en komponent avviker fra forventet kurve, flagger VH den — med årsak, forventet gjenstående levetid og anbefalt tidspunkt for service.",
     vhSolution: "Planlagt bytte: 45 000 kr. Akutthavari i sommer: 180 000 kr + 3 dager uten kjøling.",
     vhResult: "Du valgte planlagt. Bygget merket ingenting.",
   },
@@ -357,11 +361,29 @@ function PlatformPreview() {
                   </motion.div>
                 ))}
 
-                {/* VH Solution — green resolution */}
+                {/* How VH does it — the mechanism */}
                 <motion.div
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: active.steps.length * 0.15, duration: 0.3 }}
+                  className="relative flex gap-4 py-3"
+                >
+                  <div className="flex-shrink-0 z-10">
+                    <div className="h-8 w-8 rounded-full bg-secondary border border-border flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-muted-foreground">?</span>
+                    </div>
+                  </div>
+                  <div className="rounded-lg bg-secondary/30 border border-border p-4 flex-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Hvordan VH klarer dette</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{active.how}</p>
+                  </div>
+                </motion.div>
+
+                {/* VH Solution — green resolution */}
+                <motion.div
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (active.steps.length + 1) * 0.15, duration: 0.3 }}
                   className="relative flex gap-4 pt-2"
                 >
                   <div className="flex-shrink-0 z-10">
@@ -370,7 +392,7 @@ function PlatformPreview() {
                     </div>
                   </div>
                   <div className="rounded-lg bg-vh-green/5 border border-vh-green/20 p-4 flex-1">
-                    <p className="text-xs font-bold text-vh-green uppercase tracking-wider mb-1">Med VirtualHouse</p>
+                    <p className="text-xs font-bold text-vh-green uppercase tracking-wider mb-1">Resultat</p>
                     <p className="text-sm text-foreground">{active.vhSolution}</p>
                     <p className="text-sm font-bold text-vh-green mt-2">{active.vhResult}</p>
                   </div>
