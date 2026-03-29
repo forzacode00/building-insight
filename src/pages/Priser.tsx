@@ -61,10 +61,13 @@ export default function Priser() {
         <p className="mt-2 text-muted-foreground">Skalér fra verifisering til full porteføljestyring</p>
       </motion.div>
 
-      {/* Tagline */}
+      {/* Tagline + context */}
       <motion.div variants={item} className="mb-8 text-center">
         <p className="text-lg font-medium text-muted-foreground italic">
           «Crash test for bygninger» — verifiser at tekniske systemer fungerer før de bygges
+        </p>
+        <p className="mt-3 text-sm text-muted-foreground/70 max-w-lg mx-auto">
+          En typisk VVS-konsulentanalyse koster 150 000–400 000 kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter — oppdatert daglig.
         </p>
       </motion.div>
 

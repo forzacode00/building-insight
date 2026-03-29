@@ -93,6 +93,7 @@ export default function Sammenligning() {
       <motion.div variants={item} className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Sammenligning</h1>
         <p className="text-sm text-muted-foreground">Opprinnelig design vs. optimalisert løsning</p>
+        <p className="mt-2 text-xs text-muted-foreground/60">Opprinnelig = prosjektert design fra funksjonsbeskrivelsen. Optimalisert = VirtualHouses anbefaling basert på simulering.</p>
         <DemoBanner />
       </motion.div>
 

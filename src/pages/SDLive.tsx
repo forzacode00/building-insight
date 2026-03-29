@@ -179,9 +179,12 @@ export default function SDLive() {
   return (
     <motion.div variants={container} initial="hidden" animate="show" className="min-h-screen p-6 lg:p-8">
       <motion.div variants={item} className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">SD Live & What-If</h1>
-        <p className="text-sm text-muted-foreground">Koble til SD-anlegget, les live verdier, simuler endringer</p>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Live-data & Hva-om-analyser</h1>
+        <p className="text-sm text-muted-foreground">Koble byggets styringssystem til VirtualHouse — les live verdier, simuler endringer</p>
         <DemoBanner />
+        <div className="mt-3 rounded-lg bg-secondary/30 border border-border/50 px-4 py-2.5 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">Hvordan fungerer dette?</span> Din SD-leverandør kobler styringssystemet til VirtualHouse — typisk 2–4 timers arbeid. Du trenger ingen IT-kompetanse. Etter tilkobling leser plattformen live data hvert minutt.
+        </div>
       </motion.div>
 
       {/* Connection panel */}

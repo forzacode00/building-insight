@@ -52,26 +52,12 @@ function SiteNav() {
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
-        <div className="flex items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-3 sm:gap-5">
           <button onClick={() => document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Utforsk</button>
-          <AnimatePresence>
-            {scrolled && (
-              <motion.button
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                onClick={() => navigate('/simulator')}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
-              </motion.button>
-            )}
-          </AnimatePresence>
-          {!scrolled && (
-            <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-              Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          )}
+          <button onClick={() => navigate('/simulator/priser')} className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Priser</button>
+          <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+            Prøv gratis <ArrowRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </nav>
@@ -97,6 +83,7 @@ export default function Story() {
 
 /* ═══════ SECTION 1 — Hero (Story Hook) ═══════ */
 function HeroSection() {
+  const navigate = useNavigate();
   return (
     <Section className="min-h-[90vh] py-16 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.06),transparent)]" />
@@ -122,14 +109,19 @@ function HeroSection() {
       <FadeIn delay={0.3} className="z-10 mt-8 w-full max-w-2xl text-center">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button size="lg" onClick={() => {
-            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
+            navigate('/simulator');
           }} className="gap-2 px-8 py-5 text-base font-bold">
-            Utforsk scenarioene
+            Start gratis — ingen kortinfo
             <ArrowRight className="h-5 w-5" />
           </Button>
-          <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
-            Eller book en demo →
-          </a>
+          <div className="flex items-center gap-4">
+            <button onClick={() => document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' })} className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+              Utforsk scenarioene
+            </button>
+            <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+              Book demo
+            </a>
+          </div>
         </div>
       </FadeIn>
 

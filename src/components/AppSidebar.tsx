@@ -25,7 +25,7 @@ const navItems = [
   { icon: Zap, label: "Simulering", path: "/simulator/simulering", badge: null },
   { icon: BarChart3, label: "Sammenligning", path: "/simulator/sammenligning", badge: null },
   { icon: Network, label: "Nettverkskart", path: "/simulator/nettverkskart", badge: "NY" },
-  { icon: SlidersHorizontal, label: "SD Live & What-If", path: "/simulator/sd-live", badge: "NY" },
+  { icon: SlidersHorizontal, label: "Live-data & Hva-om", path: "/simulator/sd-live", badge: "NY" },
   
   { icon: DollarSign, label: "Priser", path: "/simulator/priser", badge: null },
   { icon: PieChart, label: "Portefølje", path: "/simulator/portefolje", badge: "locked" },

@@ -54,8 +54,9 @@ function BuildingHealthScore() {
             <span className="mt-1 text-xs text-muted-foreground">Bygningshelse</span>
           </div>
         </TooltipTrigger>
-        <TooltipContent>
-          <p>Basert på energieffektivitet, komfort, systemtilstand og avviksstatus</p>
+        <TooltipContent side="bottom" className="max-w-xs">
+          <p className="font-semibold mb-1">Bygningshelse-score</p>
+          <p>Beregnet fra: TEK17-samsvar (30%), energieffektivitet vs. norm (30%), inneklima (25%) og driftsstabilitet (15%). Høyere score = lavere risiko og driftskostnad.</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
