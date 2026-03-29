@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -10,8 +10,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useSimInput, useSimResult } from "@/lib/SimContext";
-import IsometricBuilding from "@/components/IsometricBuilding";
 
 /* ───────── helpers ───────── */
 function Section({ children, className = "", id }: { children: React.ReactNode; className?: string; id?: string }) {
@@ -37,22 +35,12 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 /* ───────── STORY PAGE ───────── */
 /* ═══════ STICKY NAV ═══════ */
 function SiteNav() {
-  const result = useSimResult();
-  const hasResult = result.totalEnergyKwhM2 > 0;
-
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
         <div className="flex items-center gap-4 sm:gap-6">
-          <a href="#faser" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Leveranser</a>
-          {hasResult && (
-            <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
-              result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
-            }`}>
-              Score: {result.healthScore}
-            </span>
-          )}
+          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Plattform</a>
           <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
             Få tilgang <ArrowRight className="h-3.5 w-3.5" />
           </a>
@@ -75,107 +63,6 @@ export default function Story() {
         <CTASection />
       </div>
     </TooltipProvider>
-  );
-}
-
-/* ═══════ Hero Building (video background + isometric scan overlay) ═══════ */
-function HeroBuilding() {
-  const [videoError, setVideoError] = useState(false);
-  const [revealProgress, setRevealProgress] = useState(0);
-  const [scanComplete, setScanComplete] = useState(false);
-
-  useEffect(() => {
-    const REVEAL_DURATION = 2400; // ms
-    const HOLD_DURATION = 4000; // ms after scan completes before restarting
-    let raf: number;
-    let start: number | null = null;
-
-    const tick = (now: number) => {
-      if (start === null) start = now;
-      const elapsed = now - start;
-      const totalCycle = REVEAL_DURATION + HOLD_DURATION;
-      const cycleElapsed = elapsed % totalCycle;
-
-      if (cycleElapsed < REVEAL_DURATION) {
-        const p = Math.min(cycleElapsed / REVEAL_DURATION, 1);
-        setRevealProgress(p);
-        setScanComplete(p >= 1);
-      } else {
-        setRevealProgress(1);
-        setScanComplete(true);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  return (
-    <div className="relative w-full max-w-[640px] rounded-xl overflow-hidden border border-border bg-background/50">
-      {/* Video / image background layer */}
-      <div className="relative w-full" style={{ aspectRatio: "16/10" }}>
-        {!videoError ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            poster="/vh_hero_frame.png"
-            onError={() => setVideoError(true)}
-            className="absolute inset-0 w-full h-full object-cover opacity-30"
-          >
-            <source src="/vh_hero_video.mp4" type="video/mp4" />
-          </video>
-        ) : (
-          <img src="/vh_hero_frame.png" alt="VirtualHouse building scan" className="absolute inset-0 w-full h-full object-cover opacity-30" />
-        )}
-
-        {/* Isometric building scan overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <IsometricBuilding
-            heatingTemp={55}
-            sfpValue={1.8}
-            recoveryEff={0.82}
-            coolingKw={300}
-            revealProgress={revealProgress}
-            className="w-full max-w-[420px] drop-shadow-[0_0_30px_hsl(var(--primary)/0.15)]"
-          />
-        </div>
-
-        {/* Scan-line effect */}
-        {!scanComplete && (
-          <motion.div
-            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent"
-            style={{ top: `${(1 - revealProgress) * 100}%` }}
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 0.8, repeat: Infinity }}
-          />
-        )}
-      </div>
-
-      {/* Overlay gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-background/30 pointer-events-none" />
-
-      {/* Bottom badges — fade in after scan completes */}
-      <AnimatePresence>
-        {scanComplete && (
-          <motion.div
-            className="absolute bottom-3 left-3 right-3 flex items-center justify-between"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.4 }}
-          >
-            <span className="rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1 text-xs font-mono font-bold text-destructive">
-              3 dimensjoneringskonflikter
-            </span>
-            <span className="rounded-lg bg-card/90 border border-border px-2.5 py-1 text-xs font-mono font-bold text-primary">
-              Energisentral simulert
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }
 
@@ -205,20 +92,18 @@ function HeroSection() {
         </p>
       </FadeIn>
 
-      {/* Product visual + CTA */}
+      {/* CTA */}
       <FadeIn delay={0.3} className="z-10 mt-10 w-full max-w-2xl text-center">
-        <HeroBuilding />
-
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Button size="lg" onClick={() => {
-            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
-          }} className="gap-2 px-8 py-5 text-base font-bold">
-            Kjør simulering
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-4 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+            Book demo
             <ArrowRight className="h-5 w-5" />
-          </Button>
-          <a href="mailto:post@virtualhouse.no?subject=AI-demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md border border-border px-6 py-3 text-sm font-medium text-foreground hover:bg-secondary/50 transition-colors">
-            Book AI-demo
           </a>
+          <Button size="lg" variant="outline" onClick={() => {
+            document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
+          }} className="gap-2 px-6 py-4 text-sm">
+            Se plattformen
+          </Button>
         </div>
       </FadeIn>
 
@@ -252,11 +137,6 @@ function PainBandSection() {
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–18 mnd</p>
           <p className="mt-2 text-sm text-muted-foreground">forsinkelse når feil oppdages under idriftsettelse — timer i simulator</p>
         </div>
-      </FadeIn>
-      <FadeIn className="mt-10 text-center">
-        <p className="text-base text-muted-foreground max-w-xl mx-auto">
-          VirtualHouse er plattformen som lar deg simulere, validere og idriftsette energisentralen digitalt — før noe fysisk bygges.
-        </p>
       </FadeIn>
     </section>
   );
@@ -445,23 +325,6 @@ function PlatformPreview() {
         </div>
       </FadeIn>
 
-      {/* Four phases */}
-      <FadeIn delay={0.3} className="mt-10 mx-auto w-full max-w-4xl">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            { phase: "Design", desc: "Simuler før spaden settes i jorda", color: "text-primary" },
-            { phase: "Bygg", desc: "Verifiser mot P&ID under installasjon", color: "text-primary" },
-            { phase: "Drift", desc: "AI optimaliserer daglig", color: "text-vh-green" },
-            { phase: "Rapporter", desc: "ESG og energimerking automatisk", color: "text-vh-green" },
-          ].map((p) => (
-            <div key={p.phase} className="rounded-lg border border-border bg-card/50 p-4 text-center">
-              <p className={`text-sm font-bold ${p.color}`}>{p.phase}</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">{p.desc}</p>
-            </div>
-          ))}
-        </div>
-      </FadeIn>
-
       {/* Impact + Traction */}
       <FadeIn delay={0.4} className="mt-10 mx-auto w-full max-w-4xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -571,45 +434,10 @@ function FAQSection() {
 
 /* ═══════ SECTION 6 — CTA (urgent, specific) ═══════ */
 function CTASection() {
-  const result = useSimResult();
-  const { input } = useSimInput();
   const segments = ["VVS-rådgivere", "Totalentreprenører", "Rådgivende ingeniører", "Driftsorganisasjoner", "Byggherrer"];
-  const hasResult = result.totalEnergyKwhM2 > 0;
-  const buildingLabel = input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : input.bra === 12000 ? "Sykehus" : "Bygg";
 
   return (
     <Section className="py-24">
-      {/* Personalized summary — only if simulation has been run */}
-      {hasResult && (() => {
-        const savingsLow = Math.round(result.annualCostNOK * 0.15);
-        const savingsHigh = Math.round(result.annualCostNOK * 0.25);
-        return (
-          <FadeIn className="mx-auto mb-10 w-full max-w-lg rounded-xl border border-primary/30 bg-primary/5 px-6 py-5 text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Smakprøve-simulering — {buildingLabel} {input.bra.toLocaleString("nb-NO")} m²</p>
-            <div className="grid grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-2xl font-extrabold font-mono tabular-nums text-foreground">{Math.round(result.totalEnergyKwhM2)}</p>
-                <p className="text-[10px] text-muted-foreground">kWh/m²·år</p>
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold font-mono tabular-nums text-foreground">{result.healthScore}</p>
-                <p className="text-[10px] text-muted-foreground">Health Score</p>
-              </div>
-              <div>
-                <p className="text-2xl font-extrabold font-mono tabular-nums text-destructive">{result.avvik.length}</p>
-                <p className="text-[10px] text-muted-foreground">avvik funnet</p>
-              </div>
-            </div>
-            <div className="rounded-lg bg-primary/10 px-4 py-3">
-              <p className="text-xs text-muted-foreground">Estimert besparelse ved full energisentral-analyse:</p>
-              <p className="text-lg font-bold text-primary mt-1">
-                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år
-              </p>
-            </div>
-          </FadeIn>
-        );
-      })()}
-
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
           Operativsystemet for energisentralen din
@@ -624,7 +452,7 @@ function CTASection() {
           </a>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Eller <a href="#simulator" className="font-medium text-primary underline underline-offset-4">prøv smakprøven</a> · Enterprise?{" "}
+          Enterprise eller portefølje?{" "}
           <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
             Kontakt oss
           </a>
