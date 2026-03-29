@@ -8,11 +8,11 @@ import {
   BarChart3,
   Network,
   SlidersHorizontal,
-  DollarSign,
   PieChart,
   Lock,
   Home,
   CheckCircle2,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -96,8 +96,15 @@ export function AppSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="border-t border-border px-5 py-4">
-        <p className="text-[11px] text-muted-foreground/60">VirtualHouse v1.0 — Investor Preview</p>
+      <div className="border-t border-border px-4 py-4 space-y-2">
+        <button
+          onClick={() => navigate('/')}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Tilbake til virtualhouse.no
+        </button>
+        <p className="text-[10px] text-muted-foreground/50 px-3">Demo · Parkveien Kontorbygg</p>
       </div>
     </aside>
   );

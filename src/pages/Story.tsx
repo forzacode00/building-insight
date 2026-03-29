@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
@@ -35,15 +36,16 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 /* ───────── STORY PAGE ───────── */
 /* ═══════ STICKY NAV ═══════ */
 function SiteNav() {
+  const navigate = useNavigate();
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
         <div className="flex items-center gap-4 sm:gap-6">
-          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Plattform</a>
-          <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-            Få tilgang <ArrowRight className="h-3.5 w-3.5" />
-          </a>
+          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Utforsk</a>
+          <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+            Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </nav>
@@ -416,10 +418,10 @@ function PlatformPreview() {
             <p className="mt-2 text-xs text-muted-foreground"><span className="font-bold text-foreground">20+</span> enterprise-kunder · <span className="font-bold text-foreground">0%</span> churn</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3">
-            <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-              Se dette på ditt bygg <ArrowRight className="h-4 w-4" />
-            </a>
-            <p className="text-xs text-muted-foreground">Fysikkmotor nå · AI-funksjoner i beta</p>
+            <button onClick={() => window.location.href = '/simulator'} className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+              Åpne plattformen <ArrowRight className="h-4 w-4" />
+            </button>
+            <p className="text-xs text-muted-foreground">Se Parkveien Kontorbygg live i plattformen</p>
           </div>
         </div>
       </FadeIn>
@@ -501,15 +503,15 @@ function CTASection() {
           Kuldegrep. Brønndegenerering. Strømtopper ingen ser. <span className="font-bold text-foreground">VirtualHouse skriver den historien før den skjer — så du kan endre utfallet.</span>
         </p>
         <div className="mt-10">
-          <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Få tilgang til plattformen
+          <button onClick={() => window.location.href = '/simulator'} className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+            Åpne plattformen
             <ArrowRight className="h-5 w-5" />
-          </a>
+          </button>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Enterprise eller portefølje?{" "}
+          Spørsmål?{" "}
           <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
-            Kontakt oss
+            post@virtualhouse.no
           </a>
         </p>
       </FadeIn>
