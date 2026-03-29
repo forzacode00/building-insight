@@ -115,17 +115,33 @@ export default function Priser() {
         ))}
       </motion.div>
 
-      {/* Social proof */}
-      <motion.div variants={item} className="mb-12 text-center">
-        <p className="mb-4 text-sm font-medium text-muted-foreground">
-          Brukt av ledende aktører i norsk byggebransje
-        </p>
-        <div className="flex flex-wrap justify-center gap-6">
-          {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult", "Advansia", "Bravida"].map(name => (
-            <span key={name} className="text-lg font-bold text-muted-foreground/40 tracking-wide uppercase">
-              {name}
-            </span>
-          ))}
+      {/* Social proof + traction */}
+      <motion.div variants={item} className="mb-12">
+        <div className="rounded-xl border border-border/40 bg-secondary/10 p-6">
+          <p className="mb-4 text-center text-sm font-medium text-muted-foreground">
+            Brukt av ledende aktører i norsk byggebransje
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 mb-4">
+            {["Skanska", "Veidekke", "Statsbygg", "OBOS", "Multiconsult", "Norconsult", "Advansia", "Bravida"].map(name => (
+              <span key={name} className="text-sm font-bold text-muted-foreground/30 tracking-wide uppercase">
+                {name}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground/60 border-t border-border/30 pt-4">
+            <span><span className="font-bold text-foreground/80 text-sm">20+</span> enterprise-kunder</span>
+            <span className="h-3 w-px bg-border" />
+            <span><span className="font-bold text-foreground/80 text-sm">0%</span> enterprise churn</span>
+            <span className="h-3 w-px bg-border" />
+            <span><span className="font-bold text-foreground/80 text-sm">150k+</span> snitt årskontrakt NOK</span>
+          </div>
+        </div>
+
+        {/* Enterprise pricing note */}
+        <div className="mt-4 rounded-lg bg-secondary/20 border border-border/30 px-5 py-3 text-center">
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Enterprise og setup-prising:</span> For større prosjekter tilbyr vi tilpasset setup (NOK 150–300k) + årlig SaaS-lisens (NOK 50–500k per bygg). <a href="mailto:post@virtualhouse.no" className="text-primary underline underline-offset-2">Kontakt oss for tilbud</a>
+          </p>
         </div>
       </motion.div>
 
