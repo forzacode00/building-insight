@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import {
@@ -8,6 +8,9 @@ import {
   Snowflake,
   ArrowRight,
   Zap,
+  BarChart3,
+  Network,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,12 +22,12 @@ function Section({ children, className = "", id }: { children: React.ReactNode; 
 
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const inView = useInView(ref, { once: true, margin: "-40px" });
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 16 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
       transition={{ duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
@@ -37,15 +40,38 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 /* ═══════ STICKY NAV ═══════ */
 function SiteNav() {
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 300);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
         <div className="flex items-center gap-4 sm:gap-6">
-          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Utforsk</a>
-          <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-            Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
-          </button>
+          <button onClick={() => document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' })} className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Utforsk</button>
+          <AnimatePresence>
+            {scrolled && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                onClick={() => navigate('/simulator')}
+                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+          {!scrolled && (
+            <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+              Åpne plattformen <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </nav>
@@ -53,16 +79,17 @@ function SiteNav() {
 }
 
 export default function Story() {
+  const navigate = useNavigate();
   return (
     <TooltipProvider>
       <div className="w-full bg-background text-foreground overflow-x-hidden">
         <SiteNav />
         <HeroSection />
         <PainBandSection />
-        <PlatformPreview />
+        <PlatformPreview navigate={navigate} />
         <TheFlipSection />
         <FAQSection />
-        <CTASection />
+        <CTASection navigate={navigate} />
       </div>
     </TooltipProvider>
   );
@@ -71,7 +98,7 @@ export default function Story() {
 /* ═══════ SECTION 1 — Hero (Story Hook) ═══════ */
 function HeroSection() {
   return (
-    <Section className="min-h-screen py-20 relative overflow-hidden">
+    <Section className="min-h-[90vh] py-16 relative overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,hsl(213_52%_63%/0.06),transparent)]" />
 
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
@@ -92,7 +119,7 @@ function HeroSection() {
       </FadeIn>
 
       {/* CTA */}
-      <FadeIn delay={0.3} className="z-10 mt-10 w-full max-w-2xl text-center">
+      <FadeIn delay={0.3} className="z-10 mt-8 w-full max-w-2xl text-center">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Button size="lg" onClick={() => {
             document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
@@ -106,8 +133,42 @@ function HeroSection() {
         </div>
       </FadeIn>
 
+      {/* Product Preview — Mini Dashboard Mockup */}
+      <FadeIn delay={0.5} className="z-10 mt-10 w-full max-w-4xl">
+        <div className="mx-auto rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm p-1 shadow-2xl shadow-primary/5">
+          <div className="rounded-lg bg-card/80 p-4 sm:p-5">
+            {/* Mini header */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-vh-green animate-pulse" />
+                <span className="text-xs font-medium text-muted-foreground">Parkveien Kontorbygg — Live</span>
+              </div>
+              <span className="text-[10px] text-muted-foreground/60 font-mono">VirtualHouse™</span>
+            </div>
+            {/* 4 KPI cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Energiforbruk", value: "116", unit: "kWh/m²·år", color: "text-primary", icon: Zap },
+                { label: "TEK17-status", value: "Oppfyller", unit: "krav: 115", color: "text-vh-green", icon: BarChart3 },
+                { label: "Aktive avvik", value: "3", unit: "krever tiltak", color: "text-vh-yellow", icon: SlidersHorizontal },
+                { label: "Systemkoblinger", value: "42", unit: "datapunkter", color: "text-primary", icon: Network },
+              ].map((kpi) => (
+                <div key={kpi.label} className="rounded-lg bg-secondary/30 border border-border/40 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <kpi.icon className="h-3 w-3 text-muted-foreground/60" />
+                    <span className="text-[10px] text-muted-foreground">{kpi.label}</span>
+                  </div>
+                  <p className={`text-lg font-bold font-mono tabular-nums ${kpi.color}`}>{kpi.value}</p>
+                  <p className="text-[10px] text-muted-foreground/60">{kpi.unit}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </FadeIn>
+
       <motion.div
-        className="absolute bottom-4 sm:bottom-10 z-10 flex flex-col items-center gap-2 text-muted-foreground"
+        className="absolute bottom-4 sm:bottom-8 z-10 flex flex-col items-center gap-2 text-muted-foreground"
         animate={{ y: [0, 8, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
@@ -150,7 +211,6 @@ function TheFlipSection() {
       bg: "bg-primary/10",
       core: "Konfigurer energisentralen — varmepumper, brønner, tanker, automatikk. Kjør simulering og se avvik umiddelbart.",
       ai: "Last opp FBD i PDF → AI konfigurerer simulatoren automatisk",
-      aiStatus: "Beta",
     },
     {
       phase: "Validering",
@@ -158,7 +218,6 @@ function TheFlipSection() {
       bg: "bg-primary/10",
       core: "Sammenlign scenarier, optimaliser KPIer, del resultater med prosjektteamet — alle ser samme data.",
       ai: "AI genererer avviksrapport med prioriterte anbefalinger",
-      aiStatus: "Beta",
     },
     {
       phase: "Idriftsettelse",
@@ -166,7 +225,6 @@ function TheFlipSection() {
       bg: "bg-vh-yellow/10",
       core: "Koble BAS til simulatoren. Test automasjon, alarmer og skjermbilder — før fysisk idriftsettelse.",
       ai: "Spør simulatoren med naturlig språk: \"hva skjer om VP-1 stopper i februar?\"",
-      aiStatus: "Kommer",
     },
     {
       phase: "Drift",
@@ -174,7 +232,6 @@ function TheFlipSection() {
       bg: "bg-vh-green/10",
       core: "Feilsøk hendelser, kjør hva-skjer-hvis-scenarier, tren driftspersonell — raskere enn sanntid.",
       ai: "AI-agent foreslår optimaliseringer og validerer mot fysikkmotoren før anbefaling",
-      aiStatus: "Kommer",
     },
   ];
 
@@ -199,9 +256,6 @@ function TheFlipSection() {
                   <Zap className="h-3.5 w-3.5 text-primary flex-shrink-0" />
                   <p className="text-xs text-foreground">{item.ai}</p>
                 </div>
-                <span className={`mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                  item.aiStatus === "Beta" ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground"
-                }`}>{item.aiStatus}</span>
               </div>
             </div>
           </FadeIn>
@@ -286,7 +340,7 @@ const scenarios = [
   },
 ];
 
-function PlatformPreview() {
+function PlatformPreview({ navigate }: { navigate: (path: string) => void }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const active = scenarios.find(s => s.id === activeId);
 
@@ -418,7 +472,7 @@ function PlatformPreview() {
             <p className="mt-2 text-xs text-muted-foreground"><span className="font-bold text-foreground">20+</span> enterprise-kunder · <span className="font-bold text-foreground">0%</span> churn</p>
           </div>
           <div className="flex flex-col items-center justify-center gap-3">
-            <button onClick={() => window.location.href = '/simulator'} className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+            <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
               Åpne plattformen <ArrowRight className="h-4 w-4" />
             </button>
             <p className="text-xs text-muted-foreground">Se Parkveien Kontorbygg live i plattformen</p>
@@ -431,7 +485,7 @@ function PlatformPreview() {
 
 /* ═══════ FAQ / Objection Handling ═══════ */
 function FAQSection() {
-  const [open, setOpen] = useState<number | null>(null);
+  const [open, setOpen] = useState<number | null>(0);
   const faqs = [
     {
       q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?",
@@ -488,7 +542,7 @@ function FAQSection() {
 }
 
 /* ═══════ SECTION 6 — CTA (urgent, specific) ═══════ */
-function CTASection() {
+function CTASection({ navigate }: { navigate: (path: string) => void }) {
   const segments = ["VVS-rådgivere", "Totalentreprenører", "Rådgivende ingeniører", "Driftsorganisasjoner", "Byggherrer"];
 
   return (
@@ -503,7 +557,7 @@ function CTASection() {
           Kuldegrep. Brønndegenerering. Strømtopper ingen ser. <span className="font-bold text-foreground">VirtualHouse skriver den historien før den skjer — så du kan endre utfallet.</span>
         </p>
         <div className="mt-10">
-          <button onClick={() => window.location.href = '/simulator'} className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+          <button onClick={() => navigate('/simulator')} className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
             Åpne plattformen
             <ArrowRight className="h-5 w-5" />
           </button>
