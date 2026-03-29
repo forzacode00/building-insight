@@ -1013,7 +1013,7 @@ function FAQSection() {
     },
     {
       q: "Hva koster det?",
-      a: "Fra 4 900 kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er 12 900 kr/mnd. For et bygg med 4 MNOK i energikostnad er typisk besparelse 10–15% (400–600 000 kr/år) — tilbakebetalingstid under ett år. Enterprise-avtaler for portefoli — kontakt oss.",
+      a: "Fra X kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er X kr/mnd. For et bygg med X MNOK i energikostnad er typisk besparelse 10–15% — tilbakebetalingstid under ett år. Enterprise-avtaler for portefølje — kontakt oss.",
     },
     {
       q: "Kan jeg bruke dette på et reelt prosjekt?",
@@ -1113,7 +1113,7 @@ function CTASection() {
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Fra <span className="font-bold text-foreground">4 900 kr/mnd</span> · Enterprise eller storvolum?{" "}
+          Fra <span className="font-bold text-foreground">X kr/mnd</span> · Enterprise eller storvolum?{" "}
           <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
             Kontakt oss
           </a>
