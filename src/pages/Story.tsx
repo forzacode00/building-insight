@@ -126,7 +126,7 @@ function PainBandSection() {
       {/* 3 smertestats i rad */}
       <FadeIn className="mx-auto mb-4 grid w-full max-w-3xl grid-cols-1 sm:grid-cols-3 gap-6 text-center">
         <div>
-          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive"><AnimatedNumber value={30} />%</p>
+          <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">30%</p>
           <p className="mt-2 text-sm text-muted-foreground">av tekniske anlegg har konflikter mellom systemer</p>
         </div>
         <div>
