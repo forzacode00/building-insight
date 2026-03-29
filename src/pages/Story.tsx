@@ -59,8 +59,8 @@ export default function Story() {
         <SiteNav />
         <HeroSection />
         <PainBandSection />
-        <TheFlipSection />
         <PlatformPreview />
+        <TheFlipSection />
         <FAQSection />
         <CTASection />
       </div>
@@ -77,35 +77,32 @@ function HeroSection() {
       {/* === THE HOOK: A story everyone in the industry recognizes === */}
       <FadeIn className="z-10 max-w-2xl text-center">
         <p className="mb-6 text-sm font-semibold uppercase tracking-widest text-primary">
-          Plattform for energisentral-simulering
+          VirtualHouse
         </p>
 
         <h1 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl leading-[1.1]">
-          Energisentralen din, simulert
+          Hva skjer i bygget ditt
           <br />
-          <span className="text-primary">fra funksjonsbeskrivelse til idriftsatt</span>
+          <span className="text-primary">når du ikke ser?</span>
         </h1>
 
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          Last opp prosjekteringen. Plattformen konfigurerer simulatoren. Du avdekker feilene — før de koster deg.
-        </p>
-        <p className="mx-auto mt-3 text-sm text-muted-foreground/70">
-          Fysikkmotor tilgjengelig nå · AI-konfigurering i beta
+          Kuldeperioder. Brønndegenerering. Sprøtt dyre strømtopper midt på natten. VirtualHouse simulerer energisentralen din og viser deg konsekvensene — før de inntreffer.
         </p>
       </FadeIn>
 
       {/* CTA */}
       <FadeIn delay={0.3} className="z-10 mt-10 w-full max-w-2xl text-center">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="inline-flex items-center gap-2 rounded-md bg-primary px-8 py-4 text-base font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Book demo
-            <ArrowRight className="h-5 w-5" />
-          </a>
-          <Button size="lg" variant="outline" onClick={() => {
+          <Button size="lg" onClick={() => {
             document.getElementById('simulator')?.scrollIntoView({ behavior: 'smooth' });
-          }} className="gap-2 px-6 py-4 text-sm">
-            Se plattformen
+          }} className="gap-2 px-8 py-5 text-base font-bold">
+            Utforsk scenarioene
+            <ArrowRight className="h-5 w-5" />
           </Button>
+          <a href="mailto:post@virtualhouse.no?subject=Demo%20VirtualHouse" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors">
+            Eller book en demo →
+          </a>
         </div>
       </FadeIn>
 
@@ -184,8 +181,8 @@ function TheFlipSection() {
   return (
     <Section className="py-24" id="faser">
       <FadeIn className="mb-12 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Én plattform, hele livsløpet</h2>
-        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fysikkmotoren simulerer korrekt. AI-en stiller spørsmålene du ikke visste du burde stille.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Hvordan det fungerer</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fysikkmotoren simulerer energisentralen din gjennom fire faser — fra prosjektering til daglig drift.</p>
       </FadeIn>
 
       <div className="mx-auto w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,9 +208,7 @@ function TheFlipSection() {
         ))}
       </div>
 
-      <FadeIn delay={0.5} className="mt-8 text-center">
-        <p className="text-xs text-muted-foreground mb-3">Vi har fysikkmotoren. Nå bygger vi intelligensen rundt den.</p>
-      </FadeIn>
+
     </Section>
   );
 }
@@ -472,10 +467,12 @@ function CTASection() {
     <Section className="py-24">
       <FadeIn className="text-center max-w-2xl">
         <h2 className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl">
-          Operativsystemet for energisentralen din
+          Hvert bygg har en historie
+          <br />
+          som ennå ikke er skrevet
         </h2>
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          Fysikkmotor + AI i én plattform — fra prosjektering til driftsoptimalisering. <span className="font-bold text-foreground">Du laster opp, plattformen simulerer, du beslutter.</span>
+          Kuldegrep. Brønndegenerering. Strømtopper ingen ser. <span className="font-bold text-foreground">VirtualHouse skriver den historien før den skjer — så du kan endre utfallet.</span>
         </p>
         <div className="mt-10">
           <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
