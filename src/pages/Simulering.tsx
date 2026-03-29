@@ -153,6 +153,9 @@ export default function Simulering() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Simulering — Parkveien Kontorbygg</h1>
           <p className="text-sm text-muted-foreground">Helårssimulering med 8 760 timer</p>
+          <p className="mt-1.5 rounded-md border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs text-muted-foreground">
+            <span className="font-semibold text-primary">Demo:</span> Dette er en forenklet smakebit. En fullverdig VirtualHouse-simulering inkluderer detaljert sonemodellering, dynamisk lastberegning, og avansert reguleringsanalyse.
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
