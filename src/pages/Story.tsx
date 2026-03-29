@@ -64,7 +64,7 @@ function SiteNav() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
         <div className="flex items-center gap-4 sm:gap-6">
-          <a href="#simulator" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Simulator</a>
+          <a href="#faser" className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors">Leveranser</a>
           {hasResult && (
             <span className={`hidden sm:inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ${
               result.healthScore >= 80 ? "bg-vh-green/15 text-vh-green" : result.healthScore >= 60 ? "bg-vh-yellow/15 text-vh-yellow" : "bg-destructive/15 text-destructive"
@@ -72,9 +72,9 @@ function SiteNav() {
               Score: {result.healthScore}
             </span>
           )}
-          <Button size="sm" variant="default" className="gap-1.5 text-xs" onClick={() => navigate("/simulator")}>
-            Prøv gratis <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
+          <a href="mailto:post@virtualhouse.no" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+            Book demo <ArrowRight className="h-3.5 w-3.5" />
+          </a>
         </div>
       </div>
     </nav>
@@ -186,10 +186,10 @@ function HeroBuilding() {
             transition={{ duration: 0.4 }}
           >
             <span className="rounded-lg bg-card/90 border border-destructive/30 px-2.5 py-1 text-xs font-mono font-bold text-destructive">
-              5 fremtidige avvik
+              3 dimensjoneringskonflikter
             </span>
             <span className="rounded-lg bg-card/90 border border-border px-2.5 py-1 text-xs font-mono font-bold text-primary">
-              17 520 timer simulert
+              Energisentral simulert
             </span>
           </motion.div>
         )}
@@ -268,6 +268,11 @@ function PainBandSection() {
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–18 mnd</p>
           <p className="mt-2 text-sm text-muted-foreground">forsinkelse når feil oppdages under idriftsettelse — timer i simulator</p>
         </div>
+      </FadeIn>
+      <FadeIn className="mt-10 text-center">
+        <p className="text-base text-muted-foreground max-w-xl mx-auto">
+          VirtualHouse løser dette ved å ta energisentralen gjennom 7 faser — slik at feilene oppdages i simulator, ikke på byggeplassen.
+        </p>
       </FadeIn>
     </section>
   );
@@ -803,7 +808,7 @@ function SimulatorSection() {
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-primary">Prediktiv simuleringsrapport</p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : "Sykehus"} · {input.bra.toLocaleString("nb-NO")} m² · {input.location.charAt(0).toUpperCase() + input.location.slice(1)} · 17 520 timer simulert
+                    {input.bra === 6000 ? "Kontor" : input.bra === 8000 ? "Skole" : "Sykehus"} · {input.bra.toLocaleString("nb-NO")} m² · {input.location.charAt(0).toUpperCase() + input.location.slice(1)} · Smakprøve: bygningsenergibehov
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -1019,7 +1024,7 @@ function FAQSection() {
     },
     {
       q: "Hva koster det?",
-      a: "Fra X kr/mnd for Verify-pakken (enkeltprosjekt). Optimize-pakken med parameterstudie og ESG-rapport er X kr/mnd. For et bygg med X MNOK i energikostnad er typisk besparelse 10–15% — tilbakebetalingstid under ett år. Enterprise-avtaler for portefølje — kontakt oss.",
+      a: "Prisen settes etter prosjektets omfang og varighet — en enkeltvalidering koster fundamentalt annerledes enn løpende driftsoptimalisering over et år. Det vi kan si: for et bygg med energikostnader på 1–5 MNOK/år er typisk besparelse 10–20%, noe som gir tilbakebetalingstid under tolv måneder. Book en demo, så lager vi et konkret tilbud basert på ditt prosjekt.",
     },
     {
       q: "Kan jeg bruke dette på et reelt prosjekt?",
@@ -1084,7 +1089,7 @@ function CTASection() {
         const savingsHigh = Math.round(result.annualCostNOK * 0.25);
         return (
           <FadeIn className="mx-auto mb-10 w-full max-w-lg rounded-xl border border-primary/30 bg-primary/5 px-6 py-5 text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Din simulering — {buildingLabel} {input.bra.toLocaleString("nb-NO")} m²</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Smakprøve-simulering — {buildingLabel} {input.bra.toLocaleString("nb-NO")} m²</p>
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div>
                 <p className="text-2xl font-extrabold font-mono tabular-nums text-foreground">{Math.round(result.totalEnergyKwhM2)}</p>
@@ -1100,9 +1105,9 @@ function CTASection() {
               </div>
             </div>
             <div className="rounded-lg bg-primary/10 px-4 py-3">
-              <p className="text-xs text-muted-foreground">Estimert besparelse med VirtualHouse-optimalisering:</p>
+              <p className="text-xs text-muted-foreground">Potensiell besparelse avdekket i full energisentral-analyse:</p>
               <p className="text-lg font-bold text-primary mt-1">
-                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år
+                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år — bekreft i demo
               </p>
             </div>
           </FadeIn>
