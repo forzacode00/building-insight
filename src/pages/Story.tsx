@@ -72,8 +72,8 @@ function SiteNav() {
               Score: {result.healthScore}
             </span>
           )}
-          <a href="mailto:post@virtualhouse.no" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-            Book demo <ArrowRight className="h-3.5 w-3.5" />
+          <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+            Få tilgang <ArrowRight className="h-3.5 w-3.5" />
           </a>
         </div>
       </div>
@@ -271,7 +271,7 @@ function PainBandSection() {
       </FadeIn>
       <FadeIn className="mt-10 text-center">
         <p className="text-base text-muted-foreground max-w-xl mx-auto">
-          VirtualHouse løser dette ved å ta energisentralen gjennom 7 faser — slik at feilene oppdages i simulator, ikke på byggeplassen.
+          VirtualHouse lar deg simulere energisentralen gjennom 7 moduler — slik at feilene oppdages i software, ikke på byggeplassen.
         </p>
       </FadeIn>
     </section>
@@ -281,20 +281,20 @@ function PainBandSection() {
 /* ═══════ SECTION 3 — 7-fase tidslinje ═══════ */
 function TheFlipSection() {
   const phases = [
-    { num: 1, name: "Rammebetingelser", desc: "Kartlegger klima, bruksmønstre og energibehov før systemdesign starter", value: "Databasert dimensjoneringsgrunnlag — ikke magefølelse" },
-    { num: 2, name: "Design", desc: "Systemvalg og dimensjonering — varmepumper, brønner, tanker, automatikk", value: "Unngå feildimensjonert brønn eller underdimensjonert akkumulering" },
-    { num: 3, name: "Designvalidering", desc: "Simulerer samspill mellom komponenter og automasjon før bestilling", value: "Verifisert ytelse og robusthet — før bygging" },
-    { num: 4, name: "Designoptimalisering", desc: "Sammenligner alternativer med KPIer for driftskostnad og slitasje", value: "Ett års simulert drift på timer — ikke år med trial-and-error" },
-    { num: 5, name: "Bordtest", desc: "Tverrfaglig gjennomgang med simulatoren som felles referanse", value: "Færre møter, dypere forankring på tvers av fag" },
-    { num: 6, name: "Virtuell idriftsettelse", desc: "BAS kobles til simulator — automasjon ferdig utviklet før fysisk idriftsettelse", value: "Alarmer, skjermbilder og automatikk testet før nøkkelen leveres" },
-    { num: 7, name: "Virtuell driftsoptimalisering", desc: "Feilsøk, optimaliser og tren driftspersonell — uten risiko", value: "Komplett testdekning for hele operasjonsområdet" },
+    { num: 1, name: "Rammebetingelser", desc: "Last opp klimadata og definer bruksmønstre. Plattformen genererer dimensjoneringsgrunnlag.", value: "Databasert grunnlag — ikke magefølelse" },
+    { num: 2, name: "Systemdesign", desc: "Konfigurer varmepumper, brønner, tanker og automatikk. Veiledet oppsett inkludert.", value: "Unngå feildimensjonert brønn eller underdimensjonert akkumulering" },
+    { num: 3, name: "Designvalidering", desc: "Kjør simulering. Se avvik, KPIer og temperaturutvikling umiddelbart.", value: "Verifisert ytelse og robusthet — før bygging" },
+    { num: 4, name: "Optimalisering", desc: "Sammenlign scenarier side ved side. Velg beste alternativ.", value: "Ett års simulert drift på timer — ikke år med trial-and-error" },
+    { num: 5, name: "Bordtest-modus", desc: "Del simuleringslenke med prosjektteamet. Alle ser samme data.", value: "Færre møter, dypere forankring på tvers av fag" },
+    { num: 6, name: "Virtuell idriftsettelse", desc: "Koble BAS til simulatoren. Test automasjon uten risiko.", value: "Alarmer, skjermbilder og automatikk testet før nøkkelen leveres" },
+    { num: 7, name: "Driftsoptimalisering", desc: "Kjør hva-skjer-hvis-scenarier, feilsøk hendelser, tren driftspersonell.", value: "Komplett testdekning for hele operasjonsområdet" },
   ];
 
   return (
     <Section className="py-24" id="faser">
       <FadeIn className="mb-12 text-center">
-        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Fra første strek til daglig drift</h2>
-        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">VirtualHouse følger prosjektet gjennom 7 faser — fra rammebetingelser til virtuell driftsoptimalisering.</p>
+        <h2 className="text-3xl font-bold tracking-tight md:text-4xl">Din energisentral, simulert gjennom 7 moduler</h2>
+        <p className="mt-3 text-muted-foreground max-w-lg mx-auto">Fra dimensjoneringsgrunnlag til virtuell driftsoptimalisering — du styrer, simulatoren leverer svar.</p>
       </FadeIn>
 
       <div className="mx-auto w-full max-w-2xl">
@@ -324,9 +324,9 @@ function TheFlipSection() {
 
       {/* Mid-funnel CTA */}
       <FadeIn delay={0.6} className="mt-4 text-center">
-        <p className="text-sm text-muted-foreground mb-3">De fleste kontakter oss mellom fase 2 og 4. Hvor er ditt prosjekt?</p>
-        <a href="mailto:post@virtualhouse.no" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors">
-          Book en samtale
+        <p className="text-sm text-muted-foreground mb-3">De fleste starter med modul 3 eller 4. Hvilken fase er ditt prosjekt i?</p>
+        <a href="mailto:post@virtualhouse.no?subject=Interesse%20for%20VirtualHouse&body=Hei%2C%0A%0AJeg%20er%20interessert%20i%20VirtualHouse%20for%20et%20prosjekt%20i%20fase%20___" className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2.5 text-sm font-medium text-primary hover:bg-primary/10 transition-colors">
+          Start en samtale
           <ArrowRight className="h-4 w-4" />
         </a>
       </FadeIn>
@@ -1024,11 +1024,11 @@ function FAQSection() {
     },
     {
       q: "Hva koster det?",
-      a: "Prisen settes etter prosjektets omfang og varighet — en enkeltvalidering koster fundamentalt annerledes enn løpende driftsoptimalisering over et år. Det vi kan si: for et bygg med energikostnader på 1–5 MNOK/år er typisk besparelse 10–20%, noe som gir tilbakebetalingstid under tolv måneder. Book en demo, så lager vi et konkret tilbud basert på ditt prosjekt.",
+      a: "VirtualHouse lisensieres per prosjekt eller som årsabonnement. En designvalidering (modul 3 + 4) starter fra fast pris — driftsoptimalisering faktureres månedlig. For et bygg med energikostnader på 1–5 MNOK/år er typisk besparelse 10–20%, noe som gir tilbakebetalingstid under tolv måneder. Enterprise-prising for portefølje.",
     },
     {
       q: "Kan jeg bruke dette på et reelt prosjekt?",
-      a: "Ja. VirtualHouse brukes allerede i reelle byggeprosjekter. Vi samarbeider med prosjekteringsgruppen om å legge energisentraldesignet inn i simulatoren, validerer dimensjonering og samspill mellom komponenter, og leverer rapport med simuleringsresultater og konklusjoner.",
+      a: "Ja. Du eller ditt prosjekteringsteam legger energisentraldesignet inn i VirtualHouse. Plattformen simulerer dimensjonering og samspill mellom komponenter — og genererer rapport med avvik, KPIer og konklusjoner. Trenger du hjelp med oppsettet? Onboarding er inkludert.",
     },
     {
       q: "Hva er virtuell idriftsettelse?",
@@ -1105,9 +1105,9 @@ function CTASection() {
               </div>
             </div>
             <div className="rounded-lg bg-primary/10 px-4 py-3">
-              <p className="text-xs text-muted-foreground">Potensiell besparelse avdekket i full energisentral-analyse:</p>
+              <p className="text-xs text-muted-foreground">Estimert besparelse ved full energisentral-analyse:</p>
               <p className="text-lg font-bold text-primary mt-1">
-                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år — bekreft i demo
+                NOK {savingsLow.toLocaleString("nb-NO")} – {savingsHigh.toLocaleString("nb-NO")} / år
               </p>
             </div>
           </FadeIn>
@@ -1122,13 +1122,13 @@ function CTASection() {
           VirtualHouse simulerer energisentralen din — varmepumper, brønner, akkumuleringstanker og automasjon — slik at du vet det fungerer <span className="font-bold text-foreground">før det bygges</span>.
         </p>
         <div className="mt-10">
-          <a href="mailto:post@virtualhouse.no" className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
-            Book en demo
+          <a href="https://virtualhouse.no" target="_blank" rel="noopener" className="inline-flex items-center gap-3 rounded-md bg-primary px-10 py-4 text-lg font-bold text-primary-foreground hover:bg-primary/90 transition-colors">
+            Start med én analyse
             <ArrowRight className="h-5 w-5" />
           </a>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Eller prøv den forenklede simulatoren over · Enterprise?{" "}
+          Eller <a href="#simulator" className="font-medium text-primary underline underline-offset-4">prøv smakprøven</a> · Enterprise?{" "}
           <a href="mailto:post@virtualhouse.no" className="font-medium text-primary underline underline-offset-4">
             Kontakt oss
           </a>
