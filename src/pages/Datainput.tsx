@@ -4,6 +4,7 @@ import { FileText, Upload, CheckCircle2, AlertTriangle, ChevronRight, Loader2, P
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ManualInput } from "@/components/datainput/ManualInput";
 import { UploadTab } from "@/components/datainput/UploadTab";
+import { DemoBanner } from "@/components/DemoBanner";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
 const item = { hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } };
@@ -14,6 +15,7 @@ export default function Datainput() {
       <motion.div variants={item} className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Datainput</h1>
         <p className="text-sm text-muted-foreground">Legg inn tekniske parametere eller last opp funksjonsbeskrivelse</p>
+        <DemoBanner />
       </motion.div>
 
       <motion.div variants={item}>
