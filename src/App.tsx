@@ -14,6 +14,7 @@ import Nettverkskart from "./pages/Nettverkskart";
 import SDLive from "./pages/SDLive";
 
 import Prosjekt from "./pages/Prosjekt";
+import Priser from "./pages/Priser";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,7 +36,7 @@ const App = () => (
               <Route path="sammenligning" element={<Sammenligning />} />
               <Route path="nettverkskart" element={<Nettverkskart />} />
               <Route path="sd-live" element={<SDLive />} />
-              
+              <Route path="priser" element={<Priser />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -13,6 +13,7 @@ import {
   Home,
   CheckCircle2,
   ArrowLeft,
+  DollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ const navItems = [
   { icon: Network, label: "Nettverkskart", path: "/simulator/nettverkskart", badge: "NY" },
   { icon: SlidersHorizontal, label: "SD Live & What-If", path: "/simulator/sd-live", badge: "NY" },
   
+  { icon: DollarSign, label: "Priser", path: "/simulator/priser", badge: null },
   { icon: PieChart, label: "Portefølje", path: "/simulator/portefolje", badge: "locked" },
 ];
 
