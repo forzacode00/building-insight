@@ -66,11 +66,11 @@ export default function Simulering() {
   const location = useLocation();
   const startBuild = (location.state as any)?.startBuild === true;
 
-  const [buildPhase, setBuildPhase] = useState<BuildPhase>("building");
-  const [buildStep, setBuildStep] = useState(0);
+  const [buildPhase, setBuildPhase] = useState<BuildPhase>("done");
+  const [buildStep, setBuildStep] = useState(40);
   const [isRunning, setIsRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showResults, setShowResults] = useState(false);
+  const [progress, setProgress] = useState(100);
+  const [showResults, setShowResults] = useState(true);
   const [activeTab, setActiveTab] = useState((location.state as any)?.activeTab || "energi");
   const [demoMode, setDemoMode] = useState(false);
   const [simHighlights, setSimHighlights] = useState({ sfp: false, overtemp: false, simultaneous: false });

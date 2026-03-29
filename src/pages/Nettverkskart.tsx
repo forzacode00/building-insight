@@ -124,6 +124,24 @@ export default function Nettverkskart() {
 
       {/* Graph + Sidebar */}
       <div className="relative flex flex-1 overflow-hidden">
+        {/* Legend */}
+        <div className="absolute top-3 left-3 z-20 rounded-lg border border-border bg-card/90 backdrop-blur-sm px-3 py-2.5 space-y-1.5">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Systemer</p>
+          {[
+            { color: "#EF4444", label: "Varme" },
+            { color: "#3B82F6", label: "Kjøling" },
+            { color: "#22C55E", label: "Ventilasjon" },
+            { color: "#A855F7", label: "Automasjon" },
+            { color: "#9CA3AF", label: "Klima" },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center gap-2">
+              <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+              <span className="text-[11px] text-muted-foreground">{item.label}</span>
+            </div>
+          ))}
+          <p className="text-[9px] text-muted-foreground/50 pt-1 border-t border-border/50">Klikk en node for detaljer</p>
+        </div>
+
         {/* Canvas */}
         <div className="flex-1">
           <KnowledgeGraphCanvas

@@ -167,6 +167,14 @@ function HeroSection() {
         </div>
       </FadeIn>
 
+      {/* Social proof */}
+      <FadeIn delay={0.7} className="z-10 mt-6">
+        <p className="text-center text-xs text-muted-foreground/70 italic max-w-md mx-auto">
+          «Det eneste verktøyet som kobler tegningene til faktisk SD-data og viser konsekvensene før bygget står.»
+          <span className="not-italic font-medium text-muted-foreground ml-1">— Prosjektleder, norsk totalentreprenør</span>
+        </p>
+      </FadeIn>
+
       <motion.div
         className="absolute bottom-4 sm:bottom-8 z-10 flex flex-col items-center gap-2 text-muted-foreground"
         animate={{ y: [0, 8, 0] }}
