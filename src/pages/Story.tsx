@@ -114,7 +114,7 @@ function HeroSection() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-lg text-lg text-muted-foreground">
-          Kuldeperioder. Brønndegenerering. Sprøtt dyre strømtopper midt på natten. VirtualHouse simulerer energisentralen din og viser deg konsekvensene — før de inntreffer.
+          VirtualHouse simulerer alle tekniske systemer i bygget ditt — varmepumper, ventilasjon og kjøling — og viser deg konsekvensene før de inntreffer.
         </p>
       </FadeIn>
 
@@ -135,6 +135,7 @@ function HeroSection() {
 
       {/* Product Preview — Mini Dashboard Mockup */}
       <FadeIn delay={0.5} className="z-10 mt-10 w-full max-w-4xl">
+        <p className="text-center text-xs text-muted-foreground/60 mb-2">Slik ser VirtualHouse ut på et reelt kontorbygg:</p>
         <div className="mx-auto rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm p-1 shadow-2xl shadow-primary/5">
           <div className="rounded-lg bg-card/80 p-4 sm:p-5">
             {/* Mini header */}
@@ -165,6 +166,7 @@ function HeroSection() {
             </div>
           </div>
         </div>
+        <p className="text-center text-[10px] text-muted-foreground/40 mt-2">116 kWh/m²·år = energimerke B · TEK17-krav: 115 · 3 avvik krever tiltak i dag</p>
       </FadeIn>
 
       {/* Social proof */}
@@ -195,7 +197,7 @@ function PainBandSection() {
       <FadeIn className="mx-auto mb-4 grid w-full max-w-3xl grid-cols-1 sm:grid-cols-3 gap-6 text-center">
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">30%</p>
-          <p className="mt-2 text-sm text-muted-foreground">av tekniske anlegg har konflikter mellom systemer</p>
+          <p className="mt-2 text-sm text-muted-foreground">av norske næringsbygg har konflikter mellom varme, kjøling og ventilasjon</p>
         </div>
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">70 000</p>
@@ -203,7 +205,7 @@ function PainBandSection() {
         </div>
         <div>
           <p className="text-5xl font-extrabold font-mono tabular-nums text-destructive">6–18 mnd</p>
-          <p className="mt-2 text-sm text-muted-foreground">forsinkelse når feil oppdages under idriftsettelse — timer i simulator</p>
+          <p className="mt-2 text-sm text-muted-foreground">kortere tid å oppdage feil — med simulator vs. manuell gjennomgang</p>
         </div>
       </FadeIn>
     </section>
@@ -231,8 +233,8 @@ function TheFlipSection() {
       phase: "Idriftsettelse",
       color: "text-vh-yellow",
       bg: "bg-vh-yellow/10",
-      core: "Koble BAS til simulatoren. Test automasjon, alarmer og skjermbilder — før fysisk idriftsettelse.",
-      ai: "Spør simulatoren med naturlig språk: \"hva skjer om VP-1 stopper i februar?\"",
+      core: "Koble byggets styringssystem til VirtualHouse. Test automasjon, alarmer og skjermbilder — før fysisk idriftsettelse.",
+      ai: "Spør simulatoren med naturlig språk: \"hva skjer om varmepumpen stopper i februar?\"",
     },
     {
       phase: "Drift",
