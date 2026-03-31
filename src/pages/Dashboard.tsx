@@ -252,44 +252,44 @@ export default function Dashboard() {
             </div>
 
             {/* Center: Simulation engine */}
-            <div className="col-span-6">
+            <div className="col-span-6 flex flex-col gap-3">
               {/* Sim engine header */}
-              <div className="rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/[0.06] to-transparent p-5 mb-4">
-                <div className="flex items-center justify-between mb-4">
+              <div className="rounded-xl border border-primary/20 bg-gradient-to-b from-primary/[0.06] to-transparent p-3">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                      <Cpu className="h-4 w-4 text-primary" />
+                    <div className="h-6 w-6 rounded-md bg-primary/15 flex items-center justify-center">
+                      <Cpu className="h-3.5 w-3.5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-[12px] font-bold text-foreground">VirtualHouse Simuleringsmotor</p>
-                      <p className="text-[9px] text-muted-foreground/50">Fysikkbasert · 8 760 timer/simulering · AI-optimalisert</p>
+                      <p className="text-[11px] font-bold text-foreground">VirtualHouse Simuleringsmotor</p>
+                      <p className="text-[8px] text-muted-foreground/50">Fysikkbasert · 8 760 timer · AI-optimalisert</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Radio className="h-3 w-3 text-primary animate-pulse" />
-                    <span className="text-[9px] font-mono text-primary">AKTIV</span>
+                  <div className="flex items-center gap-1">
+                    <Radio className="h-2.5 w-2.5 text-primary animate-pulse" />
+                    <span className="text-[8px] font-mono text-primary">AKTIV</span>
                   </div>
                 </div>
 
                 {/* Sim flow visualization */}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-1">
                   {[
                     { icon: FileText, label: "Data", sub: "Parametere" },
                     { icon: Layers, label: "Modell", sub: "Fysikk-DNA" },
                     { icon: Gauge, label: "Simuler", sub: "8 760 timer" },
-                    { icon: Eye, label: "Verifiser", sub: "Design vs. virkelighet" },
+                    { icon: Eye, label: "Verifiser", sub: "Design vs. virk." },
                     { icon: Target, label: "Prediker", sub: "Se fremtiden" },
                   ].map((step, i, arr) => (
-                    <div key={step.label} className="flex items-center gap-2 flex-1">
+                    <div key={step.label} className="flex items-center gap-1 flex-1">
                       <div className="flex flex-col items-center flex-1">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-1">
-                          <step.icon className="h-4 w-4 text-primary" />
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/15 flex items-center justify-center mb-0.5">
+                          <step.icon className="h-3.5 w-3.5 text-primary" />
                         </div>
-                        <p className="text-xs font-semibold text-foreground/90">{step.label}</p>
-                        <p className="text-[10px] text-muted-foreground/60">{step.sub}</p>
+                        <p className="text-[10px] font-semibold text-foreground/90">{step.label}</p>
+                        <p className="text-[8px] text-muted-foreground/60">{step.sub}</p>
                       </div>
                       {i < arr.length - 1 && (
-                        <ArrowRight className="h-3 w-3 text-primary/30 shrink-0" />
+                        <ArrowRight className="h-2.5 w-2.5 text-primary/30 shrink-0" />
                       )}
                     </div>
                   ))}
@@ -297,32 +297,32 @@ export default function Dashboard() {
               </div>
 
               {/* Simulation outputs */}
-              <div className="rounded-2xl border border-border/15 bg-card/20 p-5">
-                <p className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider mb-3">Simuleringsresultater — {active.title}</p>
-                <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="rounded-xl border border-border/15 bg-card/20 p-3 flex-1">
+                <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider mb-2">Simuleringsresultater — {active.title}</p>
+                <div className="grid grid-cols-2 gap-1.5 mb-3">
                   {active.simOutputs.map((output, i) => (
                     <motion.div
                       key={output}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: i * 0.06 }}
-                      className="rounded-xl bg-background/40 border border-border/10 px-3 py-2.5"
+                      className="rounded-lg bg-background/40 border border-border/10 px-2.5 py-1.5"
                     >
-                      <div className="flex items-start gap-2">
-                        <Zap className={`h-3 w-3 ${active.text} shrink-0 mt-0.5`} />
-                        <span className="text-[11px] text-foreground/70">{output}</span>
+                      <div className="flex items-start gap-1.5">
+                        <Zap className={`h-2.5 w-2.5 ${active.text} shrink-0 mt-0.5`} />
+                        <span className="text-[10px] text-foreground/70 leading-tight">{output}</span>
                       </div>
                     </motion.div>
                   ))}
                 </div>
 
                 {/* KPIs */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-2">
                   {active.kpis.map((kpi) => (
-                    <div key={kpi.label} className={`rounded-xl border px-3 py-3 ${statusColor(kpi.status)}`}>
-                      <p className="text-[10px] font-medium opacity-70 mb-1">{kpi.label}</p>
-                      <p className="text-xl font-bold font-mono tabular-nums">{kpi.value}</p>
-                      <p className="text-[10px] opacity-50">{kpi.unit}</p>
+                    <div key={kpi.label} className={`rounded-lg border px-2.5 py-2 ${statusColor(kpi.status)}`}>
+                      <p className="text-[9px] font-medium opacity-70 mb-0.5">{kpi.label}</p>
+                      <p className="text-base font-bold font-mono tabular-nums">{kpi.value}</p>
+                      <p className="text-[9px] opacity-50">{kpi.unit}</p>
                     </div>
                   ))}
                 </div>
