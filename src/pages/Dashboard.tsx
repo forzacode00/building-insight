@@ -138,40 +138,40 @@ export default function Dashboard() {
   // }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="h-[calc(100vh-theme(spacing.8))] flex flex-col bg-background text-foreground overflow-hidden">
       {/* Header */}
-      <header className="border-b border-border/20 px-8 py-4">
+      <header className="border-b border-border/20 px-6 py-2 shrink-0">
         <div className="flex items-center justify-between max-w-[1400px] mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
-              <Building2 className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10">
+              <Building2 className="h-4 w-4 text-primary" />
             </div>
             <div>
-              <span className="text-sm font-bold tracking-tight">VirtualHouse</span>
-              <span className="text-[10px] text-muted-foreground/40 ml-2 font-mono">PLATFORM VISION</span>
+              <span className="text-xs font-bold tracking-tight">VirtualHouse</span>
+              <span className="text-[9px] text-muted-foreground/40 ml-1.5 font-mono">PLATFORM VISION</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] text-muted-foreground/30 font-mono">PARKVEIEN KONTORBYGG · 6 000 m² · OSLO</span>
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[10px] font-medium text-emerald-400">LIVE</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] text-muted-foreground/30 font-mono">PARKVEIEN KONTORBYGG · 6 000 m² · OSLO</span>
+            <div className="flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[9px] font-medium text-emerald-400">LIVE</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-[1400px] mx-auto px-8 py-6">
+      <div className="max-w-[1400px] mx-auto px-6 py-3 flex-1 flex flex-col overflow-hidden">
         {/* Title */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight">
+        <div className="mb-3 shrink-0">
+          <h1 className="text-lg font-bold tracking-tight">
             Simuler byggets fremtid — <span className="bg-gradient-to-r from-primary via-blue-400 to-primary/60 bg-clip-text text-transparent">gjennom hele levetiden</span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground/60">Fysikkbasert simulering som følger bygget fra prosjektering til 25+ års drift. Data inn → simulering → verifiserte beslutninger ut.</p>
+          <p className="text-xs text-muted-foreground/60">Fysikkbasert simulering som følger bygget fra prosjektering til 25+ års drift.</p>
         </div>
 
         {/* Phase timeline bar */}
-        <div className="mb-8">
+        <div className="mb-3 shrink-0">
           <div className="flex gap-1">
             {phases.map((phase, i) => (
               <button
