@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   ArrowLeft,
   DollarSign,
+  LayoutDashboard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -27,6 +28,7 @@ const navItems = [
   { icon: Network, label: "Nettverkskart", path: "/simulator/nettverkskart", badge: "NY" },
   { icon: SlidersHorizontal, label: "Live-data & Hva-om", path: "/simulator/sd-live", badge: "NY" },
   
+  { icon: LayoutDashboard, label: "Dashboard", path: "/simulator/dashboard", badge: "NY" },
   { icon: DollarSign, label: "Priser", path: "/simulator/priser", badge: null },
   { icon: PieChart, label: "Portefølje", path: "/simulator/portefolje", badge: "locked" },
 ];

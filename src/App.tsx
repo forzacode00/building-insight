@@ -41,8 +41,8 @@ const App = () => (
                 <Route path="nettverkskart" element={<Nettverkskart />} />
                 <Route path="sd-live" element={<SDLive />} />
                 <Route path="priser" element={<Priser />} />
+                <Route path="dashboard" element={<Dashboard />} />
               </Route>
-              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <FeedbackButton />
