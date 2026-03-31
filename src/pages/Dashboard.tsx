@@ -183,10 +183,10 @@ export default function Dashboard() {
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-[10px] font-bold font-mono ${activePhase === phase.id ? phase.text : 'text-muted-foreground/30'}`}>{phase.num}</span>
-                  <span className={`text-[12px] font-semibold ${activePhase === phase.id ? 'text-foreground' : 'text-muted-foreground/50'}`}>{phase.title}</span>
+                  <span className={`text-xs font-bold font-mono ${activePhase === phase.id ? phase.text : 'text-muted-foreground/40'}`}>{phase.num}</span>
+                  <span className={`text-sm font-semibold ${activePhase === phase.id ? 'text-foreground' : 'text-muted-foreground/60'}`}>{phase.title}</span>
                 </div>
-                <p className={`text-[10px] ${activePhase === phase.id ? 'text-muted-foreground/60' : 'text-muted-foreground/20'}`}>{phase.period}</p>
+                <p className={`text-xs ${activePhase === phase.id ? 'text-muted-foreground/70' : 'text-muted-foreground/30'}`}>{phase.period}</p>
                 {activePhase === phase.id && (
                   <motion.div
                     layoutId="phase-indicator"
@@ -200,7 +200,7 @@ export default function Dashboard() {
           {/* Progress connector */}
           <div className="mt-2 flex items-center gap-1 px-2">
             <div className="h-px flex-1 bg-gradient-to-r from-blue-500/40 via-amber-500/40 to-emerald-500/40" />
-            <span className="text-[9px] text-muted-foreground/30 font-mono px-2">KONTINUERLIG DATAFANGST → SIMULERING → VERIFISERING</span>
+            <span className="text-[10px] text-muted-foreground/50 font-mono px-2">KONTINUERLIG DATAFANGST → SIMULERING → VERIFISERING</span>
             <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/40 via-violet-500/40 to-violet-500/20" />
           </div>
         </div>
@@ -285,8 +285,8 @@ export default function Dashboard() {
                         <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/15 flex items-center justify-center mb-1">
                           <step.icon className="h-4 w-4 text-primary" />
                         </div>
-                        <p className="text-[10px] font-semibold text-foreground/80">{step.label}</p>
-                        <p className="text-[8px] text-muted-foreground/40">{step.sub}</p>
+                        <p className="text-xs font-semibold text-foreground/90">{step.label}</p>
+                        <p className="text-[10px] text-muted-foreground/60">{step.sub}</p>
                       </div>
                       {i < arr.length - 1 && (
                         <ArrowRight className="h-3 w-3 text-primary/30 shrink-0" />
@@ -298,7 +298,7 @@ export default function Dashboard() {
 
               {/* Simulation outputs */}
               <div className="rounded-2xl border border-border/15 bg-card/20 p-5">
-                <p className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-wider mb-3">Simuleringsresultater — {active.title}</p>
+                <p className="text-xs font-semibold text-muted-foreground/60 uppercase tracking-wider mb-3">Simuleringsresultater — {active.title}</p>
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {active.simOutputs.map((output, i) => (
                     <motion.div
@@ -320,9 +320,9 @@ export default function Dashboard() {
                 <div className="grid grid-cols-3 gap-3">
                   {active.kpis.map((kpi) => (
                     <div key={kpi.label} className={`rounded-xl border px-3 py-3 ${statusColor(kpi.status)}`}>
-                      <p className="text-[9px] text-current/60 mb-1">{kpi.label}</p>
-                      <p className="text-lg font-bold font-mono tabular-nums">{kpi.value}</p>
-                      <p className="text-[9px] opacity-60">{kpi.unit}</p>
+                      <p className="text-[10px] font-medium opacity-70 mb-1">{kpi.label}</p>
+                      <p className="text-xl font-bold font-mono tabular-nums">{kpi.value}</p>
+                      <p className="text-[10px] opacity-50">{kpi.unit}</p>
                     </div>
                   ))}
                 </div>
@@ -356,16 +356,16 @@ export default function Dashboard() {
                       transition={{ delay: i * 0.1 }}
                       className="rounded-xl bg-background/30 border border-border/10 p-3"
                     >
-                      <p className="text-[10px] font-medium text-foreground/70 mb-1">«{item.q}»</p>
-                      <p className={`text-[10px] font-semibold ${item.color}`}>{item.a}</p>
+                      <p className="text-[11px] font-medium text-foreground/80 mb-1">«{item.q}»</p>
+                      <p className={`text-[11px] font-semibold ${item.color}`}>{item.a}</p>
                     </motion.div>
                   ))}
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/10">
                   <div className="rounded-xl bg-primary/5 border border-primary/15 p-3 text-center">
-                    <p className="text-[10px] text-primary/80 font-medium">Alle svar beregnet av fysikkmotoren.</p>
-                    <p className="text-[9px] text-muted-foreground/40 mt-0.5">Ikke gjetting — verifisert simulering.</p>
+                    <p className="text-xs text-primary font-medium">Alle svar beregnet av fysikkmotoren.</p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">Ikke gjetting — verifisert simulering.</p>
                   </div>
                 </div>
               </div>
@@ -387,15 +387,15 @@ export default function Dashboard() {
                 <div key={stat.label} className="flex items-center gap-2">
                   <stat.icon className="h-3.5 w-3.5 text-muted-foreground/30" />
                   <div>
-                    <p className="text-[10px] text-muted-foreground/40">{stat.label}</p>
-                    <p className="text-[13px] font-bold font-mono tabular-nums text-foreground/80">{stat.value}</p>
+                    <p className="text-[11px] text-muted-foreground/60">{stat.label}</p>
+                    <p className="text-sm font-bold font-mono tabular-nums text-foreground">{stat.value}</p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="text-right">
-              <p className="text-[9px] text-muted-foreground/30 font-mono">SIMULATION + OPERATIONS + OPTIMIZATION</p>
-              <p className="text-[10px] font-semibold text-primary/60">= an operative platform.</p>
+              <p className="text-[10px] text-muted-foreground/50 font-mono">SIMULATION + OPERATIONS + OPTIMIZATION</p>
+              <p className="text-xs font-semibold text-primary">= an operative platform.</p>
             </div>
           </div>
         </div>
