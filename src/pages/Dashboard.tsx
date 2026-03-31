@@ -177,17 +177,17 @@ export default function Dashboard() {
               <button
                 key={phase.id}
                 onClick={() => setActivePhase(phase.id)}
-                className={`relative flex-1 rounded-xl border px-4 py-3 transition-all duration-300 ${
+                className={`relative flex-1 rounded-lg border px-3 py-2 transition-all duration-300 ${
                   activePhase === phase.id
                     ? `${phase.border} ${phase.bg} shadow-lg`
                     : "border-border/10 hover:border-border/30"
                 }`}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`text-xs font-bold font-mono ${activePhase === phase.id ? phase.text : 'text-muted-foreground/40'}`}>{phase.num}</span>
-                  <span className={`text-sm font-semibold ${activePhase === phase.id ? 'text-foreground' : 'text-muted-foreground/60'}`}>{phase.title}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[10px] font-bold font-mono ${activePhase === phase.id ? phase.text : 'text-muted-foreground/40'}`}>{phase.num}</span>
+                  <span className={`text-xs font-semibold ${activePhase === phase.id ? 'text-foreground' : 'text-muted-foreground/60'}`}>{phase.title}</span>
                 </div>
-                <p className={`text-xs ${activePhase === phase.id ? 'text-muted-foreground/70' : 'text-muted-foreground/30'}`}>{phase.period}</p>
+                <p className={`text-[10px] ${activePhase === phase.id ? 'text-muted-foreground/70' : 'text-muted-foreground/30'}`}>{phase.period}</p>
                 {activePhase === phase.id && (
                   <motion.div
                     layoutId="phase-indicator"
@@ -198,10 +198,9 @@ export default function Dashboard() {
               </button>
             ))}
           </div>
-          {/* Progress connector */}
-          <div className="mt-2 flex items-center gap-1 px-2">
+          <div className="mt-1 flex items-center gap-1 px-2">
             <div className="h-px flex-1 bg-gradient-to-r from-blue-500/40 via-amber-500/40 to-emerald-500/40" />
-            <span className="text-[10px] text-muted-foreground/50 font-mono px-2">KONTINUERLIG DATAFANGST → SIMULERING → VERIFISERING</span>
+            <span className="text-[9px] text-muted-foreground/50 font-mono px-2">DATAFANGST → SIMULERING → VERIFISERING</span>
             <div className="h-px flex-1 bg-gradient-to-r from-emerald-500/40 via-violet-500/40 to-violet-500/20" />
           </div>
         </div>
