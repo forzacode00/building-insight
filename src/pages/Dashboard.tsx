@@ -331,41 +331,41 @@ export default function Dashboard() {
 
             {/* Right: Vision / prediction */}
             <div className="col-span-3">
-              <div className="rounded-2xl border border-border/15 bg-card/10 p-5 h-full flex flex-col">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
-                    <Eye className="h-4 w-4 text-emerald-400" />
+              <div className="rounded-xl border border-border/15 bg-card/10 p-3 h-full flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="h-6 w-6 rounded-md bg-emerald-500/10 flex items-center justify-center">
+                    <Eye className="h-3.5 w-3.5 text-emerald-400" />
                   </div>
                   <div>
-                    <p className="text-[11px] font-bold text-foreground">Se fremtiden</p>
-                    <p className="text-[9px] text-muted-foreground/50">Prediktiv innsikt fra simulering</p>
+                    <p className="text-[10px] font-bold text-foreground">Se fremtiden</p>
+                    <p className="text-[8px] text-muted-foreground/50">Prediktiv innsikt</p>
                   </div>
                 </div>
 
-                <div className="space-y-3 flex-1">
+                <div className="space-y-1.5 flex-1">
                   {[
-                    { q: "Hva skjer om turtemp økes til 55°C?", a: "COP faller 3.6→2.9. +69k kr/år.", color: "text-amber-400" },
-                    { q: "Vil K2 kompressor holde sommeren?", a: "Nei. Forventet feil innen 4 mnd.", color: "text-red-400" },
-                    { q: "Effekt av utvendig solavskjerming?", a: "Kjølebehov -35%. ROI: 14 mnd.", color: "text-emerald-400" },
-                    { q: "TEK17-samsvar med nåværende design?", a: "Oppfyller med margin på 1 kWh/m²·år.", color: "text-blue-400" },
+                    { q: "Turtemp økes til 55°C?", a: "COP faller 3.6→2.9. +69k kr/år.", color: "text-amber-400" },
+                    { q: "K2 kompressor holder sommeren?", a: "Nei. Feil innen 4 mnd.", color: "text-red-400" },
+                    { q: "Utvendig solavskjerming?", a: "Kjølebehov -35%. ROI: 14 mnd.", color: "text-emerald-400" },
+                    { q: "TEK17-samsvar?", a: "Oppfyller, margin 1 kWh/m²·år.", color: "text-blue-400" },
                   ].map((item, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, x: 8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.1 }}
-                      className="rounded-xl bg-background/30 border border-border/10 p-3"
+                      className="rounded-lg bg-background/30 border border-border/10 p-2"
                     >
-                      <p className="text-[11px] font-medium text-foreground/80 mb-1">«{item.q}»</p>
-                      <p className={`text-[11px] font-semibold ${item.color}`}>{item.a}</p>
+                      <p className="text-[10px] font-medium text-foreground/80 mb-0.5">«{item.q}»</p>
+                      <p className={`text-[10px] font-semibold ${item.color}`}>{item.a}</p>
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/10">
-                  <div className="rounded-xl bg-primary/5 border border-primary/15 p-3 text-center">
-                    <p className="text-xs text-primary font-medium">Alle svar beregnet av fysikkmotoren.</p>
-                    <p className="text-[10px] text-muted-foreground/50 mt-0.5">Ikke gjetting — verifisert simulering.</p>
+                <div className="mt-2 pt-2 border-t border-border/10">
+                  <div className="rounded-lg bg-primary/5 border border-primary/15 p-2 text-center">
+                    <p className="text-[10px] text-primary font-medium">Beregnet av fysikkmotoren.</p>
+                    <p className="text-[8px] text-muted-foreground/50">Verifisert simulering.</p>
                   </div>
                 </div>
               </div>
@@ -373,29 +373,29 @@ export default function Dashboard() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Bottom bar: Akkumulert data-verdi */}
-        <div className="mt-6 rounded-2xl border border-border/10 bg-card/5 px-6 py-4">
+        {/* Bottom bar */}
+        <div className="mt-3 rounded-xl border border-border/10 bg-card/5 px-4 py-2 shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-6">
               {[
-                { label: "Datapunkter samlet", value: "847", icon: Network },
-                { label: "Simuleringer kjørt", value: "24", icon: Cpu },
-                { label: "Avvik identifisert", value: "12", icon: AlertTriangle },
-                { label: "Besparelse identifisert", value: "2.1M NOK", icon: TrendingUp },
-                { label: "CO₂ redusert", value: "-14%", icon: Snowflake },
+                { label: "Datapunkter", value: "847", icon: Network },
+                { label: "Simuleringer", value: "24", icon: Cpu },
+                { label: "Avvik", value: "12", icon: AlertTriangle },
+                { label: "Besparelse", value: "2.1M NOK", icon: TrendingUp },
+                { label: "CO₂", value: "-14%", icon: Snowflake },
               ].map((stat) => (
-                <div key={stat.label} className="flex items-center gap-2">
-                  <stat.icon className="h-3.5 w-3.5 text-muted-foreground/30" />
+                <div key={stat.label} className="flex items-center gap-1.5">
+                  <stat.icon className="h-3 w-3 text-muted-foreground/30" />
                   <div>
-                    <p className="text-[11px] text-muted-foreground/60">{stat.label}</p>
-                    <p className="text-sm font-bold font-mono tabular-nums text-foreground">{stat.value}</p>
+                    <p className="text-[9px] text-muted-foreground/60">{stat.label}</p>
+                    <p className="text-xs font-bold font-mono tabular-nums text-foreground">{stat.value}</p>
                   </div>
                 </div>
               ))}
             </div>
             <div className="text-right">
-              <p className="text-[10px] text-muted-foreground/50 font-mono">SIMULATION + OPERATIONS + OPTIMIZATION</p>
-              <p className="text-xs font-semibold text-primary">= an operative platform.</p>
+              <p className="text-[9px] text-muted-foreground/50 font-mono">SIMULATION + OPERATIONS + OPTIMIZATION</p>
+              <p className="text-[10px] font-semibold text-primary">= an operative platform.</p>
             </div>
           </div>
         </div>
