@@ -209,11 +209,11 @@ export default function Dashboard() {
         <AnimatePresence mode="wait">
           <motion.div
             key={activePhase}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
-            className="grid grid-cols-12 gap-4"
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="grid grid-cols-12 gap-3 flex-1 min-h-0"
           >
             {/* Left: Data inn */}
             <div className="col-span-3">
