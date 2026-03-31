@@ -125,16 +125,17 @@ export default function Dashboard() {
   const active = phases.find(p => p.id === activePhase)!;
   const navigate = useNavigate();
 
-  // Auto-rotate phases for demo feel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActivePhase(prev => {
-        const idx = phases.findIndex(p => p.id === prev);
-        return phases[(idx + 1) % phases.length].id;
-      });
-    }, 8000);
-    return () => clearInterval(timer);
-  }, []);
+  // Auto-rotate disabled for stable screenshots
+  // Enable for live demo: uncomment below
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     setActivePhase(prev => {
+  //       const idx = phases.findIndex(p => p.id === prev);
+  //       return phases[(idx + 1) % phases.length].id;
+  //     });
+  //   }, 8000);
+  //   return () => clearInterval(timer);
+  // }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
