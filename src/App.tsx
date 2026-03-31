@@ -18,6 +18,7 @@ import SDLive from "./pages/SDLive";
 
 import Prosjekt from "./pages/Prosjekt";
 import Priser from "./pages/Priser";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
                 <Route path="sd-live" element={<SDLive />} />
                 <Route path="priser" element={<Priser />} />
               </Route>
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             <FeedbackButton />
