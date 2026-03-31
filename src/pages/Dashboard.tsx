@@ -217,36 +217,36 @@ export default function Dashboard() {
           >
             {/* Left: Data inn */}
             <div className="col-span-3">
-              <div className={`rounded-2xl border ${active.border} ${active.bg} p-5 h-full`}>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className={`h-8 w-8 rounded-lg bg-background/50 flex items-center justify-center`}>
-                    <active.icon className={`h-4 w-4 ${active.text}`} />
+              <div className={`rounded-xl border ${active.border} ${active.bg} p-3 h-full`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className={`h-6 w-6 rounded-md bg-background/50 flex items-center justify-center`}>
+                    <active.icon className={`h-3.5 w-3.5 ${active.text}`} />
                   </div>
                   <div>
-                    <p className="text-[11px] font-bold text-foreground">{active.title}</p>
-                    <p className="text-[9px] text-muted-foreground/50">{active.subtitle}</p>
+                    <p className="text-[10px] font-bold text-foreground">{active.title}</p>
+                    <p className="text-[8px] text-muted-foreground/50">{active.subtitle}</p>
                   </div>
                 </div>
 
-                <p className="text-[10px] font-semibold text-muted-foreground/40 uppercase tracking-wider mb-3">Data inn</p>
-                <div className="space-y-2">
+                <p className="text-[9px] font-semibold text-muted-foreground/40 uppercase tracking-wider mb-2">Data inn</p>
+                <div className="space-y-1">
                   {active.dataIn.map((d, i) => (
                     <motion.div
                       key={d}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.08 }}
-                      className="flex items-start gap-2"
+                      className="flex items-start gap-1.5"
                     >
-                      <ChevronRight className={`h-3 w-3 ${active.text} shrink-0 mt-0.5`} />
-                      <span className="text-[11px] text-foreground/70">{d}</span>
+                      <ChevronRight className={`h-2.5 w-2.5 ${active.text} shrink-0 mt-0.5`} />
+                      <span className="text-[10px] text-foreground/70 leading-tight">{d}</span>
                     </motion.div>
                   ))}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/10">
-                  <p className="text-[9px] text-muted-foreground/30">VirtualHouse-rolle:</p>
-                  <p className={`text-[11px] font-semibold ${active.text} mt-0.5`}>{active.vhRole}</p>
+                <div className="mt-3 pt-2 border-t border-border/10">
+                  <p className="text-[8px] text-muted-foreground/30">VirtualHouse-rolle:</p>
+                  <p className={`text-[10px] font-semibold ${active.text} mt-0.5`}>{active.vhRole}</p>
                 </div>
               </div>
             </div>
