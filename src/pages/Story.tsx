@@ -439,7 +439,7 @@ function FAQSection() {
     { q: "Hva skiller VirtualHouse fra SIMIEN eller IDA-ICE?", a: "SIMIEN beregner energibehov. VirtualHouse simulerer selve energisentralen — varmepumper, tanker, brønner og automasjon i samspill. SIMIEN svarer 'hvor mye energi'. Vi svarer 'vil systemet faktisk klare å levere det'." },
     { q: "Hva gjør AI-en?", a: "Fysikkmotoren gir riktige svar. AI gjør plattformen enklere: last opp funksjonsbeskrivelse som PDF → AI konfigurerer simulatoren. Etter simulering genererer AI avviksrapport med prioriterte anbefalinger." },
     { q: "Trenger jeg IT-kompetanse?", a: "Nei. Din SD-leverandør kobler styringssystemet til VirtualHouse — typisk 2–4 timer. Du bruker plattformen i nettleseren." },
-    { q: "Hva koster det vs. en konsulent?", a: "En VVS-konsulentanalyse koster 150 000–400 000 kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter, oppdatert daglig. Gratisplan med 200 tokens inkludert." },
+    { q: "Hva koster det vs. en konsulent?", a: "En VVS-konsulentanalyse koster xxx kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter, oppdatert daglig. Gratisplan med tokens inkludert." },
   ];
 
   return (
