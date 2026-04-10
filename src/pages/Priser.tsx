@@ -20,8 +20,8 @@ const tokenCosts = [
 const plans = [
   {
     name: "Starter",
-    price: "0",
-    priceLabel: "Gratis",
+    price: "xxx",
+    priceLabel: "",
     tokens: 200,
     tokenLabel: "200 tokens inkludert",
     desc: "Prøv VirtualHouse på ett bygg. Perfekt for å evaluere plattformen.",
@@ -32,7 +32,7 @@ const plans = [
   },
   {
     name: "Professional",
-    price: "4 900",
+    price: "xxx",
     priceLabel: "kr/mnd",
     tokens: 500,
     tokenLabel: "500 tokens/mnd inkludert",
@@ -69,7 +69,7 @@ export default function Priser() {
     const total = bra * energiKost;
     const savLow = total * 0.15;
     const savHigh = total * 0.25;
-    const abb = 4900 * 12;
+    const abb = 0;
     return {
       total,
       savLow: Math.round(savLow),
@@ -92,7 +92,7 @@ export default function Priser() {
       {/* Context */}
       <motion.div variants={item} className="mb-8 text-center">
         <p className="text-sm text-muted-foreground/60 max-w-lg mx-auto">
-          En typisk VVS-konsulentanalyse koster 150 000–400 000 kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter.
+          En typisk VVS-konsulentanalyse koster xxx kr og tar 4–8 uker. VirtualHouse gjør tilsvarende på minutter.
         </p>
       </motion.div>
 
@@ -116,9 +116,7 @@ export default function Priser() {
             <div className="mb-4">
               <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
               <div className="mt-2 flex items-baseline gap-1">
-                {plan.price === "0" ? (
-                  <span className="text-3xl font-extrabold text-vh-green font-mono">{plan.priceLabel}</span>
-                ) : plan.price === "Tilpasset" ? (
+                {plan.price === "Tilpasset" ? (
                   <span className="text-2xl font-bold text-foreground">{plan.price}</span>
                 ) : (
                   <>
@@ -215,7 +213,7 @@ export default function Priser() {
 
                 <div className="border-t border-border/30 bg-secondary/10 px-4 py-3 flex items-center justify-between">
                   <p className="text-xs text-muted-foreground">
-                    Trenger du flere tokens? Ekstra pakker fra <span className="font-bold text-foreground">kr 490</span> for 100 tokens.
+                    Trenger du flere tokens? Ekstra pakker fra <span className="font-bold text-foreground">kr xxx</span> for 100 tokens.
                   </p>
                   <p className="text-[10px] text-muted-foreground/50">Ubrukte tokens ruller over til neste måned</p>
                 </div>
@@ -263,7 +261,7 @@ export default function Priser() {
             <span className="h-3 w-px bg-border/30" />
             <span><span className="font-bold text-foreground/70">0%</span> churn</span>
             <span className="h-3 w-px bg-border/30" />
-            <span><span className="font-bold text-foreground/70">150k+</span> snitt årskontrakt</span>
+            <span><span className="font-bold text-foreground/70">xxx</span> snitt årskontrakt</span>
           </div>
         </div>
       </motion.div>
